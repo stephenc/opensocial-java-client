@@ -16,12 +16,14 @@
 
 package org.opensocial.client;
 
+import net.oauth.OAuthException;
+
 import org.json.JSONException;
-import org.opensocial.data.*;
+import org.opensocial.data.OpenSocialAppData;
+import org.opensocial.data.OpenSocialPerson;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,70 +41,42 @@ import java.util.Map;
  */
 public class OpenSocialClient {
 
-  private static enum Operation {
-    GET_PEOPLE,
-    GET_DATA
+  public static class Properties {
+    public static final String CONSUMER_SECRET = "consumer_secret";
+    public static final String REST_BASE_URI = "rest_base_uri";
+    public static final String RPC_ENDPOINT = "rpc_endpoint";
+    public static final String CONSUMER_KEY = "consumer_key";
+    public static final String VIEWER_ID = "viewer_id";
+    public static final String DOMAIN = "domain";
+    public static final String TOKEN = "token";
   }
 
-  private static enum Selector {
-    FRIENDS,
-    SELF
-  }
-
-  public static enum Property {
-    RESTFUL_BASE_URI,
-    SHARED_SECRET,
-    RPC_ENDPOINT,
-    DOMAIN,
-    TOKEN
-  }
-
-  private final Map<Property, String> properties;
+  private final Map<String, String> properties;
 
   public OpenSocialClient() {
     this(null);
   }
 
   public OpenSocialClient(String domain) {
-    properties = new HashMap<Property, String>();
-    this.setProperty(Property.DOMAIN, domain);
+    properties = new HashMap<String, String>();
+    this.setProperty(Properties.DOMAIN, domain);
   }
 
-  private String getRestEndpoint(Operation op) {
-    String uri = this.properties.get(Property.RESTFUL_BASE_URI);
-
-    if (uri != null) {
-      if (op.equals(Operation.GET_PEOPLE)) {
-        return uri + "people/";
-      } else if (op.equals(Operation.GET_DATA)) {
-        return uri + "appdata/";
-      }
-    }
-
-    return null;
+  public String getProperty(String name) {
+    return properties.get(name);
+  }
+  
+  public void setProperty(String name, String value) {
+    properties.put(name, value);
   }
 
-  private String getRpcMethod(Operation op) {
-    if (op.equals(Operation.GET_PEOPLE)) {
-      return "people.get";
-    }
-    if (op.equals(Operation.GET_DATA)) {
-      return "appdata.get";
-    }
-
-    return null;
+  public OpenSocialPerson fetchPerson()
+      throws OpenSocialRequestException, URISyntaxException, IOException,
+          JSONException, OAuthException, InstantiationException, IllegalAccessException {
+    
+    return this.fetchPerson("@me");
   }
-
-  private String getSelectorString(Selector selector) {
-    if (selector.equals(Selector.FRIENDS)) {
-      return "@friends";
-    } else if (selector.equals(Selector.SELF)) {
-      return "@self";
-    }
-
-    return null;
-  }
-
+  
   /**
    * Requests a user's profile details and returns an OpenSocialPerson
    * instance with all of the relevant information.
@@ -114,13 +88,16 @@ public class OpenSocialClient {
    *         JSON output that gets returned
    * @throws URISyntaxException
    * @throws JSONException 
+   * @throws OAuthException 
+   * @throws IllegalAccessException 
+   * @throws InstantiationException 
    */
   public OpenSocialPerson fetchPerson(String userId)
       throws OpenSocialRequestException, URISyntaxException, IOException,
-          JSONException {
+          JSONException, OAuthException, InstantiationException, IllegalAccessException {
 
-    String responseString = fetchPeople(userId, Selector.SELF);
-    return OpenSocialJsonParser.parsePersonEntry(responseString);
+    OpenSocialResponse response = fetchPeople(userId, "@self");
+    return response.getItemAsPerson("people");
   }
 
   /**
@@ -133,37 +110,25 @@ public class OpenSocialClient {
    *         JSON output that gets returned
    * @throws URISyntaxException
    * @throws JSONException 
+   * @throws OAuthException 
+   * @throws IllegalAccessException 
+   * @throws InstantiationException 
    */
   public Collection<OpenSocialPerson> fetchFriends(String userId)
       throws OpenSocialRequestException, URISyntaxException, IOException,
-          JSONException {
+          JSONException, OAuthException, InstantiationException, IllegalAccessException {
 
-    String responseString = fetchPeople(userId, Selector.FRIENDS);
-    return OpenSocialJsonParser.parsePersonCollection(responseString);
+    OpenSocialResponse response = fetchPeople(userId, "@friends");
+    return response.getItemAsPersonCollection("people");
   }
 
-  private String fetchPeople(String userId, Selector selector)
+  public OpenSocialAppData fetchPersonAppData(String userId)
       throws OpenSocialRequestException, URISyntaxException, IOException,
-          JSONException {
+          JSONException, OAuthException, InstantiationException, IllegalAccessException {
 
-    String groupId = this.getSelectorString(selector);
-
-    if (userId.equals("")) {
-      throw new OpenSocialRequestException("Invalid user ID");
-    }
-    if (groupId == null) {
-      throw new OpenSocialRequestException("Invalid group ID");
-    }
-
-    Map<String, String> parameters = new HashMap<String, String>();
-    parameters.put("groupId", groupId);
-    parameters.put("userId", userId);
-
-    OpenSocialRequest request =
-        this.getRequest(Operation.GET_PEOPLE, parameters);
-    return request.getResponseString();
+    return fetchPersonAppData(userId, "@app");
   }
-
+  
   /**
    * Requests all persistent data of a given user for a given application and
    * returns an OpenSocialObject containing a field for each key saved in the
@@ -175,96 +140,70 @@ public class OpenSocialClient {
    *         JSON output that gets returned
    * @throws URISyntaxException
    * @throws JSONException 
+   * @throws OAuthException 
+   * @throws IllegalAccessException 
+   * @throws InstantiationException 
    */
-  public OpenSocialObject fetchPersonAppData(String userId, String appId)
+  public OpenSocialAppData fetchPersonAppData(String userId, String appId)
       throws OpenSocialRequestException, URISyntaxException, IOException,
-          JSONException {
+          JSONException, OAuthException, InstantiationException, IllegalAccessException {
 
-    String responseString = fetchAppData(userId, Selector.SELF, appId);
-    return OpenSocialJsonParser.parseDataEntry(responseString);
+    OpenSocialResponse response = fetchAppData(userId, "@self", appId);
+    return response.getItemAsAppData("appdata");
   }
 
-  private String fetchAppData(String userId, Selector selector, String appId)
+  private OpenSocialResponse fetchPeople(String userId, String groupId)
       throws OpenSocialRequestException, URISyntaxException, IOException,
-          JSONException {
+          JSONException, OAuthException {
 
-    String groupId = this.getSelectorString(selector);
-
-    if (userId.equals("")) {
-      throw new OpenSocialRequestException("Invalid user ID");
+    if (userId.equals("") || groupId.equals("")) {
+      throw new OpenSocialRequestException("Invalid request parameters");
     }
-    if (appId.equals("")) {
-      throw new OpenSocialRequestException("Invalid application ID");
-    }
-    if (groupId == null) {
-      throw new OpenSocialRequestException("Invalid group ID");
-    }
-
-    Map<String, String> parameters = new HashMap<String, String>();
-    parameters.put("groupId", groupId);
-    parameters.put("userId", userId);
-    parameters.put("appId", appId);
-
-    OpenSocialRequest request = this.getRequest(Operation.GET_DATA,
-                                                parameters);
-    return request.getResponseString();
-  }
-
-  private OpenSocialRequest getRequest(
-      Operation op, Map<String, String> components)
-      throws OpenSocialRequestException, URISyntaxException, IOException,
-          JSONException {
-
-    StringBuilder path = new StringBuilder();
     
-    String rpcEndpoint = this.properties.get(Property.RPC_ENDPOINT);
-    String restfulBaseUri = this.properties.get(Property.RESTFUL_BASE_URI);
+    OpenSocialRequest r =
+      OpenSocialClient.newFetchPeopleRequest(userId, groupId);
 
-    if (rpcEndpoint != null) {
-      String methodName = this.getRpcMethod(op);
-      path.append(rpcEndpoint);
-
-      path.append("?format=json");
-      if (this.properties.get(Property.TOKEN) != null) {
-        path.append("&st=");
-        path.append(this.properties.get(Property.TOKEN));
-      }
-
-      return new OpenSocialRequest(
-          new URL(path.toString()), methodName, components);
-    } else if (restfulBaseUri != null) {
-      path.append(this.getRestEndpoint(op));
-      if (components.get("userId") != null) {
-        path.append(components.get("userId"));
-        path.append("/");
-      }
-      if (components.get("groupId") != null) {
-        path.append(components.get("groupId"));
-        path.append("/");
-      }
-      if (components.get("appId") != null) {
-        path.append(components.get("appId"));
-        path.append("/");
-      }
-
-      path.append("?format=json");
-      if (this.properties.get(Property.TOKEN) != null) {
-        path.append("&st=");
-        path.append(this.properties.get(Property.TOKEN));
-      }
-
-      return new OpenSocialRequest(new URL(path.toString()));
-    } else {
-      throw new OpenSocialRequestException(
-          "Base URI or RPC endpoint required");
-    }    
+    OpenSocialBatch batch = new OpenSocialBatch();
+    batch.addRequest(r, "people");
+    
+    return batch.submit(this);
   }
 
-  public void setProperty(Property name, String value) {
-    properties.put(name, value);
+  private OpenSocialResponse fetchAppData(String userId, String groupId, String appId)
+      throws OpenSocialRequestException, URISyntaxException, IOException,
+          JSONException, OAuthException {
+    
+    if (userId.equals("") || groupId.equals("") || appId.equals("")) {
+      throw new OpenSocialRequestException("Invalid request parameters");
+    }
+    
+    OpenSocialRequest r =
+      OpenSocialClient.newFetchPersonAppDataRequest(userId, groupId, appId);
+    
+    OpenSocialBatch batch = new OpenSocialBatch();
+    batch.addRequest(r, "appdata");
+    
+    return batch.submit(this);
+  }
+  
+  public static OpenSocialRequest newFetchPeopleRequest(String userId, String groupId) {
+    OpenSocialRequest r = new OpenSocialRequest("people/", "people.get");
+    r.addParameter("groupId", groupId);
+    r.addParameter("userId", userId);
+    
+    return r;
+  }
+  
+  public static OpenSocialRequest newFetchPersonAppDataRequest(String userId, String groupId, String appId) {
+    OpenSocialRequest r = new OpenSocialRequest("appdata/", "appdata.get");
+    r.addParameter("groupId", groupId);
+    r.addParameter("userId", userId);
+    r.addParameter("appId", appId);
+    
+    return r;
   }
 
-  public String getDomain() {
-    return this.properties.get(Property.DOMAIN);
+  public static OpenSocialRequest newFetchPersonAppDataRequest(String userId, String groupId) {
+    return newFetchPersonAppDataRequest(userId, groupId, "@app");
   }
 }

@@ -16,17 +16,11 @@
 
 package org.opensocial.client;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Map;
 
 /**
  * An internal object responsible for constructing HTTP requests, opening
@@ -36,98 +30,70 @@ import java.util.Map;
  * @author Jason Cooper
  */
 public class OpenSocialRequest {
-  private JSONObject postData;
-  private HttpURLConnection connection;
+  
+  private String id;
+  private String rpcMethodName;
+  private String restPathComponent;
+  private Map<String, String> parameters;
+  
+  public OpenSocialRequest(String pathComponent, String methodName) {
+    this.parameters = new HashMap<String, String>();
 
-  public OpenSocialRequest(URL url) throws IOException {
-    this.postData = null;
-    this.connection = getRequestConnection(url);
+    this.restPathComponent = pathComponent;
+    this.rpcMethodName = methodName;
+    this.id = null;
   }
-
-  public OpenSocialRequest(
-      URL url, String methodName, Map<String,String> parameters)
-      throws IOException, JSONException {
-
-    this.postData = new JSONObject();
-    this.postData.put("method", methodName);
-    this.postData.put("params", new JSONObject(parameters));
-
-    this.connection = getRequestConnection(url);
+  
+  public String getId() {
+    return this.id;
   }
-
-  /**
-   * Opens connection to RESTful or JSON-RPC endpoint and writes POST data to
-   * connection's output stream if necessary.
-   * 
-   * @throws IOException if the connection to the specified URL can't be
-   *         opened or if there are errors accessing or writing to the
-   *         that connection's output stream
-   * @throws OpenSocialRequestException 
-   */
-  private void execute() throws IOException, OpenSocialRequestException {
-    if (this.postData == null) {
-      this.connection.connect();
-    } else {
-      this.connection.setRequestMethod("POST");
-      this.connection.setDoOutput(true);
-
-      OutputStreamWriter wr = new OutputStreamWriter(
-          this.connection.getOutputStream());
-      wr.write(this.postData.toString());
-      wr.flush();
-      wr.close();
-    }
-
-    if (this.connection.getResponseCode() >= 300) {
-      StringBuilder sb = new StringBuilder();
-      
-      sb.append("Request returned ");
-      sb.append(this.connection.getResponseCode());
-      sb.append(" status: ");
-      sb.append(this.connection.getResponseMessage());
-      
-      throw new OpenSocialRequestException(sb.toString());
-    }
+  
+  public void setId(String id) {
+    this.id = id;
   }
-
-  public InputStream getResponseStream() throws IOException, OpenSocialRequestException {
-    this.execute();
-
-    return this.connection.getInputStream();
+  
+  public void addParameter(String name, String value) {
+    this.parameters.put(name, value);
   }
-
-  /**
-   * Transforms response output contained in the connection's InputStream
-   * object into a string representation which can later be parsed into a
-   * more meaningful object (e.g. OpenSocialObject, OpenSocialPerson). 
-   * @return
-   * @throws IOException if the open connection's input stream is not
-   *         retrievable or accessible
-   * @throws OpenSocialRequestException 
-   */
-  public String getResponseString() throws IOException, OpenSocialRequestException {
-    InputStream responseStream = getResponseStream();
-
-    StringBuilder sb = new StringBuilder();
-    BufferedReader reader = new BufferedReader(
-        new InputStreamReader(responseStream));
-
-    String line = null;
-    while ((line = reader.readLine()) != null) {
-      sb.append(line);
+  
+  public String getParameter(String parameter) {
+    return this.parameters.get(parameter);
+  }
+  
+  public String getRestPathComponent() {
+    String component = this.restPathComponent;
+    
+    if (component.charAt(component.length()-1) != '/') {
+      return (component + "/");
     }
     
-    responseStream.close();
-
-    return sb.toString();
+    return component;
   }
-
-  private HttpURLConnection getRequestConnection(URL url) throws IOException {
-    if (!url.getProtocol().startsWith("http")) {
-      throw new UnsupportedOperationException(
-          "Unsupported scheme:" + url.getProtocol());
+  
+  public String getJsonEncoding() throws JSONException {
+    JSONObject o = new JSONObject();
+    
+    if (this.id != null) {
+      o.put("id", this.id);      
     }
-
-    return (HttpURLConnection) url.openConnection();
+    
+    o.put("method", this.rpcMethodName);
+    o.put("params", new JSONObject(this.parameters));
+    
+    return o.toString();
+  }
+  
+  public void addRestContextPath(OpenSocialUrl url) {
+    url.addPathComponent(this.getRestPathComponent());
+    
+    if (this.getParameter("userId") != null) {
+      url.addPathComponent(this.getParameter("userId"));        
+    }
+    if (this.getParameter("groupId") != null) {
+      url.addPathComponent(this.getParameter("groupId"));        
+    }
+    if (this.getParameter("appId") != null) {
+      url.addPathComponent(this.getParameter("appId"));        
+    }
   }
 }

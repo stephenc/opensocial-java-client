@@ -1,0 +1,53 @@
+<project name="OpenSocial Client Library" default="compile" basedir=".">
+
+  <property name="app.name" value="opensocial"/>
+  <property name="app.version" value="20081201"/>
+  
+  <!-- Paths for source code -->
+  <property name="src-main.home" value="${basedir}/src/main"/>
+  <property name="src-test.home" value="${basedir}/src/test"/>
+
+  <!-- Path for compiled files -->
+  <property name="build.home" value="${basedir}/bin"/>
+
+  <!-- Paths for distribution files -->
+  <property name="dist.home" value="${basedir}/dist"/>
+  <property name="docs.home" value="${dist.home}/docs"/>
+  
+  <path id="compile.classpath">
+    <fileset dir="${basedir}/lib">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+  
+  <target name="compile" description="Compile Java sources">
+    <mkdir dir="${build.home}"/>
+    <javac destdir="${build.home}" debug="on" verbose="yes">
+      <classpath refid="compile.classpath"/>
+      <src path="${src-main.home}"/>
+      <src path="${src-test.home}"/>
+    </javac>
+  </target>
+  
+  <target name="clean">
+    <delete dir="${build.home}"/>
+    <delete dir="${basedir}/src/bin"/>
+    <delete dir="${dist.home}"/>
+  </target>
+  
+  <target name="dist" depends="compile,javadoc" description="Create binary distribution">
+    <mkdir dir="${dist.home}"/>
+    <jar jarfile="${dist.home}/${app.name}-${app.version}.jar">
+      <fileset dir="${build.home}"/>
+      <fileset dir="${src-main.home}" />
+    </jar>
+  </target>
+
+  <target name="javadoc" depends="compile" description="Create Javadoc API documentation">
+    <mkdir dir="${docs.home}"/>
+    <javadoc sourcepath="${src-main.home}" destdir="${docs.home}" packagenames="*">
+      <classpath refid="compile.classpath"/>
+    </javadoc>
+  </target>
+
+</project>
