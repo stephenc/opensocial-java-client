@@ -51,6 +51,7 @@ public class OpenSocialPerson extends OpenSocialObject {
    * @throws OpenSocialException 
    */
   public String getDisplayName() throws OpenSocialException {
+    OpenSocialField nicknameField = this.getField("nickname");
     OpenSocialField nameField = this.getField("name");
     StringBuilder name = new StringBuilder();
 
@@ -61,16 +62,21 @@ public class OpenSocialPerson extends OpenSocialObject {
         if (nameObject.hasField("givenName")) {
           name.append(nameObject.getField("givenName").getStringValue());
         }
-        if (nameObject.hasField("givenName") &&
-            nameObject.hasField("familyName")) {
-            
+
+        if (nameObject.hasField("givenName")
+               && nameObject.hasField("familyName")) {
           name.append(" ");
         }
+
         if (nameObject.hasField("familyName")) {
           name.append(nameObject.getField("familyName").getStringValue());
         }
       } else {
         name.append(nameField.getStringValue());
+      }
+    } else if (nicknameField != null) {
+      if (!nicknameField.isComplex()) {
+        name.append(nicknameField.getStringValue());
       }
     }
 

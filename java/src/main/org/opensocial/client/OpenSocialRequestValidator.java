@@ -16,6 +16,13 @@
 
 package org.opensocial.client;
 
+import net.oauth.OAuth;
+import net.oauth.OAuthAccessor;
+import net.oauth.OAuthConsumer;
+import net.oauth.OAuthException;
+import net.oauth.OAuthMessage;
+import net.oauth.SimpleOAuthValidator;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -24,23 +31,46 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import net.oauth.OAuth;
-import net.oauth.OAuthAccessor;
-import net.oauth.OAuthConsumer;
-import net.oauth.OAuthException;
-import net.oauth.OAuthMessage;
-import net.oauth.SimpleOAuthValidator;
-
+/**
+ * A utility object containing static methods for verifying the signature of
+ * requests signed by OpenSocial containers. All incoming requests should be
+ * verified in case a malicious third party attempts to submit fraudulent
+ * requests for user information.
+ * 
+ * @author Jason Cooper
+ */
 public class OpenSocialRequestValidator {
 
-  public static boolean verifyHmacSignature(HttpServletRequest request, String consumerSecret) throws IOException, URISyntaxException {
+  /**
+   * Validates the passed request by reconstructing the original URL and
+   * parameters and generating a signature following the OAuth HMAC-SHA1
+   * specification and using the passed secret key.
+   * 
+   * @param  request Servlet request containing required information for
+   *         reconstructing the signature such as the request's URL
+   *         components and parameters
+   * @param  consumerSecret Secret key shared between application owner and
+   *         container. Used by containers when issuing signed makeRequests
+   *         and by client applications to verify the source of these
+   *         requests and the authenticity of its parameters.
+   * @return {@code true} if the signature generated in this function matches
+   *         the signature in the passed request, {@code false} otherwise
+   * @throws IOException
+   * @throws URISyntaxException
+   */
+  public static boolean verifyHmacSignature(
+      HttpServletRequest request, String consumerSecret)
+      throws IOException, URISyntaxException {
+
     String method = request.getMethod();
     String requestUrl = getRequestUrl(request);
     List<OAuth.Parameter> requestParameters = getRequestParameters(request);
-    
-    OAuthMessage message = new OAuthMessage(method, requestUrl, requestParameters);
-    
-    OAuthConsumer consumer = new OAuthConsumer(null, null, consumerSecret, null);
+
+    OAuthMessage message =
+        new OAuthMessage(method, requestUrl, requestParameters);
+
+    OAuthConsumer consumer =
+        new OAuthConsumer(null, null, consumerSecret, null);
     OAuthAccessor accessor = new OAuthAccessor(consumer);
 
     try {
@@ -48,10 +78,17 @@ public class OpenSocialRequestValidator {
     } catch (OAuthException e) {
       return false;
     }
-    
+
     return true;
   }
 
+  /**
+   * Constructs and returns the full URL associated with the passed request
+   * object.
+   * 
+   * @param  request Servlet request object with methods for retrieving the
+   *         various components of the request URL
+   */
   public static String getRequestUrl(HttpServletRequest request) {
     StringBuilder requestUrl = new StringBuilder();
     String scheme = request.getScheme();
@@ -60,22 +97,34 @@ public class OpenSocialRequestValidator {
     requestUrl.append(scheme);
     requestUrl.append("://");
     requestUrl.append(request.getServerName());
-    if ((scheme.equals("http") && port != 80) || (scheme.equals("https") && port != 443)) {
+
+    if ((scheme.equals("http") && port != 80)
+            || (scheme.equals("https") && port != 443)) {
       requestUrl.append(":");
       requestUrl.append(port);
     }
+
     requestUrl.append(request.getContextPath());
     requestUrl.append(request.getServletPath());
 
     return requestUrl.toString();
   }
 
-  public static List<OAuth.Parameter> getRequestParameters(HttpServletRequest request) {
+  /**
+   * Constructs and returns a List of OAuth.Parameter objects, one per
+   * parameter in the passed request.
+   * 
+   * @param  request Servlet request object with methods for retrieving the
+   *         full set of parameters passed with the request
+   */
+  public static List<OAuth.Parameter> getRequestParameters(
+      HttpServletRequest request) {
+
     List<OAuth.Parameter> parameters = new ArrayList<OAuth.Parameter>();
 
     for (Object e : request.getParameterMap().entrySet()) {
       Map.Entry<String, String[]> entry = (Map.Entry<String, String[]>) e;
-      
+
       for (String value : entry.getValue()) {
         parameters.add(new OAuth.Parameter(entry.getKey(), value));
       }

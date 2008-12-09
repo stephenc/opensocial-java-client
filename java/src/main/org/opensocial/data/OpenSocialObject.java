@@ -16,13 +16,12 @@
 
 package org.opensocial.data;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * An object representing a generic, extensible OpenSocial entity. Virtually
- * every object, both concrete (person) or abstract (name), having arbitrary
+ * every object, both concrete (person) or abstract (data), having arbitrary
  * properties is modeled as an OpenSocialObject instance. Instance methods
  * provide an interface for associating strings with objects representing
  * properties or attributes of that object. These fields can in turn
@@ -38,27 +37,46 @@ public class OpenSocialObject {
     this.fields = new HashMap<String,OpenSocialField>();
   }
 
+  /**
+   * Instantiates a new OpenSocialObject object with the passed Map of
+   * OpenSocialField objects keyed on strings, replicating these
+   * correspondences in its own fields Map.
+   * 
+   * @param  properties Map of OpenSocialField objects keyed on field name
+   *         which should be "imported" upon instantiation
+   */
   public OpenSocialObject(Map<String,OpenSocialField> properties) {
     this();
 
-    Object[] keys = properties.keySet().toArray();
-    Collection<OpenSocialField> values = properties.values();
-
-    int i = 0;
-    for (OpenSocialField o : values) {
-      this.setField((String) keys[i], o);
-      i++;
+    for (Map.Entry<String,OpenSocialField> e : properties.entrySet()) {
+      this.setField(e.getKey(), e.getValue());
     }
   }
 
+  /**
+   * Returns {@code true} if a field with the passed key is associated with
+   * the current instance, {@code false} otherwise.
+   */
   public boolean hasField(String key) {
     return this.fields.containsKey(key);
   }
 
+  /**
+   * Returns field mapped to the passed key.
+   * 
+   * @param  key Key associated with desired field
+   */
   public OpenSocialField getField(String key) {
     return this.fields.get(key);
   }
 
+  /**
+   * Creates a new entry in fields Map, associating the passed OpenSocialField
+   * object with the passed key.
+   * 
+   * @param  key Field name
+   * @param  value OpenSocialField object to associate with key
+   */
   public void setField(String key, OpenSocialField value) {
     this.fields.put(key, value);
   }

@@ -16,24 +16,41 @@
 
 package org.opensocial.data;
 
+/**
+ * An object representing OpenSocial App Data; extends OpenSocialObject class
+ * by adding a convenience method for getting the data value associated with a
+ * particular key for a particular user.
+ *
+ * @author Jason Cooper
+ */
 public class OpenSocialAppData extends OpenSocialObject {
 
   public OpenSocialAppData() {
     super();
   }
-  
-  public String getStringForUser(String id, String key) throws OpenSocialException {
+
+  /**
+   * Retrieves the String-based App Data value associated with the passed key
+   * for the user with the passed ID.
+   * 
+   * @param  id User ID corresponding to the user whose App Data is desired
+   * @param  key App Data key corresponding to the desired value
+   * @throws OpenSocialException
+   */
+  public String getStringForUser(String id, String key)
+      throws OpenSocialException {
+
     OpenSocialField f1;
     OpenSocialField f2;
     OpenSocialObject o;
     String value;
-    
+
     f1 = this.getField(id);
     o = f1.getValue();
-    
+
     f2 = o.getField(key);
     value = f2.getStringValue();
-    
+
     return value;
   }
 }

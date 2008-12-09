@@ -1,7 +1,7 @@
 <project name="OpenSocial Client Library" default="compile" basedir=".">
 
   <property name="app.name" value="opensocial"/>
-  <property name="app.version" value="20081201"/>
+  <property name="app.version" value="20081209"/>
   
   <!-- Paths for source code -->
   <property name="src-main.home" value="${basedir}/src/main"/>

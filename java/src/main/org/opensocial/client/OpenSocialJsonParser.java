@@ -39,116 +39,175 @@ import java.util.Vector;
  */
 public class OpenSocialJsonParser {
 
-  public static OpenSocialResponse getResponse(String in) throws JSONException {
+  /**
+   * Parses the passed JSON string into an OpenSocialResponse object -- if the
+   * passed string represents a JSON array, each object in the array is added
+   * to the returned object keyed on its "id" property.
+   * 
+   * @param  in The complete JSON string returned from an OpenSocial container
+   *            in response to a request for data
+   * @throws JSONException
+   */
+  public static OpenSocialResponse getResponse(String in)
+      throws JSONException {
+
     OpenSocialResponse r = null;
-    
+
     if (in.charAt(0) == '[') {
       JSONArray responseArray = new JSONArray(in);
       r = new OpenSocialResponse();
-      
+
       for (int i=0; i<responseArray.length(); i++) {
         JSONObject o = responseArray.getJSONObject(i);
-        
+
         if (o.has("id")) {
           String id = o.getString("id");
           r.addItem(id, escape(o.toString()));
         }
       }
     }
-    
+
     return r;
   }
-  
-  public static OpenSocialResponse getResponse(String in, String id) throws JSONException {
+
+  /**
+   * Parses the passed JSON string into an OpenSocialResponse object -- if the
+   * passed string represents a JSON object, it is added to the returned
+   * object keyed on the passed ID.
+   * 
+   * @param  in The complete JSON string returned from an OpenSocial container
+   *            in response to a request for data
+   * @param  id The string ID to tag the JSON object string with as it is added
+   *            to the OpenSocialResponse object
+   * @throws JSONException
+   */
+  public static OpenSocialResponse getResponse(String in, String id)
+      throws JSONException {
+
     OpenSocialResponse r = null;
-    
+
     if (in.charAt(0) == '{') {
       r = new OpenSocialResponse();
       r.addItem(id, escape(in));
     } else if (in.charAt(0) == '[') {
       return getResponse(in);
     }
-    
+
     return r;
   }
   
   /**
-   * Transforms a raw JSON string containing profile information for a single
-   * user into an OpenSocialPerson instance with all profile details
-   * abstracted as OpenSocialField objects associated with the
-   * instance.
+   * Transforms a raw JSON object string containing profile information for a
+   * single user into an OpenSocialPerson instance with all profile details
+   * abstracted as OpenSocialField objects associated with the instance.
    * 
-   * @throws JSONException 
+   * @param  in The JSON object string to parse as an OpenSocialPerson object
    * @throws OpenSocialRequestException 
+   * @throws JSONException 
    * @throws IllegalAccessException 
    * @throws InstantiationException 
    */
-  public static OpenSocialPerson parseAsPerson(String in) throws OpenSocialRequestException, JSONException, InstantiationException, IllegalAccessException {
+  public static OpenSocialPerson parseAsPerson(String in)
+      throws OpenSocialRequestException, JSONException, IllegalAccessException,
+             InstantiationException {
+
     if (in == null) {
-      throw new OpenSocialRequestException("Response item with given key not found");
+      throw new OpenSocialRequestException(
+          "Response item with given key not found");
     }
-    
+
     JSONObject root = new JSONObject(in);
     JSONObject entry = getEntryObject(root);
-    OpenSocialPerson p = (OpenSocialPerson) parseAsObject(entry, OpenSocialPerson.class);
-    
+
+    OpenSocialPerson p =
+        (OpenSocialPerson) parseAsObject(entry, OpenSocialPerson.class);
+
     return p;
   }
-  
+
   /**
-   * Transforms a raw JSON string containing profile information for a group
-   * of users into a group of OpenSocialPerson instances with all profile
+   * Transforms a raw JSON object string containing profile information for a
+   * group of users into a list of OpenSocialPerson instances with all profile
    * details abstracted as OpenSocialField objects associated with the
-   * instance. These instances are then added to a Java Collection
-   * which gets returned.
+   * instances. These instances are then added to a Java List which
+   * gets returned.
    * 
-   * @throws JSONException 
+   * @param  in The JSON object string to parse as a List of OpenSocialPerson
+   *         objects
    * @throws OpenSocialRequestException 
+   * @throws JSONException 
    * @throws IllegalAccessException 
    * @throws InstantiationException 
    */
-  public static List<OpenSocialPerson> parseAsPersonCollection(String in) throws OpenSocialRequestException, JSONException, InstantiationException, IllegalAccessException {
+  public static List<OpenSocialPerson> parseAsPersonCollection(String in)
+      throws OpenSocialRequestException, JSONException, IllegalAccessException,
+             InstantiationException{
+
     if (in == null) {
-      throw new OpenSocialRequestException("Response item with given key not found");
+      throw new OpenSocialRequestException(
+          "Response item with given key not found");
     }
-    
+
     JSONObject root = new JSONObject(in);
     JSONArray entries = getEntryArray(root);
     List<OpenSocialPerson> l = new Vector<OpenSocialPerson>(entries.length());
-    
+
     for (int i=0; i<entries.length(); i++) {
       JSONObject entry = entries.getJSONObject(i);
-      OpenSocialPerson p = (OpenSocialPerson) parseAsObject(entry, OpenSocialPerson.class);
+
+      OpenSocialPerson p =
+          (OpenSocialPerson) parseAsObject(entry, OpenSocialPerson.class);
 
       l.add(p);
     }
-    
+
     return l;
   }
-  
+
   /**
-   * Transforms a raw JSON string containing app data key-value pairs for a 
-   * single user into an OpenSocialObject instance with each key-value pair
-   * abstracted as OpenSocialField objects associated with the instance.
+   * Transforms a raw JSON object string containing key-value pairs (i.e. App
+   * Data) for one or more users into a specialized OpenSocialObject instance
+   * with each key-value pair abstracted as OpenSocialField objects associated
+   * with the instance.
    * 
+   * @param  in The JSON object string to parse as an OpenSocialAppData object
    * @throws JSONException 
    * @throws OpenSocialRequestException 
    */
-  public static OpenSocialAppData parseAsAppData(String in) throws OpenSocialRequestException, JSONException, InstantiationException, IllegalAccessException {
+  public static OpenSocialAppData parseAsAppData(String in)
+      throws OpenSocialRequestException, JSONException, IllegalAccessException,
+             InstantiationException {
+
     if (in == null) {
-      throw new OpenSocialRequestException("Response item with given key not found");
+      throw new OpenSocialRequestException(
+          "Response item with given key not found");
     }
-    
+
     JSONObject root = new JSONObject(in);
     JSONObject entry = getEntryObject(root);
-    OpenSocialAppData d = (OpenSocialAppData) parseAsObject(entry, OpenSocialAppData.class);
-    
+
+    OpenSocialAppData d =
+        (OpenSocialAppData) parseAsObject(entry, OpenSocialAppData.class);
+
     return d;
   }
-  
-  private static JSONArray getEntryArray(JSONObject root) throws OpenSocialRequestException, JSONException {
+
+  /**
+   * Inspects the passed object for one of several specific properties and, if
+   * found, returns that property as a JSONArray object. All valid response
+   * objects which contain a data collection (e.g. a collection of people)
+   * must have this property.
+   * 
+   * @param  root JSONObject to query for the presence of the specific property
+   * @throws OpenSocialRequestException if property is not found in the passed
+   *         object
+   * @throws JSONException
+   */
+  private static JSONArray getEntryArray(JSONObject root)
+      throws OpenSocialRequestException, JSONException {
+
     JSONArray entry = new JSONArray();
-    
+
     if (root.has("entry")) {
       entry = root.getJSONArray("entry");
     } else if (root.has("data")) {
@@ -156,13 +215,26 @@ public class OpenSocialJsonParser {
     } else {
       throw new OpenSocialRequestException("Entry not found");
     }
-    
+
     return entry;
   }
-  
-  private static JSONObject getEntryObject(JSONObject root) throws OpenSocialRequestException, JSONException {
+
+  /**
+   * Inspects the passed object for one of several specific properties and, if
+   * found, returns that property as a JSONObject object. All valid response
+   * objects which encapsulate a single data item (e.g. a person) must have
+   * this property.
+   * 
+   * @param  root JSONObject to query for the presence of the specific property
+   * @throws OpenSocialRequestException if property is not found in the passed
+   *         object
+   * @throws JSONException
+   */
+  private static JSONObject getEntryObject(JSONObject root)
+      throws OpenSocialRequestException, JSONException {
+
     JSONObject entry = new JSONObject();
-    
+
     if (root.has("data")) {
       entry = root.getJSONObject("data");
     } else if (root.has("entry")) {
@@ -170,25 +242,54 @@ public class OpenSocialJsonParser {
     } else {
       throw new OpenSocialRequestException("Entry not found");
     }
-    
+
     return entry;
   }
-  
-  private static OpenSocialObject parseAsObject(JSONObject entryObject, Class<? extends OpenSocialObject> clientClass) throws JSONException, InstantiationException, IllegalAccessException {
+
+  /**
+   * Calls a function to recursively iterates through the the properties of the
+   * passed JSONObject object and returns an equivalent OpenSocialObject with
+   * each property of the original object mapped to fields in the returned
+   * object.
+   * 
+   * @param  entryObject Object-oriented representation of JSON response
+   *         string which is transformed into and returned as an
+   *         OpenSocialObject
+   * @param  clientClass Class of object to return, either OpenSocialObject
+   *         or a subclass
+   * @throws JSONException
+   * @throws InstantiationException
+   * @throws IllegalAccessException
+   */
+  private static OpenSocialObject parseAsObject(
+      JSONObject entryObject, Class<? extends OpenSocialObject> clientClass)
+      throws JSONException, IllegalAccessException, InstantiationException {
+
     OpenSocialObject o = clientClass.newInstance();
 
-    Map<String, OpenSocialField> entryRepresentation = 
+    Map<String,OpenSocialField> entryRepresentation = 
         createObjectRepresentation(entryObject);
-    
-    for (Map.Entry<String, OpenSocialField> e : entryRepresentation.entrySet()) {
+
+    for (Map.Entry<String,OpenSocialField> e : entryRepresentation.entrySet()) {
       o.setField(e.getKey(), e.getValue());
     }
-    
+
     return o;
   }
 
+  /**
+   * Recursively iterates through the properties of the passed JSONObject
+   * object and returns a Map of OpenSocialField objects keyed on Strings
+   * representing the property values and names respectively.
+   * 
+   * @param  o Object-oriented representation of a JSON object which is
+   *         transformed into and returned as a Map of OpenSocialField
+   *         objects keyed on Strings
+   * @throws JSONException
+   */
   private static Map<String, OpenSocialField> createObjectRepresentation(
-      JSONObject o) throws JSONException {
+      JSONObject o)
+      throws JSONException {
 
     HashMap<String,OpenSocialField> r = new HashMap<String,OpenSocialField>();
 
@@ -224,8 +325,16 @@ public class OpenSocialJsonParser {
     return r;
   }
 
-  private static List<Object> createArrayRepresentation(
-      JSONArray a) throws JSONException {
+  /**
+   * Iterates through the objects in the passed JSONArray object, recursively
+   * transforms each as needed, and returns a List of Java objects.
+   * 
+   * @param  a Object-oriented representation of a JSON array which is iterated
+   *         through and returned as a List of Java objects
+   * @throws JSONException
+   */
+  private static List<Object> createArrayRepresentation(JSONArray a)
+      throws JSONException {
 
     Vector<Object> r = new Vector<Object>(a.length());
 
@@ -249,22 +358,37 @@ public class OpenSocialJsonParser {
 
     return r;
   }
-  
+
+  /**
+   * Escapes "{ and }" as "%7B and "%7D respectively to prevent parsing errors
+   * when property values begin with { or } tokens.
+   * 
+   * @param  in String to escape
+   * @return escaped String
+   */
   private static String escape(String in) {
     String out = in;
-    
+
     out = out.replaceAll("\"\\{", "\"%7B");
     out = out.replaceAll("\\}\"", "%7D\"");
-    
+
     return out;
   }
-  
+
+  /**
+   * Unescapes String objects previously returned from the escape method by
+   * substituting { and } for %7B and %7D respectively. Called after
+   * parsing to restore property values.
+   * 
+   * @param  in String to unescape
+   * @return unescaped String
+   */
   private static String unescape(String in) {
     String out = in;
-    
+
     out = out.replaceAll("%7B", "{");
     out = out.replaceAll("%7D", "}");
-    
+
     return out;
   }
 }
