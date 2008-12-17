@@ -1,18 +1,18 @@
 <project name="OpenSocial Client Library" default="compile" basedir=".">
 
   <property name="app.name" value="opensocial"/>
-  <property name="app.version" value="20081209"/>
+  <property name="app.version" value="20081217"/>
   
   <!-- Paths for source code -->
   <property name="src-main.home" value="${basedir}/src/main"/>
   <property name="src-test.home" value="${basedir}/src/test"/>
+  <property name="docs.home" value="${basedir}/docs"/>
 
   <!-- Path for compiled files -->
   <property name="build.home" value="${basedir}/bin"/>
 
   <!-- Paths for distribution files -->
   <property name="dist.home" value="${basedir}/dist"/>
-  <property name="docs.home" value="${dist.home}/docs"/>
   
   <path id="compile.classpath">
     <fileset dir="${basedir}/lib">
@@ -44,8 +44,10 @@
   </target>
 
   <target name="javadoc" depends="compile" description="Create Javadoc API documentation">
-    <mkdir dir="${docs.home}"/>
-    <javadoc sourcepath="${src-main.home}" destdir="${docs.home}" packagenames="*">
+  	<delete>
+  	  <fileset dir="${docs.home}"/>
+  	</delete>
+  	<javadoc sourcepath="${src-main.home}" destdir="${docs.home}" packagenames="*">
       <classpath refid="compile.classpath"/>
     </javadoc>
   </target>

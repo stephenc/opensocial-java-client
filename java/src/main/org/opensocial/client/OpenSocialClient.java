@@ -287,7 +287,7 @@ public class OpenSocialClient {
   public static OpenSocialRequest newFetchPeopleRequest(
       String userId, String groupId) {
     
-    OpenSocialRequest r = new OpenSocialRequest("people/", "people.get");
+    OpenSocialRequest r = new OpenSocialRequest("people", "people.get");
     r.addParameter("groupId", groupId);
     r.addParameter("userId", userId);
     
@@ -308,7 +308,7 @@ public class OpenSocialClient {
   public static OpenSocialRequest newFetchPersonAppDataRequest(
       String userId, String groupId, String appId) {
     
-    OpenSocialRequest r = new OpenSocialRequest("appdata/", "appdata.get");
+    OpenSocialRequest r = new OpenSocialRequest("appdata", "appdata.get");
     r.addParameter("groupId", groupId);
     r.addParameter("userId", userId);
     r.addParameter("appId", appId);

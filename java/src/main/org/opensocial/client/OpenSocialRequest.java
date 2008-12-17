@@ -82,13 +82,7 @@ public class OpenSocialRequest {
    * have a trailing backslash, one is added before being returned.
    */
   public String getRestPathComponent() {
-    String component = this.restPathComponent;
-
-    if (component.charAt(component.length()-1) != '/') {
-      return (component + "/");
-    }
-
-    return component;
+    return this.restPathComponent;
   }
 
   /**

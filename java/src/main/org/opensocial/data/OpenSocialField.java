@@ -127,7 +127,7 @@ public class OpenSocialField {
   }
 
   /**
-   * Returns true if the number of stored values is greater tan one, false
+   * Returns true if the number of stored values is greater than one, false
    * otherwise.
    */
   public boolean isMultivalued() {

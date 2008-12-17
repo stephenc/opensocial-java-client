@@ -72,10 +72,6 @@ public class OpenSocialUrl {
   public String toString() {
     StringBuilder s = new StringBuilder(this.base);
 
-    if (s.charAt(s.length() - 1) != '/') {
-      s.append("/");
-    }
-
     for (String pathComponent : this.components) {
       if (s.charAt(s.length() - 1) != '/') {
         s.append("/");
