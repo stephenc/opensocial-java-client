@@ -278,13 +278,33 @@ public class OpenSocialClient {
 
   /**
    * Creates and returns a new OpenSocialRequest object for retrieving the
+   * profile information for a single person.
+   * 
+   * @param  userId OpenSocial ID of the request's target
+   */
+  public static OpenSocialRequest newFetchPersonRequest(String userId) {    
+    return newFetchPeopleRequest(userId, "@self");
+  }
+  
+  /**
+   * Creates and returns a new OpenSocialRequest object for retrieving the
+   * friends of the given user.
+   * 
+   * @param  userId OpenSocial ID of the request's target
+   */
+  public static OpenSocialRequest newFetchFriendsRequest(String userId) {    
+    return newFetchPeopleRequest(userId, "@friends");
+  }
+  
+  /**
+   * Creates and returns a new OpenSocialRequest object for retrieving the
    * person or group of people selected by the arguments.
    * 
    * @param  userId OpenSocial ID of the request's target
    * @param  groupId "@self" to fetch the user's profile details or "@friends"
    *         to fetch the user's friend list
    */
-  public static OpenSocialRequest newFetchPeopleRequest(
+  private static OpenSocialRequest newFetchPeopleRequest(
       String userId, String groupId) {
     
     OpenSocialRequest r = new OpenSocialRequest("people", "people.get");

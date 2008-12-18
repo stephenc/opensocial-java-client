@@ -17,15 +17,14 @@ public class OpenSocialClientTest extends TestCase {
     assertEquals(true, c.getProperty(n).equals(v));
   }
   
-  public void testNewFetchPeopleRequest() {
+  public void testNewFetchPersonRequest() {
     String userId = "user123";
-    String groupId = "group456";
     
     OpenSocialClient c = new OpenSocialClient();
-    OpenSocialRequest r = c.newFetchPeopleRequest(userId, groupId);
+    OpenSocialRequest r = c.newFetchPersonRequest(userId);
     
     assertEquals(true, r.getRestPathComponent().equals("people"));
-    assertEquals(true, r.getParameter("groupId").equals(groupId));
+    assertEquals(true, r.getParameter("groupId").equals("@self"));
     assertEquals(true, r.getParameter("userId").equals(userId));
   }
 }
