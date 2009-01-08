@@ -42,7 +42,7 @@ public class OpenSocialRequestSigner {
    * Extracts pertinent properties from passed OpenSocialClient object and
    * passes these along with OpenSocialHttpRequest object to a separate
    * method which does the actual signing.
-   * 
+   *
    * @param  request OpenSocialHttpRequest object which contains both the URL
    *         to sign as well as the POST body which must be included as a
    *         parameter when signing POST requests
@@ -65,14 +65,20 @@ public class OpenSocialRequestSigner {
     String consumerSecret =
       client.getProperty(OpenSocialClient.Properties.CONSUMER_SECRET);
 
-    signRequest(request, token, viewerId, consumerKey, consumerSecret);
+    String accessToken =
+      client.getProperty(OpenSocialClient.Properties.ACCESS_TOKEN);
+    String accessTokenSecret =
+      client.getProperty(OpenSocialClient.Properties.ACCESS_TOKEN_SECRET);
+
+    signRequest(request, token, viewerId, consumerKey, consumerSecret,
+        accessToken, accessTokenSecret);
   }
 
   /**
    * Adds optional query string parameters to request URL if present, then
    * passes the passed OpenSocialHttpRequest to a separate method which
    * does the actual signing.
-   * 
+   *
    * @param  request OpenSocialHttpRequest object which contains both the URL
    *         to sign as well as the POST body which must be included as a
    *         parameter when signing POST requests
@@ -91,13 +97,14 @@ public class OpenSocialRequestSigner {
    *         container. Used to generate the signature which is attached to
    *         the request so containers can verify the authenticity of the
    *         requests made by the client application.
+   * @param accessToken Used in 3 legged OAuth. The user's access token.
+   * @param accessTokenSecret Used in 3 legged OAuth. The user's access token secret.
    * @throws OAuthException
    * @throws IOException
    * @throws URISyntaxException
    */
-  public static void signRequest(
-      OpenSocialHttpRequest request, String token, String viewerId,
-      String consumerKey, String consumerSecret)
+  public static void signRequest(OpenSocialHttpRequest request, String token, String viewerId,
+      String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret)
       throws OAuthException, IOException, URISyntaxException {
 
     OpenSocialUrl requestUrl = request.getUrl();
@@ -109,7 +116,7 @@ public class OpenSocialRequestSigner {
       requestUrl.addQueryStringParameter("st", token);
     }
 
-    signRequest(request, consumerKey, consumerSecret);
+    signRequest(request, consumerKey, consumerSecret, accessToken, accessTokenSecret);
   }
 
   /**
@@ -117,7 +124,7 @@ public class OpenSocialRequestSigner {
    * consumer key and secret in accordance with the OAuth specification and
    * appends signature and other required parameters to the URL as query
    * string parameters.
-   * 
+   *
    * @param  request OpenSocialHttpRequest object which contains both the URL
    *         to sign as well as the POST body which must be included as a
    *         parameter when signing POST requests
@@ -127,12 +134,14 @@ public class OpenSocialRequestSigner {
    *         container. Used to generate the signature which is attached to
    *         the request so containers can verify the authenticity of the
    *         requests made by the client application.
+   * @param accessToken Used in 3 legged OAuth. The user's access token.
+   * @param accessTokenSecret Used in 3 legged OAuth. The user's access token secret.
    * @throws OAuthException
    * @throws IOException
    * @throws URISyntaxException
    */
-  public static void signRequest(
-      OpenSocialHttpRequest request, String consumerKey, String consumerSecret)
+  public static void signRequest(OpenSocialHttpRequest request, String consumerKey,
+      String consumerSecret, String accessToken, String accessTokenSecret)
       throws OAuthException, IOException, URISyntaxException {
 
     String postBody = request.getPostBody();
@@ -144,7 +153,7 @@ public class OpenSocialRequestSigner {
           new OAuthMessage(requestMethod, requestUrl.toString(), null);
 
       if (postBody != null) {
-        message.addParameter(postBody, "");        
+        message.addParameter(postBody, "");
       }
 
       OAuthConsumer consumer =
@@ -152,7 +161,12 @@ public class OpenSocialRequestSigner {
       consumer.setProperty(OAuth.OAUTH_SIGNATURE_METHOD, OAuth.HMAC_SHA1);
 
       OAuthAccessor accessor = new OAuthAccessor(consumer);
-      accessor.accessToken = "";      
+      if (accessToken != null) {
+        accessor.accessToken = accessToken;
+        accessor.tokenSecret = accessTokenSecret;
+      } else {
+        accessor.accessToken = "";
+      }
 
       message.addRequiredParameters(accessor);
 
@@ -160,7 +174,7 @@ public class OpenSocialRequestSigner {
         if (!p.getKey().equals(postBody)) {
           requestUrl.addQueryStringParameter(
               OAuth.percentEncode(p.getKey()),
-              OAuth.percentEncode(p.getValue()));          
+              OAuth.percentEncode(p.getValue()));
         }
       }
     }

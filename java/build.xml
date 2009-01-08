@@ -2,7 +2,7 @@
 
   <property name="app.name" value="opensocial"/>
   <property name="app.version" value="20081217"/>
-  
+
   <!-- Paths for source code -->
   <property name="src-main.home" value="${basedir}/src/main"/>
   <property name="src-test.home" value="${basedir}/src/test"/>
@@ -12,13 +12,13 @@
 
   <!-- Path for compiled client library sample applications -->
   <property name="samples-bin.home" value="${samples-src.home}/bin"/>
-  
+
   <!-- Path for compiled files -->
   <property name="build.home" value="${basedir}/bin"/>
 
   <!-- Paths for distribution files -->
   <property name="dist.home" value="${basedir}/dist"/>
-  
+
   <property name="docs.home" value="${basedir}/doc"/>
 
   <property name="lib.home" value="${basedir}/lib"/>
@@ -28,7 +28,7 @@
       <include name="*.jar"/>
     </fileset>
   </path>
-  
+
   <path id="compile-samples.classpath">
     <fileset dir="${lib.home}">
       <include name="*.jar"/>
@@ -37,7 +37,7 @@
       <include name="*.jar"/>
     </fileset>
   </path>
-  
+
   <target name="compile" description="Compile Java sources">
     <mkdir dir="${build.home}"/>
     <javac destdir="${build.home}" debug="true" debuglevel="lines,vars,source">
@@ -46,7 +46,7 @@
       <src path="${src-test.home}"/>
     </javac>
   </target>
-  
+
   <target name="compile-samples" depends="dist" description="Compile client library sample applications">
     <mkdir dir="${samples-bin.home}"/>
     <javac destdir="${samples-bin.home}" debug="true" debuglevel="lines,vars,source">
@@ -54,7 +54,7 @@
       <src path="${samples-src.home}"/>
     </javac>
   </target>
-  
+
   <target name="dist" depends="compile,javadoc" description="Create binary distribution">
     <mkdir dir="${dist.home}"/>
     <jar jarfile="${dist.home}/${app.name}.jar">
@@ -64,10 +64,10 @@
   </target>
 
   <target name="javadoc" depends="compile" description="Create Javadoc API documentation">
-  	<delete>
-  	  <fileset dir="${docs.home}"/>
-  	</delete>
-  	<javadoc sourcepath="${src-main.home}" destdir="${docs.home}" packagenames="*">
+    <delete>
+      <fileset dir="${docs.home}"/>
+    </delete>
+    <javadoc sourcepath="${src-main.home}" destdir="${docs.home}" packagenames="*">
       <classpath refid="compile.classpath"/>
     </javadoc>
   </target>

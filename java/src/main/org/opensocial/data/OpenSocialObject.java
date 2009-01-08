@@ -41,7 +41,7 @@ public class OpenSocialObject {
    * Instantiates a new OpenSocialObject object with the passed Map of
    * OpenSocialField objects keyed on strings, replicating these
    * correspondences in its own fields Map.
-   * 
+   *
    * @param  properties Map of OpenSocialField objects keyed on field name
    *         which should be "imported" upon instantiation
    */
@@ -63,7 +63,7 @@ public class OpenSocialObject {
 
   /**
    * Returns field mapped to the passed key.
-   * 
+   *
    * @param  key Key associated with desired field
    */
   public OpenSocialField getField(String key) {
@@ -73,7 +73,7 @@ public class OpenSocialObject {
   /**
    * Creates a new entry in fields Map, associating the passed OpenSocialField
    * object with the passed key.
-   * 
+   *
    * @param  key Field name
    * @param  value OpenSocialField object to associate with key
    */
@@ -89,10 +89,24 @@ public class OpenSocialObject {
     Object[] keys = this.fields.keySet().toArray();
     String[] fieldNames = new String[this.fields.size()];
 
-    for (int i=0; i<this.fields.size(); i++) {
+    for (int i = 0; i < this.fields.size(); i++) {
       fieldNames[i] = (String) keys[i];
     }
 
     return fieldNames;
+  }
+
+  @Override
+  public String toString() {
+    String allFields = "";
+    for (Map.Entry<String, OpenSocialField> entry : fields.entrySet()) {
+      OpenSocialField value = entry.getValue();
+      String valueString = value.getStringValue();
+      if (value.isComplex()) {
+        valueString = value.getStringValues().toString();
+      }
+      allFields += entry.getKey() + ": " + valueString + "\n";
+    }
+    return allFields;
   }
 }

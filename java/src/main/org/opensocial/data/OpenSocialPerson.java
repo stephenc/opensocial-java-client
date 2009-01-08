@@ -25,19 +25,15 @@ package org.opensocial.data;
  */
 public class OpenSocialPerson extends OpenSocialObject {
 
-  public OpenSocialPerson() {
-    super();
-  }
-
   /**
    * Retrieves the OpenSocial ID associated with the instance. Returns an
    * empty string if no ID has been set.
    */
   public String getId() {
-    OpenSocialField IDField = this.getField("id");
+    OpenSocialField idField = this.getField("id");
 
-    if (IDField != null && !IDField.isComplex()) {
-      return IDField.getStringValue();
+    if (idField != null && !idField.isComplex()) {
+      return idField.getStringValue();
     }
 
     return "";
@@ -47,24 +43,33 @@ public class OpenSocialPerson extends OpenSocialObject {
    * Retrieves the display name (typically given name followed by family name)
    * associated with the instance. Returns an empty string if no name has been
    * set.
-   * 
-   * @throws OpenSocialException 
    */
-  public String getDisplayName() throws OpenSocialException {
+  public String getDisplayName() {
     OpenSocialField nicknameField = this.getField("nickname");
     OpenSocialField nameField = this.getField("name");
+    OpenSocialField displayNameField = this.getField("displayName");
     StringBuilder name = new StringBuilder();
 
-    if (nameField != null) {
+    if (displayNameField != null) {
+      name.append(displayNameField.getStringValue());
+    } else if (nicknameField != null) {
+      name.append(nicknameField.getStringValue());
+    } else if (nameField != null) {
       if (nameField.isComplex()) {
-        OpenSocialObject nameObject = nameField.getValue();
+        OpenSocialObject nameObject;
+        try {
+          nameObject = nameField.getValue();
+        } catch (OpenSocialException e) {
+          // This should never happen as the nameField is guaranteed to be complex
+          // by the if statement
+          throw new IllegalStateException(e);
+        }
 
         if (nameObject.hasField("givenName")) {
           name.append(nameObject.getField("givenName").getStringValue());
         }
 
-        if (nameObject.hasField("givenName")
-               && nameObject.hasField("familyName")) {
+        if (nameObject.hasField("givenName") && nameObject.hasField("familyName")) {
           name.append(" ");
         }
 
@@ -74,12 +79,11 @@ public class OpenSocialPerson extends OpenSocialObject {
       } else {
         name.append(nameField.getStringValue());
       }
-    } else if (nicknameField != null) {
-      if (!nicknameField.isComplex()) {
-        name.append(nicknameField.getStringValue());
-      }
+    } else {
+      name.append("Unknown Person");
     }
 
     return name.toString();
   }
+
 }

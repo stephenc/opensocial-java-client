@@ -45,35 +45,28 @@ public class OpenSocialResponse {
   /**
    * Retrieves and parses the JSON-encoded response item with the passed ID and
    * returns the parsed item as an OpenSocialPerson object.
-   * 
+   *
    * @param  id ID of the response item to parse
    * @throws OpenSocialRequestException
    * @throws JSONException
-   * @throws IllegalAccessException
-   * @throws InstantiationException
    */
   public OpenSocialPerson getItemAsPerson(String id)
-      throws OpenSocialRequestException, JSONException, IllegalAccessException,
-             InstantiationException {
+      throws OpenSocialRequestException, JSONException {
 
     String item = this.items.get(id);
-
     return OpenSocialJsonParser.parseAsPerson(item);
   }
 
   /**
    * Retrieves and parses the JSON-encoded response item with the passed ID and
    * returns the parsed item as a List of OpenSocialPerson objects.
-   * 
+   *
    * @param  id ID of the response item to parse
    * @throws OpenSocialRequestException
    * @throws JSONException
-   * @throws IllegalAccessException
-   * @throws InstantiationException
    */
   public List<OpenSocialPerson> getItemAsPersonCollection(String id)
-      throws OpenSocialRequestException, JSONException, IllegalAccessException,
-             InstantiationException {
+      throws OpenSocialRequestException, JSONException {
 
     String item = this.items.get(id);
 
@@ -83,16 +76,13 @@ public class OpenSocialResponse {
   /**
    * Retrieves and parses the JSON-encoded response item with the passed ID and
    * returns the parsed item as an OpenSocialAppData object.
-   * 
+   *
    * @param  id ID of the response item to parse
    * @throws OpenSocialRequestException
    * @throws JSONException
-   * @throws InstantiationException
-   * @throws IllegalAccessException
    */
   public OpenSocialAppData getItemAsAppData(String id)
-      throws OpenSocialRequestException, JSONException, IllegalAccessException,
-             InstantiationException {
+      throws OpenSocialRequestException, JSONException {
 
     String item = this.items.get(id);
 
@@ -102,7 +92,7 @@ public class OpenSocialResponse {
   /**
    * Creates a new entry in items Map with the passed ID as key and JSON object
    * string as value.
-   * 
+   *
    * @param  id Response item ID
    * @param  objectString JSON object string to associate with the passed ID
    */

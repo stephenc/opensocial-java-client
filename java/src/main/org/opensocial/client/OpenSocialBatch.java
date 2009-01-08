@@ -40,27 +40,27 @@ public class OpenSocialBatch {
 
   private List<OpenSocialRequest> requests;
 
-  public OpenSocialBatch() {    
+  public OpenSocialBatch() {
     this.requests = new Vector<OpenSocialRequest>();
   }
 
   /**
    * Sets the id property of the passed request and adds it to the internal
    * collection.
-   * 
+   *
    * @param request OpenSocialRequest object to add to internal collection
    * @param id Request label, used to extract data from OpenSocialResponse
    *           object returned
    */
   public void addRequest(OpenSocialRequest request, String id) {
-    request.setId(id);  
+    request.setId(id);
     this.requests.add(request);
   }
 
   /**
    * Calls one of two private methods which submit the queued requests to the
    * container given the properties of the OpenSocialClient object passed in.
-   * 
+   *
    * @param  client OpenSocialClient object with REST_BASE_URI or RPC_ENDPOINT
    *                properties set
    * @return Object encapsulating the data requested from the container
@@ -100,7 +100,7 @@ public class OpenSocialBatch {
    * Collects all of the queued requests and encodes them into a single JSON
    * string before creating a new HTTP request, attaching this string to the
    * request body, signing it, and sending it to the container.
-   * 
+   *
    * @param  client OpenSocialClient object with RPC_ENDPOINT property set
    * @return Object encapsulating the data requested from the container
    * @throws OpenSocialRequestException
@@ -136,7 +136,7 @@ public class OpenSocialBatch {
    * Retrieves the first request in the queue and builds the full REST URI
    * given the properties of this request before creating a new HTTP request,
    * signing it, and sending it to the container.
-   * 
+   *
    * @param  client OpenSocialClient object with REST_BASE_URI property set
    * @return Object encapsulating the data requested from the container
    * @throws OpenSocialRequestException
@@ -177,8 +177,8 @@ public class OpenSocialBatch {
 
   /**
    * Returns the text returned by the container after executing the passed
-   * OpenSocialHttpRequest object. 
-   * 
+   * OpenSocialHttpRequest object.
+   *
    * @param  r OpenSocialHttpRequest object to execute
    * @return
    * @throws OpenSocialRequestException if the status code returned by the
@@ -195,7 +195,7 @@ public class OpenSocialBatch {
         return r.getResponseString();
       } else {
         throw new OpenSocialRequestException(
-            "Request returned error code: " + requestStatus);
+            "Request returned error code: " + requestStatus + " for url: " + r.getUrl());
       }
     }
 

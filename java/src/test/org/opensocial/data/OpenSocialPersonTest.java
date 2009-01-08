@@ -23,19 +23,13 @@ public class OpenSocialPersonTest extends TestCase {
     String familyName = "Testington";
     String displayName = givenName + " " + familyName;
 
-    try {
-      assertEquals("", p1.getDisplayName());
-    } catch (OpenSocialException e) {
-    }
+    assertEquals("", p1.getDisplayName());
 
     OpenSocialField f1 = new OpenSocialField(false);
     f1.addValue(displayName);
     p1.setField("name", f1);
 
-    try {
-      assertEquals(displayName, p1.getDisplayName());
-    } catch (OpenSocialException e) {
-    }
+    assertEquals(displayName, p1.getDisplayName());
 
     OpenSocialObject name = new OpenSocialObject();
     OpenSocialField nf1 = new OpenSocialField(false);
@@ -47,17 +41,11 @@ public class OpenSocialPersonTest extends TestCase {
     p2.setField("name", f2);
     f2.addValue(name);
 
-    try {
-      assertEquals(givenName, p2.getDisplayName());
-    } catch (OpenSocialException e) {
-    }
+    assertEquals(givenName, p2.getDisplayName());
 
     nf2.addValue(familyName);
     name.setField("familyName", nf2);
 
-    try {
-      assertEquals(displayName, p2.getDisplayName());
-    } catch (OpenSocialException e) {
-    }
+    assertEquals(displayName, p2.getDisplayName());
   }
 }

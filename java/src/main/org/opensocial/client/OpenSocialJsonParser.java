@@ -43,7 +43,7 @@ public class OpenSocialJsonParser {
    * Parses the passed JSON string into an OpenSocialResponse object -- if the
    * passed string represents a JSON array, each object in the array is added
    * to the returned object keyed on its "id" property.
-   * 
+   *
    * @param  in The complete JSON string returned from an OpenSocial container
    *            in response to a request for data
    * @throws JSONException
@@ -74,7 +74,7 @@ public class OpenSocialJsonParser {
    * Parses the passed JSON string into an OpenSocialResponse object -- if the
    * passed string represents a JSON object, it is added to the returned
    * object keyed on the passed ID.
-   * 
+   *
    * @param  in The complete JSON string returned from an OpenSocial container
    *            in response to a request for data
    * @param  id The string ID to tag the JSON object string with as it is added
@@ -95,21 +95,18 @@ public class OpenSocialJsonParser {
 
     return r;
   }
-  
+
   /**
    * Transforms a raw JSON object string containing profile information for a
    * single user into an OpenSocialPerson instance with all profile details
    * abstracted as OpenSocialField objects associated with the instance.
-   * 
+   *
    * @param  in The JSON object string to parse as an OpenSocialPerson object
-   * @throws OpenSocialRequestException 
-   * @throws JSONException 
-   * @throws IllegalAccessException 
-   * @throws InstantiationException 
+   * @throws OpenSocialRequestException
+   * @throws JSONException
    */
   public static OpenSocialPerson parseAsPerson(String in)
-      throws OpenSocialRequestException, JSONException, IllegalAccessException,
-             InstantiationException {
+      throws OpenSocialRequestException, JSONException {
 
     if (in == null) {
       throw new OpenSocialRequestException(
@@ -131,17 +128,14 @@ public class OpenSocialJsonParser {
    * details abstracted as OpenSocialField objects associated with the
    * instances. These instances are then added to a Java List which
    * gets returned.
-   * 
+   *
    * @param  in The JSON object string to parse as a List of OpenSocialPerson
    *         objects
-   * @throws OpenSocialRequestException 
-   * @throws JSONException 
-   * @throws IllegalAccessException 
-   * @throws InstantiationException 
+   * @throws OpenSocialRequestException
+   * @throws JSONException
    */
   public static List<OpenSocialPerson> parseAsPersonCollection(String in)
-      throws OpenSocialRequestException, JSONException, IllegalAccessException,
-             InstantiationException{
+      throws OpenSocialRequestException, JSONException {
 
     if (in == null) {
       throw new OpenSocialRequestException(
@@ -169,14 +163,13 @@ public class OpenSocialJsonParser {
    * Data) for one or more users into a specialized OpenSocialObject instance
    * with each key-value pair abstracted as OpenSocialField objects associated
    * with the instance.
-   * 
+   *
    * @param  in The JSON object string to parse as an OpenSocialAppData object
-   * @throws JSONException 
-   * @throws OpenSocialRequestException 
+   * @throws JSONException
+   * @throws OpenSocialRequestException
    */
   public static OpenSocialAppData parseAsAppData(String in)
-      throws OpenSocialRequestException, JSONException, IllegalAccessException,
-             InstantiationException {
+      throws OpenSocialRequestException, JSONException {
 
     if (in == null) {
       throw new OpenSocialRequestException(
@@ -197,7 +190,7 @@ public class OpenSocialJsonParser {
    * found, returns that property as a JSONArray object. All valid response
    * objects which contain a data collection (e.g. a collection of people)
    * must have this property.
-   * 
+   *
    * @param  root JSONObject to query for the presence of the specific property
    * @throws OpenSocialRequestException if property is not found in the passed
    *         object
@@ -224,7 +217,7 @@ public class OpenSocialJsonParser {
    * found, returns that property as a JSONObject object. All valid response
    * objects which encapsulate a single data item (e.g. a person) must have
    * this property.
-   * 
+   *
    * @param  root JSONObject to query for the presence of the specific property
    * @throws OpenSocialRequestException if property is not found in the passed
    *         object
@@ -233,7 +226,7 @@ public class OpenSocialJsonParser {
   private static JSONObject getEntryObject(JSONObject root)
       throws OpenSocialRequestException, JSONException {
 
-    JSONObject entry = new JSONObject();
+    JSONObject entry;
 
     if (root.has("data")) {
       entry = root.getJSONObject("data");
@@ -251,23 +244,28 @@ public class OpenSocialJsonParser {
    * passed JSONObject object and returns an equivalent OpenSocialObject with
    * each property of the original object mapped to fields in the returned
    * object.
-   * 
+   *
    * @param  entryObject Object-oriented representation of JSON response
    *         string which is transformed into and returned as an
    *         OpenSocialObject
    * @param  clientClass Class of object to return, either OpenSocialObject
    *         or a subclass
    * @throws JSONException
-   * @throws InstantiationException
-   * @throws IllegalAccessException
    */
   private static OpenSocialObject parseAsObject(
       JSONObject entryObject, Class<? extends OpenSocialObject> clientClass)
-      throws JSONException, IllegalAccessException, InstantiationException {
+      throws JSONException {
 
-    OpenSocialObject o = clientClass.newInstance();
+    OpenSocialObject o = null;
+    try {
+      o = clientClass.newInstance();
+    } catch (InstantiationException e) {
+      throw new RuntimeException("Library error - Json class not found: " + clientClass);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException("Library error - Json class not accessible: " + clientClass);
+    }
 
-    Map<String,OpenSocialField> entryRepresentation = 
+    Map<String,OpenSocialField> entryRepresentation =
         createObjectRepresentation(entryObject);
 
     for (Map.Entry<String,OpenSocialField> e : entryRepresentation.entrySet()) {
@@ -281,7 +279,7 @@ public class OpenSocialJsonParser {
    * Recursively iterates through the properties of the passed JSONObject
    * object and returns a Map of OpenSocialField objects keyed on Strings
    * representing the property values and names respectively.
-   * 
+   *
    * @param  o Object-oriented representation of a JSON object which is
    *         transformed into and returned as a Map of OpenSocialField
    *         objects keyed on Strings
@@ -319,7 +317,7 @@ public class OpenSocialJsonParser {
         OpenSocialField field = new OpenSocialField(false);
         field.addValue(unescape(property));
         r.put(key, field);
-      }      
+      }
     }
 
     return r;
@@ -328,7 +326,7 @@ public class OpenSocialJsonParser {
   /**
    * Iterates through the objects in the passed JSONArray object, recursively
    * transforms each as needed, and returns a List of Java objects.
-   * 
+   *
    * @param  a Object-oriented representation of a JSON array which is iterated
    *         through and returned as a List of Java objects
    * @throws JSONException
@@ -362,7 +360,7 @@ public class OpenSocialJsonParser {
   /**
    * Escapes "{ and }" as "%7B and "%7D respectively to prevent parsing errors
    * when property values begin with { or } tokens.
-   * 
+   *
    * @param  in String to escape
    * @return escaped String
    */
@@ -379,7 +377,7 @@ public class OpenSocialJsonParser {
    * Unescapes String objects previously returned from the escape method by
    * substituting { and } for %7B and %7D respectively. Called after
    * parsing to restore property values.
-   * 
+   *
    * @param  in String to unescape
    * @return unescaped String
    */
