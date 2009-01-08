@@ -5,3 +5,9 @@
 
 find . -path '*/.svn' -prune -o  -name "*.htm*" -print0 | xargs -0  -r  svn propset svn:mime-type text/html
 #
+
+svn propset svn:ignore -F etc/svn-ignores .
+svn propset svn:ignore -F etc/svn-ignores java
+svn propset svn:ignore -F etc/svn-ignores java/android
+svn propset svn:ignore -F etc/svn-ignores java/samples
+svn propset svn:ignore -F etc/svn-ignores java/src
