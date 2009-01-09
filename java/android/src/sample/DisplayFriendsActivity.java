@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opensocial.android;
+package sample;
 
 import android.os.Bundle;
 import android.widget.TextView;
@@ -22,6 +22,8 @@ import org.opensocial.client.OpenSocialProvider;
 import org.opensocial.client.OpenSocialRequest;
 import org.opensocial.client.Token;
 import org.opensocial.data.OpenSocialPerson;
+import org.opensocial.android.OpenSocialActivity;
+import sample.FriendListView;
 
 import java.util.HashMap;
 import java.util.List;

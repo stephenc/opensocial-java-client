@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="org.opensocial.android"
+          package="sample"
           android:versionCode="1"
           android:versionName="1.0.0">
   <application android:label="OpenSocial client library demo">
 
     <!-- Activity provided by the library -->
-    <activity android:name=".OpenSocialChooserActivity"></activity>
+    <activity android:name="org.opensocial.android.OpenSocialChooserActivity"></activity>
 
     <!-- The users main activity -->
     <activity android:name=".DisplayFriendsActivity">

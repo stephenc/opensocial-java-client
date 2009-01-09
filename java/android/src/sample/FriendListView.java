@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.opensocial.android;
+package sample;
 
 import android.content.Context;
 import android.view.View;
@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * Demo class. Displays a list of contacts.
- *  
+ *
  * @author Cassandra Doll
  */
 public class FriendListView extends ListView {
