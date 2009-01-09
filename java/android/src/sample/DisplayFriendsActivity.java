@@ -23,7 +23,6 @@ import org.opensocial.client.OpenSocialRequest;
 import org.opensocial.client.Token;
 import org.opensocial.data.OpenSocialPerson;
 import org.opensocial.android.OpenSocialActivity;
-import sample.FriendListView;
 
 import java.util.HashMap;
 import java.util.List;
