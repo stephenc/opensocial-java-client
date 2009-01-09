@@ -44,6 +44,7 @@
       <classpath refid="compile.classpath"/>
       <src path="${src-main.home}"/>
       <src path="${src-test.home}"/>
+      <exclude name="org/opensocial/android/**"/>
     </javac>
   </target>
 
