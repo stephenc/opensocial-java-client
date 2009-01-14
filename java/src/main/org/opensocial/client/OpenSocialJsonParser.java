@@ -50,20 +50,19 @@ public class OpenSocialJsonParser {
    */
   public static OpenSocialResponse getResponse(String in)
       throws JSONException {
+    if (!isJsonArray(in)) {
+      return null;
+    }
 
-    OpenSocialResponse r = null;
+    JSONArray responseArray = new JSONArray(in);
+    OpenSocialResponse r = new OpenSocialResponse();
 
-    if (in.charAt(0) == '[') {
-      JSONArray responseArray = new JSONArray(in);
-      r = new OpenSocialResponse();
+    for (int i = 0; i < responseArray.length(); i++) {
+      JSONObject o = responseArray.getJSONObject(i);
 
-      for (int i=0; i<responseArray.length(); i++) {
-        JSONObject o = responseArray.getJSONObject(i);
-
-        if (o.has("id")) {
-          String id = o.getString("id");
-          r.addItem(id, escape(o.toString()));
-        }
+      if (o.has("id")) {
+        String id = o.getString("id");
+        r.addItem(id, escape(o.toString()));
       }
     }
 
@@ -86,10 +85,10 @@ public class OpenSocialJsonParser {
 
     OpenSocialResponse r = null;
 
-    if (in.charAt(0) == '{') {
+    if (isJsonObject(in)) {
       r = new OpenSocialResponse();
       r.addItem(id, escape(in));
-    } else if (in.charAt(0) == '[') {
+    } else if (isJsonArray(in)) {
       return getResponse(in);
     }
 
@@ -116,10 +115,7 @@ public class OpenSocialJsonParser {
     JSONObject root = new JSONObject(in);
     JSONObject entry = getEntryObject(root);
 
-    OpenSocialPerson p =
-        (OpenSocialPerson) parseAsObject(entry, OpenSocialPerson.class);
-
-    return p;
+    return (OpenSocialPerson) parseAsObject(entry, OpenSocialPerson.class);
   }
 
   /**
@@ -146,13 +142,9 @@ public class OpenSocialJsonParser {
     JSONArray entries = getEntryArray(root);
     List<OpenSocialPerson> l = new Vector<OpenSocialPerson>(entries.length());
 
-    for (int i=0; i<entries.length(); i++) {
+    for (int i = 0; i < entries.length(); i++) {
       JSONObject entry = entries.getJSONObject(i);
-
-      OpenSocialPerson p =
-          (OpenSocialPerson) parseAsObject(entry, OpenSocialPerson.class);
-
-      l.add(p);
+      l.add((OpenSocialPerson) parseAsObject(entry, OpenSocialPerson.class));
     }
 
     return l;
@@ -179,10 +171,7 @@ public class OpenSocialJsonParser {
     JSONObject root = new JSONObject(in);
     JSONObject entry = getEntryObject(root);
 
-    OpenSocialAppData d =
-        (OpenSocialAppData) parseAsObject(entry, OpenSocialAppData.class);
-
-    return d;
+    return (OpenSocialAppData) parseAsObject(entry, OpenSocialAppData.class);
   }
 
   /**
@@ -199,17 +188,13 @@ public class OpenSocialJsonParser {
   private static JSONArray getEntryArray(JSONObject root)
       throws OpenSocialRequestException, JSONException {
 
-    JSONArray entry = new JSONArray();
-
     if (root.has("entry")) {
-      entry = root.getJSONArray("entry");
+      return root.getJSONArray("entry");
     } else if (root.has("data")) {
-      entry = root.getJSONObject("data").getJSONArray("list");
-    } else {
-      throw new OpenSocialRequestException("Entry not found");
+      return root.getJSONObject("data").getJSONArray("list");
     }
 
-    return entry;
+    throw new OpenSocialRequestException("Entry not found");
   }
 
   /**
@@ -226,17 +211,13 @@ public class OpenSocialJsonParser {
   private static JSONObject getEntryObject(JSONObject root)
       throws OpenSocialRequestException, JSONException {
 
-    JSONObject entry;
-
     if (root.has("data")) {
-      entry = root.getJSONObject("data");
+      return root.getJSONObject("data");
     } else if (root.has("entry")) {
-      entry = root.getJSONObject("entry");
-    } else {
-      throw new OpenSocialRequestException("Entry not found");
+      return root.getJSONObject("entry");
     }
 
-    return entry;
+    throw new OpenSocialRequestException("Entry not found");
   }
 
   /**
@@ -250,11 +231,9 @@ public class OpenSocialJsonParser {
    *         OpenSocialObject
    * @param  clientClass Class of object to return, either OpenSocialObject
    *         or a subclass
-   * @throws JSONException
    */
   private static OpenSocialObject parseAsObject(
-      JSONObject entryObject, Class<? extends OpenSocialObject> clientClass)
-      throws JSONException {
+      JSONObject entryObject, Class<? extends OpenSocialObject> clientClass) {
 
     OpenSocialObject o = null;
     try {
@@ -265,7 +244,7 @@ public class OpenSocialJsonParser {
       throw new RuntimeException("Library error - Json class not accessible: " + clientClass);
     }
 
-    Map<String,OpenSocialField> entryRepresentation =
+    Map<String, OpenSocialField> entryRepresentation =
         createObjectRepresentation(entryObject);
 
     for (Map.Entry<String,OpenSocialField> e : entryRepresentation.entrySet()) {
@@ -283,41 +262,58 @@ public class OpenSocialJsonParser {
    * @param  o Object-oriented representation of a JSON object which is
    *         transformed into and returned as a Map of OpenSocialField
    *         objects keyed on Strings
-   * @throws JSONException
    */
-  private static Map<String, OpenSocialField> createObjectRepresentation(
-      JSONObject o)
-      throws JSONException {
-
-    HashMap<String,OpenSocialField> r = new HashMap<String,OpenSocialField>();
+  private static Map<String, OpenSocialField> createObjectRepresentation(JSONObject o) {
+    HashMap<String, OpenSocialField> r = new HashMap<String, OpenSocialField>();
 
     Iterator<?> keys = o.keys();
 
     while (keys.hasNext()) {
       String key = (String) keys.next();
-      String property = o.getString(key);
-
-      if (property.length() > 0 && property.charAt(0) == '{') {
-        JSONObject p = o.getJSONObject(key);
-        OpenSocialField field = new OpenSocialField(true);
-
-        field.addValue(new OpenSocialObject(createObjectRepresentation(p)));
-        r.put(key, field);
-      } else if (property.length() > 0 && property.charAt(0) == '[') {
-        JSONArray p = o.getJSONArray(key);
-        Collection<Object> values = createArrayRepresentation(p);
-        OpenSocialField field = new OpenSocialField(true);
-
-        for (Object v : values) {
-          field.addValue(v);
-        }
-
-        r.put(key, field);
-      } else if (property.length() > 0) {
-        OpenSocialField field = new OpenSocialField(false);
-        field.addValue(unescape(property));
-        r.put(key, field);
+      String property;
+      try {
+        property = o.getString(key);
+      } catch (JSONException e) {
+        // If we can't get the object at i we will just ignore it
+        continue;
       }
+
+      if (property.length() < 0) {
+        continue;
+      }
+
+      if (isJsonObject(property)) {
+        try {
+          OpenSocialField field = new OpenSocialField(true);
+          field.addValue(new OpenSocialObject(createObjectRepresentation(o.getJSONObject(key))));
+          r.put(key, field);
+          continue;
+        } catch (JSONException e) {
+          // If this isn't an object we will try to parse it as something else
+        }
+      }
+
+      if (isJsonArray(property)) {
+        try {
+          JSONArray p = o.getJSONArray(key);
+          Collection<Object> values = createArrayRepresentation(p);
+          OpenSocialField field = new OpenSocialField(true);
+
+          for (Object v : values) {
+            field.addValue(v);
+          }
+
+          r.put(key, field);
+          continue;
+        } catch (JSONException e) {
+          // If this isn't an array we will try to parse it as something else
+        }
+      }
+
+      // As a last resort we will add in the value as a string
+      OpenSocialField field = new OpenSocialField(false);
+      field.addValue(unescape(property));
+      r.put(key, field);
     }
 
     return r;
@@ -329,32 +325,57 @@ public class OpenSocialJsonParser {
    *
    * @param  a Object-oriented representation of a JSON array which is iterated
    *         through and returned as a List of Java objects
-   * @throws JSONException
    */
-  private static List<Object> createArrayRepresentation(JSONArray a)
-      throws JSONException {
-
+  private static List<Object> createArrayRepresentation(JSONArray a) {
     Vector<Object> r = new Vector<Object>(a.length());
 
-    for (int i=0; i<a.length(); i++) {
-      String member = a.getString(i);
-
-      if (member.length() > 0 && member.charAt(0) == '{') {
-        JSONObject p = a.getJSONObject(i);
-        r.add(new OpenSocialObject(createObjectRepresentation(p)));
-      } else if (member.length() > 0 && member.charAt(0) == '[') {
-        JSONArray p = a.getJSONArray(i);
-        List<Object> values = createArrayRepresentation(p);
-
-        for (Object v : values) {
-          r.add(v);
-        }
-      } else if (member.length() > 0) {
-        r.add(member);
+    for (int i = 0; i < a.length(); i++) {
+      String member;
+      try {
+        member = a.getString(i);
+      } catch (JSONException e) {
+        // If we can't get the object at i we will just ignore it
+        continue;
       }
+
+      if (member.length() < 0) {
+        continue;
+      }
+
+      if (isJsonObject(member)) {
+        try {
+          r.add(new OpenSocialObject(createObjectRepresentation(a.getJSONObject(i))));
+          continue;
+        } catch (JSONException e) {
+          // If this isn't an object we will try to parse it as something else
+        }
+      }
+
+      if (isJsonArray(member)) {
+        try {
+          JSONArray p = a.getJSONArray(i);
+          for (Object v : createArrayRepresentation(p)) {
+            r.add(v);
+          }
+          continue;
+        } catch (JSONException e) {
+          // If this isn't an array we will try to parse it as something else
+        }
+      }
+
+      // As a last resort we will add in the value as a string
+      r.add(member);
     }
 
     return r;
+  }
+
+  private static boolean isJsonArray(String str) {
+    return str.charAt(0) == '[';
+  }
+
+  private static boolean isJsonObject(String str) {
+    return str.charAt(0) == '{';
   }
 
   /**
