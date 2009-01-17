@@ -49,8 +49,22 @@ public class OpenSocialJsonParser {
    * @throws JSONException
    */
   public static OpenSocialResponse getResponse(String in)
-      throws JSONException {
+      throws OpenSocialRequestException, JSONException {
+
     if (!isJsonArray(in)) {
+      if (isJsonObject(in)) {
+        JSONObject errorObject = new JSONObject(in);
+        String errorCode = errorObject.getString("code");
+        String errorMessage = errorObject.getString("message");
+        
+        if (errorCode != null && errorMessage != null) {
+          throw new OpenSocialRequestException(
+              "Container returned error code " + errorCode + "; " + errorMessage);          
+        } else {
+          throw new OpenSocialRequestException("Container returned error response");
+        }
+      }
+      
       return null;
     }
 
@@ -81,7 +95,7 @@ public class OpenSocialJsonParser {
    * @throws JSONException
    */
   public static OpenSocialResponse getResponse(String in, String id)
-      throws JSONException {
+      throws OpenSocialRequestException, JSONException {
 
     OpenSocialResponse r = null;
 
@@ -371,11 +385,19 @@ public class OpenSocialJsonParser {
   }
 
   private static boolean isJsonArray(String str) {
-    return str.charAt(0) == '[';
+    if (str != null && str.length() > 0) {
+      return str.charAt(0) == '[';      
+    }
+    
+    return false;
   }
 
   private static boolean isJsonObject(String str) {
-    return str.charAt(0) == '{';
+    if (str != null && str.length() > 0) {
+      return str.charAt(0) == '{';
+    }
+    
+    return false;
   }
 
   /**

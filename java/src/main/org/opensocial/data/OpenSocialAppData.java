@@ -53,4 +53,16 @@ public class OpenSocialAppData extends OpenSocialObject {
 
     return value;
   }
+
+  public String[] getFieldNamesForUser(String id)
+      throws OpenSocialException {
+
+    OpenSocialField f1;
+    OpenSocialObject o;
+
+    f1 = this.getField(id);
+    o = f1.getValue();
+
+    return o.fieldNames();
+  }
 }

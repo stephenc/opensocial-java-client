@@ -34,16 +34,22 @@ import java.util.Map;
 public class OpenSocialRequest {
 
   private String id;
-  private String rpcMethodName;
+  private String rpcMethod;
+  private String restMethod;
   private String restPathComponent;
-  private Map<String, String> parameters;
+  private Map<String, Object> parameters;
 
-  public OpenSocialRequest(String pathComponent, String methodName) {
-    this.parameters = new HashMap<String, String>();
+  public OpenSocialRequest(String restPathComponent, String restMethod, String rpcMethod) {
+    this.parameters = new HashMap<String, Object>();
 
-    this.restPathComponent = pathComponent;
-    this.rpcMethodName = methodName;
+    this.restPathComponent = restPathComponent;
+    this.restMethod = restMethod;
+    this.rpcMethod = rpcMethod;
     this.id = null;
+  }
+
+  public OpenSocialRequest(String restPathComponent, String rpcMethod) {
+    this(restPathComponent, "GET", rpcMethod);
   }
 
   /**
@@ -65,15 +71,19 @@ public class OpenSocialRequest {
    * used for setting request-specific parameters such as appId, userId,
    * and groupId.
    */
-  public void addParameter(String key, String value) {
+  public void addParameter(String key, Object value) {
     this.parameters.put(key, value);
+  }
+
+  public boolean hasParameter(String parameter) {
+    return this.parameters.containsKey(parameter);
   }
 
   /**
    * Returns the value of the parameter with the given name or null if
    * no parameter with that name exists.
    */
-  public String getParameter(String parameter) {
+  public Object getParameter(String parameter) {
     return this.parameters.get(parameter);
   }
 
@@ -83,6 +93,10 @@ public class OpenSocialRequest {
    */
   public String getRestPathComponent() {
     return this.restPathComponent;
+  }
+  
+  public String getRestMethod() {
+    return this.restMethod;
   }
 
   /**
@@ -99,7 +113,7 @@ public class OpenSocialRequest {
       o.put("id", this.id);      
     }
 
-    o.put("method", this.rpcMethodName);
+    o.put("method", this.rpcMethod);
     o.put("params", new JSONObject(this.parameters));
 
     return o.toString();

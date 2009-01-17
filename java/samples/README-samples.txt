@@ -14,6 +14,9 @@ ant compile-samples
 
 2a) UNIX (bash):
 export CLASSPATH=../../dist/opensocial.jar:../../lib/*:.
+-- OR, if that doesn't work, try: --
+export CLASSPATH=../../dist/opensocial.jar:../../lib/commons-codec-1.3.jar:../../lib/oauth-20081115.jar:../../lib/httpclient-4.0-beta2.jar:../../lib/httpcore-4.0-beta3.jar:../../lib/commons-logging-1.1.1.jar:.
+
 
 2b) Windows:
 set CLASSPATH=..\..\dist\opensocial.jar;..\..\lib\*;.

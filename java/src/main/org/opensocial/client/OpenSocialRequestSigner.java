@@ -144,16 +144,16 @@ public class OpenSocialRequestSigner {
       String consumerSecret, String accessToken, String accessTokenSecret)
       throws OAuthException, IOException, URISyntaxException {
 
-    String postBody = request.getPostBody();
+    String requestBody = request.getBody();
     String requestMethod = request.getMethod();
     OpenSocialUrl requestUrl = request.getUrl();
 
     if (consumerKey != null && consumerSecret != null) {
       OAuthMessage message =
           new OAuthMessage(requestMethod, requestUrl.toString(), null);
-
-      if (postBody != null) {
-        message.addParameter(postBody, "");
+      
+      if (requestBody != null) {
+        message.addParameter(requestBody, "");
       }
 
       OAuthConsumer consumer =
@@ -170,8 +170,12 @@ public class OpenSocialRequestSigner {
 
       message.addRequiredParameters(accessor);
 
+      /****/
+      //System.out.println(net.oauth.signature.OAuthSignatureMethod.getBaseString(message));
+      /****/
+
       for (Map.Entry<String, String> p : message.getParameters()) {
-        if (!p.getKey().equals(postBody)) {
+        if (!p.getKey().equals(requestBody)) {
           requestUrl.addQueryStringParameter(
               OAuth.percentEncode(p.getKey()),
               OAuth.percentEncode(p.getValue()));

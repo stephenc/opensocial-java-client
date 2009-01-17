@@ -16,6 +16,8 @@
 
 package org.opensocial.client;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,5 +91,9 @@ public class OpenSocialUrl {
     }
 
     return s.toString();
+  }
+  
+  public URI toUri() throws URISyntaxException {
+    return new URI(this.toString());
   }
 }

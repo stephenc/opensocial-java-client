@@ -196,6 +196,9 @@ public class OpenSocialClient {
       IOException, URISyntaxException {
 
     OpenSocialResponse response = fetchPeople(userId, "@self");
+    if (response == null) {
+      System.out.println("response is null");
+    }
     return response.getItemAsPerson("people");
   }
 
@@ -284,6 +287,40 @@ public class OpenSocialClient {
     OpenSocialResponse response = fetchAppData(userId, "@self", appId);
     return response.getItemAsAppData("appdata");
   }
+  
+  public void updatePersonAppData(String key, String value)
+      throws OpenSocialRequestException, JSONException, OAuthException,
+      IOException, URISyntaxException {
+
+    Map<String, String> data = new HashMap<String, String>();
+    data.put(key, value);
+    
+    updatePersonAppData("@viewer", data);
+  }
+
+  public void updatePersonAppData(Map<String, String> data)
+      throws OpenSocialRequestException, JSONException, OAuthException,
+      IOException, URISyntaxException {
+
+    updatePersonAppData("@viewer", data);
+  }
+
+  public void updatePersonAppData(String userId, String key, String value)
+      throws OpenSocialRequestException, JSONException, OAuthException,
+      IOException, URISyntaxException {
+
+    Map<String, String> data = new HashMap<String, String>();
+    data.put(key, value);
+
+    updatePersonAppData(userId, data);
+  }
+
+  public void updatePersonAppData(String userId, Map<String, String> data)
+      throws OpenSocialRequestException, JSONException, OAuthException,
+      IOException, URISyntaxException {
+
+    updateAppData(userId, data);
+  }
 
   /**
    * Creates and submits a new request to retrieve the person or group of
@@ -348,6 +385,18 @@ public class OpenSocialClient {
 
     OpenSocialRequest r =
         OpenSocialClient.newFetchPersonAppDataRequest(userId, groupId, appId);
+
+    OpenSocialBatch batch = new OpenSocialBatch();
+    batch.addRequest(r, "appdata");
+
+    return batch.send(this);
+  }
+
+  private OpenSocialResponse updateAppData(String userId, Map<String, String> data)
+      throws OpenSocialRequestException, JSONException, OAuthException,
+      IOException, URISyntaxException {
+
+    OpenSocialRequest r = OpenSocialClient.newUpdatePersonAppDataRequest(userId, data);
 
     OpenSocialBatch batch = new OpenSocialBatch();
     batch.addRequest(r, "appdata");
@@ -428,5 +477,21 @@ public class OpenSocialClient {
       String userId, String groupId) {
 
     return newFetchPersonAppDataRequest(userId, groupId, "@app");
+  }
+
+  public static OpenSocialRequest newUpdatePersonAppDataRequest(
+      String userId, Map<String, String> data) {
+
+    OpenSocialRequest r = new OpenSocialRequest("appdata", "PUT", "appdata.update");
+    r.addParameter("groupId", "@self");
+    r.addParameter("userId", userId);
+    r.addParameter("appId", "@app");
+    r.addParameter("data", data);
+    
+    String[] fields = new String[data.size()];
+    fields = data.keySet().toArray(fields);    
+    r.addParameter("fields", fields);
+
+    return r;
   }
 }

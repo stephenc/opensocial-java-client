@@ -25,6 +25,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -72,7 +73,7 @@ public class OpenSocialBatch {
    */
   public OpenSocialResponse send(OpenSocialClient client)
       throws OpenSocialRequestException, JSONException, OAuthException,
-             IOException, URISyntaxException {
+      IOException, URISyntaxException {
 
     if (this.requests.size() == 0) {
       throw new OpenSocialRequestException(
@@ -111,7 +112,7 @@ public class OpenSocialBatch {
    */
   private OpenSocialResponse submitRpc(OpenSocialClient client)
       throws OpenSocialRequestException, JSONException, OAuthException,
-             IOException, URISyntaxException {
+      IOException, URISyntaxException {
 
     String rpcEndpoint =
       client.getProperty(OpenSocialClient.Properties.RPC_ENDPOINT);
@@ -123,13 +124,12 @@ public class OpenSocialBatch {
 
     OpenSocialUrl requestUrl = new OpenSocialUrl(rpcEndpoint);
 
-    OpenSocialHttpRequest request = new OpenSocialHttpRequest(requestUrl);
-    request.setPostBody(requestArray.toString());
+    OpenSocialHttpRequest request = new OpenSocialHttpRequest("POST", requestUrl);
+    request.setBody(requestArray.toString());
 
     OpenSocialRequestSigner.signRequest(request, client);
 
-    String responseString = getHttpResponse(request);
-    return OpenSocialJsonParser.getResponse(responseString);
+    return OpenSocialJsonParser.getResponse(request.execute());
   }
 
   /**
@@ -147,7 +147,7 @@ public class OpenSocialBatch {
    */
   private OpenSocialResponse submitRest(OpenSocialClient client)
       throws OpenSocialRequestException, JSONException, OAuthException,
-             IOException, URISyntaxException {
+      IOException, URISyntaxException {
 
     String restBaseUri =
       client.getProperty(OpenSocialClient.Properties.REST_BASE_URI);
@@ -155,50 +155,47 @@ public class OpenSocialBatch {
     OpenSocialRequest r = this.requests.get(0);
 
     OpenSocialUrl requestUrl = new OpenSocialUrl(restBaseUri);
-
     requestUrl.addPathComponent(r.getRestPathComponent());
+
     if (r.getParameter("userId") != null) {
-      requestUrl.addPathComponent(r.getParameter("userId"));
+      requestUrl.addPathComponent((String) r.getParameter("userId"));
     }
     if (r.getParameter("groupId") != null) {
-      requestUrl.addPathComponent(r.getParameter("groupId"));
+      requestUrl.addPathComponent((String) r.getParameter("groupId"));
     }
     if (r.getParameter("appId") != null) {
-      requestUrl.addPathComponent(r.getParameter("appId"));
+      requestUrl.addPathComponent((String) r.getParameter("appId"));
     }
 
-    OpenSocialHttpRequest request = new OpenSocialHttpRequest(requestUrl);
+    String method = r.getRestMethod();
+    OpenSocialHttpRequest request = new OpenSocialHttpRequest(method, requestUrl);
+    
+    if (method.equals("PUT")) {
+      if (r.hasParameter("data")) {
+        String[] fields = (String[]) r.getParameter("fields");
+        JSONObject bodyObject = new JSONObject((Map) r.getParameter("data"));
 
-    OpenSocialRequestSigner.signRequest(request, client);
-
-    String responseString = getHttpResponse(request);
-    return OpenSocialJsonParser.getResponse(responseString, r.getId());
-  }
-
-  /**
-   * Returns the text returned by the container after executing the passed
-   * OpenSocialHttpRequest object.
-   *
-   * @param  r OpenSocialHttpRequest object to execute
-   * @return
-   * @throws OpenSocialRequestException if the status code returned by the
-   *         container is not 200 OK.
-   * @throws IOException
-   */
-  private String getHttpResponse(OpenSocialHttpRequest r)
-      throws OpenSocialRequestException, IOException {
-
-    if (r != null) {
-      int requestStatus = r.execute();
-
-      if (requestStatus == 200) {
-        return r.getResponseString();
-      } else {
-        throw new OpenSocialRequestException(
-            "Request returned error code: " + requestStatus + " for url: " + r.getUrl());
+        requestUrl.addQueryStringParameter("fields", this.getCommaSeparatedList(fields));
+        request.setBody(bodyObject.toString());
       }
     }
 
-    return null;
+    OpenSocialRequestSigner.signRequest(request, client);
+
+    return OpenSocialJsonParser.getResponse(request.execute(), r.getId());
+  }
+  
+  private String getCommaSeparatedList(String[] data) {
+    StringBuilder dataList = new StringBuilder();
+
+    for (int i=0; i < data.length; i++) {
+      if (i != 0) {
+        dataList.append(",");
+      }
+
+      dataList.append(data[i]);
+    }
+
+    return dataList.toString();
   }
 }

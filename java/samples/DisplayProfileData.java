@@ -26,7 +26,7 @@ public class DisplayProfileData {
     OpenSocialClient c = new OpenSocialClient("orkut.com");
 
     c.setProperty(OpenSocialClient.Properties.RPC_ENDPOINT,
-        "http://sandbox.orkut.com/social/rpc");
+        "http://www.orkut.com/social/rpc");
     
     // Credentials provided here are associated with the gadget located at
     // http://opensocial-resources.googlecode.com/svn/samples/rest_rpc/sample.xml;
