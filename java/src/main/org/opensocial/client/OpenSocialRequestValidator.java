@@ -66,11 +66,11 @@ public class OpenSocialRequestValidator {
     String requestUrl = getRequestUrl(request);
     List<OAuth.Parameter> requestParameters = getRequestParameters(request);
 
-    OAuthMessage message =
-        new OAuthMessage(method, requestUrl, requestParameters);
+    OAuthMessage message = new OAuthMessage(method, requestUrl, requestParameters);
 
-    OAuthConsumer consumer =
-        new OAuthConsumer(null, null, consumerSecret, null);
+    OAuthConsumer consumer = new OAuthConsumer(null, null, consumerSecret, null);
+    consumer.setProperty(OAuth.OAUTH_SIGNATURE_METHOD, OAuth.HMAC_SHA1);
+
     OAuthAccessor accessor = new OAuthAccessor(consumer);
 
     try {
@@ -89,10 +89,10 @@ public class OpenSocialRequestValidator {
     String requestUrl = getRequestUrl(request);
     List<OAuth.Parameter> requestParameters = getRequestParameters(request);
 
-    OAuthMessage message =
-        new OAuthMessage(method, requestUrl, requestParameters);
+    OAuthMessage message = new OAuthMessage(method, requestUrl, requestParameters);
 
     OAuthConsumer consumer = new OAuthConsumer(null, null, null, null);
+    consumer.setProperty(OAuth.OAUTH_SIGNATURE_METHOD, OAuth.RSA_SHA1);
     consumer.setProperty(RSA_SHA1.X509_CERTIFICATE, certificate);
 
     OAuthAccessor accessor = new OAuthAccessor(consumer);
