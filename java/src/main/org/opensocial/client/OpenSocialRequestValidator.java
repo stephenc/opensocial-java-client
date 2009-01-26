@@ -22,6 +22,7 @@ import net.oauth.OAuthConsumer;
 import net.oauth.OAuthException;
 import net.oauth.OAuthMessage;
 import net.oauth.SimpleOAuthValidator;
+import net.oauth.signature.RSA_SHA1;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -58,8 +59,7 @@ public class OpenSocialRequestValidator {
    * @throws IOException
    * @throws URISyntaxException
    */
-  public static boolean verifyHmacSignature(
-      HttpServletRequest request, String consumerSecret)
+  public static boolean verifyHmacSignature(HttpServletRequest request, String consumerSecret)
       throws IOException, URISyntaxException {
 
     String method = request.getMethod();
@@ -71,6 +71,30 @@ public class OpenSocialRequestValidator {
 
     OAuthConsumer consumer =
         new OAuthConsumer(null, null, consumerSecret, null);
+    OAuthAccessor accessor = new OAuthAccessor(consumer);
+
+    try {
+      message.validateMessage(accessor, new SimpleOAuthValidator());
+    } catch (OAuthException e) {
+      return false;
+    }
+
+    return true;
+  }
+
+  public static boolean verifyRsaSignature(HttpServletRequest request, String certificate)
+      throws IOException, URISyntaxException {
+
+    String method = request.getMethod();
+    String requestUrl = getRequestUrl(request);
+    List<OAuth.Parameter> requestParameters = getRequestParameters(request);
+
+    OAuthMessage message =
+        new OAuthMessage(method, requestUrl, requestParameters);
+
+    OAuthConsumer consumer = new OAuthConsumer(null, null, null, null);
+    consumer.setProperty(RSA_SHA1.X509_CERTIFICATE, certificate);
+
     OAuthAccessor accessor = new OAuthAccessor(consumer);
 
     try {
