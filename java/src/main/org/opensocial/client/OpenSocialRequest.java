@@ -19,8 +19,8 @@ package org.opensocial.client;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An object which represents a single OpenSocial REST/JSON-RPC request, which
@@ -37,26 +37,19 @@ public class OpenSocialRequest {
   private String rpcMethod;
   private String restMethod;
   private String restPathComponent;
-  private Map<String, Object> parameters;
+  private OpenSocialRequestParameterSet parameters;
 
   public OpenSocialRequest(String restPathComponent, String restMethod, String rpcMethod) {
-    this.parameters = new HashMap<String, Object>();
-
     this.restPathComponent = restPathComponent;
     this.restMethod = restMethod;
     this.rpcMethod = rpcMethod;
+
+    this.parameters = new OpenSocialRequestParameterSet();
     this.id = null;
   }
 
   public OpenSocialRequest(String restPathComponent, String rpcMethod) {
     this(restPathComponent, "GET", rpcMethod);
-  }
-
-  /**
-   * Returns instance variable: id.
-   */
-  public String getId() {
-    return this.id;
   }
 
   /** 
@@ -66,25 +59,35 @@ public class OpenSocialRequest {
     this.id = id;
   }
 
-  /**
-   * Creates a new entry in parameters Map with the passed key and value;
-   * used for setting request-specific parameters such as appId, userId,
-   * and groupId.
-   */
-  public void addParameter(String key, Object value) {
-    this.parameters.put(key, value);
+  public void setParameters(OpenSocialRequestParameterSet parameters) {
+    this.parameters = parameters;
   }
 
-  public boolean hasParameter(String parameter) {
-    return this.parameters.containsKey(parameter);
+  /**
+   * Returns true if a parameter with the given key is registered, false
+   * otherwise.
+   */
+  public boolean hasParameter(String key) {
+    return this.parameters.hasParameter(key);
   }
 
   /**
    * Returns the value of the parameter with the given name or null if
    * no parameter with that name exists.
    */
-  public Object getParameter(String parameter) {
-    return this.parameters.get(parameter);
+  public String getParameter(String key) {
+    return this.parameters.getParameter(key);
+  }
+
+  public Set<Map.Entry<String, OpenSocialRequestParameter>> getParameters() {
+    return this.parameters.getParameters().entrySet();
+  }
+
+  public String popParameter(String key) {
+    String value = this.parameters.getParameter(key);
+    this.parameters.removeParameter(key);
+
+    return value;
   }
 
   /**
@@ -100,21 +103,27 @@ public class OpenSocialRequest {
   }
 
   /**
+   * Returns instance variable: id.
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
    * Returns a JSON-RPC serialization of the request including ID, RPC method,
    * and all added parameters. Used by other classes when preparing to submit
    * an RPC batch request.
    * 
    * @throws JSONException
    */
-  public String getJsonEncoding() throws JSONException {
+  public String toJson() throws JSONException {
     JSONObject o = new JSONObject();
 
     if (this.id != null) {
       o.put("id", this.id);      
     }
-
     o.put("method", this.rpcMethod);
-    o.put("params", new JSONObject(this.parameters));
+    o.put("params", new JSONObject(this.parameters.toJson()));
 
     return o.toString();
   }

@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -119,7 +120,7 @@ public class OpenSocialBatch {
 
     JSONArray requestArray = new JSONArray();
     for (OpenSocialRequest r : this.requests) {
-      requestArray.put(new JSONObject(r.getJsonEncoding()));
+      requestArray.put(new JSONObject(r.toJson()));
     }
 
     OpenSocialUrl requestUrl = new OpenSocialUrl(rpcEndpoint);
@@ -157,14 +158,14 @@ public class OpenSocialBatch {
     OpenSocialUrl requestUrl = new OpenSocialUrl(restBaseUri);
     requestUrl.addPathComponent(r.getRestPathComponent());
 
-    if (r.getParameter("userId") != null) {
-      requestUrl.addPathComponent((String) r.getParameter("userId"));
+    if (r.hasParameter("userId")) {
+      requestUrl.addPathComponent((String) r.popParameter("userId"));
     }
-    if (r.getParameter("groupId") != null) {
-      requestUrl.addPathComponent((String) r.getParameter("groupId"));
+    if (r.hasParameter("groupId")) {
+      requestUrl.addPathComponent((String) r.popParameter("groupId"));
     }
-    if (r.getParameter("appId") != null) {
-      requestUrl.addPathComponent((String) r.getParameter("appId"));
+    if (r.hasParameter("appId")) {
+      requestUrl.addPathComponent((String) r.popParameter("appId"));
     }
 
     String method = r.getRestMethod();
@@ -172,30 +173,17 @@ public class OpenSocialBatch {
     
     if (method.equals("PUT")) {
       if (r.hasParameter("data")) {
-        String[] fields = (String[]) r.getParameter("fields");
-        JSONObject bodyObject = new JSONObject((Map) r.getParameter("data"));
-
-        requestUrl.addQueryStringParameter("fields", this.getCommaSeparatedList(fields));
-        request.setBody(bodyObject.toString());
+        request.setBody(r.popParameter("data"));
       }
+    }
+
+    Set<Map.Entry<String, OpenSocialRequestParameter>> parameters = r.getParameters();
+    for (Map.Entry<String, OpenSocialRequestParameter> entry : parameters) {
+      requestUrl.addQueryStringParameter(entry.getKey(), entry.getValue().getValuesString());
     }
 
     OpenSocialRequestSigner.signRequest(request, client);
 
     return OpenSocialJsonParser.getResponse(request.execute(), r.getId());
-  }
-  
-  private String getCommaSeparatedList(String[] data) {
-    StringBuilder dataList = new StringBuilder();
-
-    for (int i=0; i < data.length; i++) {
-      if (i != 0) {
-        dataList.append(",");
-      }
-
-      dataList.append(data[i]);
-    }
-
-    return dataList.toString();
   }
 }

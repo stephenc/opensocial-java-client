@@ -14,20 +14,20 @@
  */
 
 
+import org.opensocial.data.OpenSocialField;
 import org.opensocial.data.OpenSocialPerson;
 import org.opensocial.client.OpenSocialClient;
+import org.opensocial.client.OpenSocialRequestParameterSet;
 
 import java.util.Collection;
 
-public class DisplayFriends {
+public class DisplayExtendedProfileData {
 
   public static void main(String[] args) {
     OpenSocialClient c = new OpenSocialClient("orkut.com");
 
-    // orkut supports both the REST and RPC protocols; RPC is preferred because
-    // RPC supports batch requests
     c.setProperty(OpenSocialClient.Properties.RPC_ENDPOINT,
-        "http://sandbox.orkut.com/social/rpc");
+        "http://www.orkut.com/social/rpc");
     
     // Credentials provided here are associated with the gadget located at
     // http://opensocial-resources.googlecode.com/svn/samples/rest_rpc/sample.xml;
@@ -41,22 +41,23 @@ public class DisplayFriends {
         "03067092798963641994");
 
     try {
-      // Retrieve the friends of the specified user using the OpenSocialClient
-      // method fetchFriends
-      Collection<OpenSocialPerson> friends =
-        c.fetchFriends("03067092798963641994");
+      // Create a new OpenSocialRequestParameterSet object to indicate which request
+      // parameters you want to pass with your request; in this case, we are asking
+      // orkut specifically to return the name and gender fields for the person
+      // fetched below.
+      OpenSocialRequestParameterSet params = new OpenSocialRequestParameterSet();
+      params.addParameter("fields", new String[] {"gender", "name"});
+      
+      // Retrieve the profile data of the specified user using the OpenSocialClient
+      // method fetchPerson; pass in the parameter set object created above
+      OpenSocialPerson person = c.fetchPerson("03067092798963641994", params);
       
       System.out.println("----------");
       
-      // The fetchFriends method returns a typical Java Collection object with
-      // all of the methods you're already accustomed to like size()
-      System.out.println(friends.size() + " friends:");
-
-      // Iterate through the Collection
-      for (OpenSocialPerson friend : friends) {
-        // Output the name of the current friend
-        System.out.println("- " + friend.getDisplayName());
-      }
+      // Output the name, ID, and gender of the requested person
+      System.out.println("ID: " + person.getId());      
+      System.out.println("Name: " + person.getDisplayName());
+      System.out.println("Gender: " + person.getField("gender").getStringValue());
 
       System.out.println("----------");
 

@@ -33,11 +33,14 @@ public class OpenSocialRequestTest extends TestCase {
     
     OpenSocialRequest r = new OpenSocialRequest("people/", "people.get");
     
-    r.addParameter(name, value);
+    OpenSocialRequestParameterSet parameters = new OpenSocialRequestParameterSet();
+    parameters.addParameter(name, value);
+    r.setParameters(parameters);
+    
     assertEquals(true, r.getParameter(name).equals(value));
   }
   
-  public void testGetJsonEncoding() throws JSONException {
+  public void testToJson() throws JSONException {
     String restPathComponent = "people/";
     String rpcMethod = "people.get";
     String n1 = "parameterName1";
@@ -56,10 +59,13 @@ public class OpenSocialRequestTest extends TestCase {
     request.put("params", params);
     
     OpenSocialRequest r = new OpenSocialRequest(restPathComponent, rpcMethod);
-    r.addParameter(n1, v1);
-    r.addParameter(n2, v2);
+
+    OpenSocialRequestParameterSet parameters = new OpenSocialRequestParameterSet();
+    parameters.addParameter(n1, v1);
+    parameters.addParameter(n2, v2);
+    r.setParameters(parameters);
     r.setId(id);
-    
-    assertEquals(true, request.toString().equals(r.getJsonEncoding()));
+
+    assertEquals(true, request.toString().equals(r.toJson()));
   }
 }
