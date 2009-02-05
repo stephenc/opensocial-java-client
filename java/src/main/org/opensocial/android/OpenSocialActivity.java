@@ -140,6 +140,16 @@ public class OpenSocialActivity extends Activity {
         prefs.getString(ACCESS_TOKEN_SECRET_PREF, null));
   }
 
+  public void clearSavedAuthentication() {
+   SharedPreferences.Editor editor = prefs.edit();
+
+    editor.remove(ACCESS_TOKEN_PREF);
+    editor.remove(ACCESS_TOKEN_SECRET_PREF);
+    editor.remove(OpenSocialChooserActivity.CURRENT_PROVIDER_PREF);
+
+    editor.commit();
+  }
+
   private Token loadRequestToken() {
     String requestTokenPref = prefs.getString(OpenSocialChooserActivity.REQUEST_TOKEN_PREF, null);
     if (requestTokenPref != null) {

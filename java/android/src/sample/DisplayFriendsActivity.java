@@ -15,14 +15,18 @@
 package sample;
 
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import org.opensocial.android.OpenSocialActivity;
 import org.opensocial.client.OpenSocialBatch;
 import org.opensocial.client.OpenSocialClient;
 import org.opensocial.client.OpenSocialProvider;
 import org.opensocial.client.OpenSocialRequest;
 import org.opensocial.client.Token;
 import org.opensocial.data.OpenSocialPerson;
-import org.opensocial.android.OpenSocialActivity;
 
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +54,10 @@ public class DisplayFriendsActivity extends OpenSocialActivity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    setupClient();
+  }
+
+  private void setupClient() {
     OpenSocialClient client = getOpenSocialClient(SUPPORTED_PROVIDERS, ANDROID_SCHEME);
 
     // If the client is null the OpenSocialChooserActivity will be started
@@ -73,15 +81,48 @@ public class DisplayFriendsActivity extends OpenSocialActivity {
       throw new RuntimeException(e);
     }
 
+    LinearLayout linearLayout = new LinearLayout(this);
+    linearLayout.setLayoutParams(new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.FILL_PARENT,
+        LinearLayout.LayoutParams.FILL_PARENT));
+    linearLayout.setOrientation(LinearLayout.VERTICAL);
+
+
     if (friends.size() > 0) {
       FriendListView contactsView = new FriendListView(this);
       contactsView.setFriends(friends);
-      setContentView(contactsView);
+      contactsView.setVerticalScrollBarEnabled(true);
+      contactsView.setLayoutParams(new ViewGroup.LayoutParams(
+          ViewGroup.LayoutParams.FILL_PARENT, 300));
+      linearLayout.addView(contactsView);
     } else {
       TextView textView = new TextView(this);
       textView.setText("No contacts found.");
-      setContentView(textView);
+      linearLayout.addView(textView);
     }
+
+    final DisplayFriendsActivity activity = this;
+
+    Button clearAuthButton = new Button(this);
+    clearAuthButton.setText("Clear Auth");
+    clearAuthButton.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View view) {
+        activity.clearSavedAuthentication();
+      }
+    });
+
+    Button fetchFriendsButton = new Button(this);
+    fetchFriendsButton.setText("Fetch Friends");
+    fetchFriendsButton.setOnClickListener(new View.OnClickListener() {
+      public void onClick(View view) {
+        activity.setupClient();
+      }
+    });
+
+    linearLayout.addView(fetchFriendsButton);
+    linearLayout.addView(clearAuthButton);
+
+    setContentView(linearLayout);
   }
 
 }
