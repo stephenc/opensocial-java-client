@@ -57,7 +57,6 @@ public class FriendListView extends ListView {
         return i;
       }
 
-      @Override
       public View getView(int position, View convertView, ViewGroup parent) {
         OpenSocialPerson c = contacts.get(position);
         return new ContactView(FriendListView.this.getContext(), c);
