@@ -19,6 +19,7 @@ package org.opensocial.client;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.opensocial.data.OpenSocialActivity;
 import org.opensocial.data.OpenSocialAppData;
 import org.opensocial.data.OpenSocialField;
 import org.opensocial.data.OpenSocialObject;
@@ -186,6 +187,35 @@ public class OpenSocialJsonParser {
     JSONObject entry = getEntryObject(root);
 
     return (OpenSocialAppData) parseAsObject(entry, OpenSocialAppData.class);
+  }
+  
+  /**
+   * Method to parse the input JSON string, build OpenSocialActivity Objects with
+   * the entry values and return a list of OpenSocialActivity objects
+   * 
+   * @param in
+   * @return
+   * @throws OpenSocialRequestException
+   * @throws JSONException
+   */
+  public static List<OpenSocialActivity> parseAsActivityCollection(String in) 
+  	throws OpenSocialRequestException, JSONException {
+
+        if (in == null) {
+            throw new OpenSocialRequestException(
+                "Response item with given key not found");
+          }
+
+          JSONObject root = new JSONObject(in);
+          JSONArray entries = getEntryArray(root);
+          List<OpenSocialActivity> l = new Vector<OpenSocialActivity>(entries.length());
+
+          for (int i = 0; i < entries.length(); i++) {
+            JSONObject entry = entries.getJSONObject(i);
+            l.add((OpenSocialActivity) parseAsObject(entry, OpenSocialActivity.class));
+          }
+          
+          return l;
   }
 
   /**

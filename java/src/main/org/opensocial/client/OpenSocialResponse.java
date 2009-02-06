@@ -17,6 +17,7 @@
 package org.opensocial.client;
 
 import org.json.JSONException;
+import org.opensocial.data.OpenSocialActivity;
 import org.opensocial.data.OpenSocialAppData;
 import org.opensocial.data.OpenSocialPerson;
 
@@ -88,6 +89,23 @@ public class OpenSocialResponse {
 
     return OpenSocialJsonParser.parseAsAppData(item);
   }
+  
+  /**
+   * Retrieves and parses the JSON-encoded response item with the passed ID and
+   * returns the parsed item as a List of OpenSocialActivity objects.
+   * 
+   * @param id
+   * @return
+   * @throws OpenSocialRequestException
+   * @throws JSONException
+   */
+  public List<OpenSocialActivity> getItemAsActivityCollection(String id) 
+  	throws OpenSocialRequestException, JSONException {
+	    
+	  String item = this.items.get(id);
+	    
+	  return OpenSocialJsonParser.parseAsActivityCollection(item);
+  }
 
   /**
    * Creates a new entry in items Map with the passed ID as key and JSON object
@@ -98,5 +116,10 @@ public class OpenSocialResponse {
    */
   public void addItem(String id, String objectString) {
     this.items.put(id, objectString);
+  }
+  
+  // FIX ME...
+  public Map getItems() {
+	  return this.items;
   }
 }

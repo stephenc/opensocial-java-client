@@ -171,7 +171,7 @@ public class OpenSocialBatch {
     String method = r.getRestMethod();
     OpenSocialHttpRequest request = new OpenSocialHttpRequest(method, requestUrl);
     
-    if (method.equals("PUT")) {
+    if (method.equals("PUT")  || method.equals("POST")) {
       if (r.hasParameter("data")) {
         request.setBody(r.popParameter("data"));
       }
