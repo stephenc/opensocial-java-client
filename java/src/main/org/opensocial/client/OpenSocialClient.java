@@ -360,7 +360,7 @@ public class OpenSocialClient {
    * @param  groupId "@self" to fetch the user's profile details or "@friends"
    *         to fetch the user's friend list
    * @param  parameters Object containing any parameters to be passed along
-             with the request
+  with the request
    * @throws OpenSocialRequestException if there are any runtime issues with
    *         establishing a RESTful or JSON-RPC connection or parsing the
    *         response that the container returns
@@ -542,9 +542,9 @@ public class OpenSocialClient {
    * @throws URISyntaxException
    */
   public List<OpenSocialActivity> fetchActivities()
-  	throws OpenSocialRequestException, JSONException, OAuthException,
-	IOException, URISyntaxException {
-	  return fetchActivities("@me", "@self", "");
+      throws OpenSocialRequestException, JSONException, OAuthException,
+      IOException, URISyntaxException {
+    return fetchActivities("@me", "@self", "");
   }
 
   /**
@@ -558,11 +558,11 @@ public class OpenSocialClient {
    * @throws IOException
    * @throws URISyntaxException
    */
-   public List<OpenSocialActivity> fetchActivitiesForApp()
-   	throws OpenSocialRequestException, JSONException, OAuthException,
- 	IOException, URISyntaxException {
- 	  return fetchActivities("@me", "@self", "@app");
-   }
+  public List<OpenSocialActivity> fetchActivitiesForApp()
+      throws OpenSocialRequestException, JSONException, OAuthException,
+      IOException, URISyntaxException {
+    return fetchActivities("@me", "@self", "@app");
+  }
 
   /**
    * Method to return all activities for the user represented by the user Id
@@ -576,9 +576,9 @@ public class OpenSocialClient {
    * @throws URISyntaxException
    */
   public List<OpenSocialActivity> fetchActivitiesForPerson(String userId)
-  	throws OpenSocialRequestException, JSONException, OAuthException,
-	IOException, URISyntaxException {
-	  return fetchActivities(userId, "@self", "");
+      throws OpenSocialRequestException, JSONException, OAuthException,
+      IOException, URISyntaxException {
+    return fetchActivities(userId, "@self", "");
   }
 
   /**
@@ -593,9 +593,9 @@ public class OpenSocialClient {
    * @throws URISyntaxException
    */
   public List<OpenSocialActivity> fetchActivitiesForFriends(String userId)
-	throws OpenSocialRequestException, JSONException, OAuthException,
-	IOException, URISyntaxException {
-	  return fetchActivities(userId, "@friends", "");
+      throws OpenSocialRequestException, JSONException, OAuthException,
+      IOException, URISyntaxException {
+    return fetchActivities(userId, "@friends", "");
   }
 
 
@@ -614,120 +614,120 @@ public class OpenSocialClient {
    * @throws URISyntaxException
    */
   public List<OpenSocialActivity> fetchActivities(String userId, String groupId, String appId)
-  		throws OpenSocialRequestException, JSONException, OAuthException,
-  		IOException, URISyntaxException {
+      throws OpenSocialRequestException, JSONException, OAuthException,
+      IOException, URISyntaxException {
 
-  	    if (userId.equals("") || groupId.equals("")) {
-  	      throw new OpenSocialRequestException("Invalid request parameters");
-  	    }
+    if (userId.equals("") || groupId.equals("")) {
+      throw new OpenSocialRequestException("Invalid request parameters");
+    }
 
-  	    OpenSocialRequest r =
-  	        OpenSocialClient.newFetchActivitiesRequest(userId, groupId, appId);
+    OpenSocialRequest r =
+        OpenSocialClient.newFetchActivitiesRequest(userId, groupId, appId);
 
-  	    OpenSocialBatch batch = new OpenSocialBatch();
-  	    batch.addRequest(r, "activities");
+    OpenSocialBatch batch = new OpenSocialBatch();
+    batch.addRequest(r, "activities");
 
-  	    OpenSocialResponse response = batch.send(this);
-  	    return response.getItemAsActivityCollection("activities");
+    OpenSocialResponse response = batch.send(this);
+    return response.getItemAsActivityCollection("activities");
 
-  	}
+  }
 
-  	/**
-  	 * Creates and returns a new OpenSocialRequest object for retrieving the
-  	 * activities for the specified user, group and app
-  	 *
-  	 * @param userId
-  	 * @param groupId
-  	 * @param appId
-  	 * @return
-  	 */
-  	public static OpenSocialRequest newFetchActivitiesRequest(String userId, String groupId, String appId) {
-      OpenSocialRequest r = new OpenSocialRequest("activities", "activity.get");
-	    r.addParameter("userId", userId);
-	    r.addParameter("groupId", groupId);
+  /**
+   * Creates and returns a new OpenSocialRequest object for retrieving the
+   * activities for the specified user, group and app
+   *
+   * @param userId
+   * @param groupId
+   * @param appId
+   * @return
+   */
+  public static OpenSocialRequest newFetchActivitiesRequest(String userId, String groupId, String appId) {
+    OpenSocialRequest r = new OpenSocialRequest("activities", "activity.get");
+    r.addParameter("userId", userId);
+    r.addParameter("groupId", groupId);
 
-	    // If appId is empty, retrieve all the activities for the userId and groupId
-	    if (!appId.equals("")) {
-	    	r.addParameter("appId", appId);
-	    }
+    // If appId is empty, retrieve all the activities for the userId and groupId
+    if (!appId.equals("")) {
+      r.addParameter("appId", appId);
+    }
 
-	    return r;
-  	}
+    return r;
+  }
 
-  	/**
-  	 * Method to create an activity for the current user.
-  	 *
-  	 * @param title
-  	 * @param body
-  	 * @throws OpenSocialRequestException
-  	 * @throws JSONException
-  	 * @throws OAuthException
-  	 * @throws IOException
-  	 * @throws URISyntaxException
-  	 */
-  	public void createActivity(String title, String body)
-  		throws OpenSocialRequestException, JSONException, OAuthException,
-  		IOException, URISyntaxException {
-  		createActivity("@me", "", title, body);
-  	}
+  /**
+   * Method to create an activity for the current user.
+   *
+   * @param title
+   * @param body
+   * @throws OpenSocialRequestException
+   * @throws JSONException
+   * @throws OAuthException
+   * @throws IOException
+   * @throws URISyntaxException
+   */
+  public void createActivity(String title, String body)
+      throws OpenSocialRequestException, JSONException, OAuthException,
+      IOException, URISyntaxException {
+    createActivity("@me", "", title, body);
+  }
 
-  	/**
-  	 * Method to create an activity for the user represented by the user Id
-  	 * for the app represented by the app Id
-  	 *
-  	 * @param userId
-  	 * @param appId
-  	 * @param title
-  	 * @param body
-  	 * @throws OpenSocialRequestException
-  	 * @throws JSONException
-  	 * @throws OAuthException
-  	 * @throws IOException
-  	 * @throws URISyntaxException
-  	 */
-  	public void createActivity(String userId, String appId, String title, String body)
-		throws OpenSocialRequestException, JSONException, OAuthException,
-		IOException, URISyntaxException {
+  /**
+   * Method to create an activity for the user represented by the user Id
+   * for the app represented by the app Id
+   *
+   * @param userId
+   * @param appId
+   * @param title
+   * @param body
+   * @throws OpenSocialRequestException
+   * @throws JSONException
+   * @throws OAuthException
+   * @throws IOException
+   * @throws URISyntaxException
+   */
+  public void createActivity(String userId, String appId, String title, String body)
+      throws OpenSocialRequestException, JSONException, OAuthException,
+      IOException, URISyntaxException {
 
-	    if (userId.equals("")) {
-	      throw new OpenSocialRequestException("Invalid request parameters");
-	    }
+    if (userId.equals("")) {
+      throw new OpenSocialRequestException("Invalid request parameters");
+    }
 
-	    // Create a Hashmap with the data required for the activities: mainly title and body
-	    Map<String, String> activityData = new HashMap();
-	    activityData.put("title", title);
-	    activityData.put("body", body);
+    // Create a Hashmap with the data required for the activities: mainly title and body
+    Map<String, String> activityData = new HashMap();
+    activityData.put("title", title);
+    activityData.put("body", body);
 
-	    OpenSocialRequest r =
-	        OpenSocialClient.newCreateActivityRequest(userId, "", activityData);
+    OpenSocialRequest r =
+        OpenSocialClient.newCreateActivityRequest(userId, "", activityData);
 
-	    OpenSocialBatch batch = new OpenSocialBatch();
-	    batch.addRequest(r, "activities");
+    OpenSocialBatch batch = new OpenSocialBatch();
+    batch.addRequest(r, "activities");
 
-	    OpenSocialResponse response = batch.send(this);
-	}
+    OpenSocialResponse response = batch.send(this);
+  }
 
-  	/**
-  	 * Creates and returns a new OpenSocialRequest object for creating an
-  	 * activity for the specified user, group and app
-  	 *
-  	 * @param userId
-  	 * @param appId
-  	 * @param data
-  	 * @return
-  	 */
-  	public static OpenSocialRequest newCreateActivityRequest(String userId, String appId,
-  																Map<String, String> data) {
-      OpenSocialRequest r = new OpenSocialRequest("activities", "POST", "activity.create");
- 	    r.addParameter("userId", userId);
+  /**
+   * Creates and returns a new OpenSocialRequest object for creating an
+   * activity for the specified user, group and app
+   *
+   * @param userId
+   * @param appId
+   * @param data
+   * @return
+   */
+  public static OpenSocialRequest newCreateActivityRequest(String userId, String appId,
+      Map<String, String> data) {
+    OpenSocialRequest r = new OpenSocialRequest("activities", "POST", "activity.create");
+    r.addParameter("userId", userId);
 
- 	    // If appId is empty, retrieve all the activities for the userId and groupId
- 	    if (!appId.equals("")) {
- 	    	r.addParameter("appId", appId);
- 	    }
+    // If appId is empty, retrieve all the activities for the userId and groupId
+    if (!appId.equals("")) {
+      r.addParameter("appId", appId);
+    }
 
- 	    r.addParameter("data", new JSONObject(data).toString());
- 	    return r;
-   	}
+    r.addParameter("data", new JSONObject(data).toString());
+    return r;
+  }
 
 }

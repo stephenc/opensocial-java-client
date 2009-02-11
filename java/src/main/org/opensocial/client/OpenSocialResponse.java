@@ -89,22 +89,22 @@ public class OpenSocialResponse {
 
     return OpenSocialJsonParser.parseAsAppData(item);
   }
-  
+
   /**
    * Retrieves and parses the JSON-encoded response item with the passed ID and
    * returns the parsed item as a List of OpenSocialActivity objects.
-   * 
+   *
    * @param id
    * @return
    * @throws OpenSocialRequestException
    * @throws JSONException
    */
-  public List<OpenSocialActivity> getItemAsActivityCollection(String id) 
-  	throws OpenSocialRequestException, JSONException {
-	    
-	  String item = this.items.get(id);
-	    
-	  return OpenSocialJsonParser.parseAsActivityCollection(item);
+  public List<OpenSocialActivity> getItemAsActivityCollection(String id)
+      throws OpenSocialRequestException, JSONException {
+
+    String item = this.items.get(id);
+
+    return OpenSocialJsonParser.parseAsActivityCollection(item);
   }
 
   /**
@@ -117,9 +117,9 @@ public class OpenSocialResponse {
   public void addItem(String id, String objectString) {
     this.items.put(id, objectString);
   }
-  
+
   // FIX ME...
   public Map getItems() {
-	  return this.items;
+    return this.items;
   }
 }
