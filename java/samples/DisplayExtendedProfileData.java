@@ -14,12 +14,12 @@
  */
 
 
-import org.opensocial.data.OpenSocialField;
-import org.opensocial.data.OpenSocialPerson;
 import org.opensocial.client.OpenSocialClient;
-import org.opensocial.client.OpenSocialRequestParameterSet;
+import org.opensocial.client.OpenSocialRequestParameter;
+import org.opensocial.data.OpenSocialPerson;
 
-import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DisplayExtendedProfileData {
 
@@ -28,7 +28,7 @@ public class DisplayExtendedProfileData {
 
     c.setProperty(OpenSocialClient.Properties.RPC_ENDPOINT,
         "http://www.orkut.com/social/rpc");
-    
+
     // Credentials provided here are associated with the gadget located at
     // http://opensocial-resources.googlecode.com/svn/samples/rest_rpc/sample.xml;
     // If you install this gadget, you can substitute your own OpenSocial ID
@@ -45,17 +45,18 @@ public class DisplayExtendedProfileData {
       // parameters you want to pass with your request; in this case, we are asking
       // orkut specifically to return the name and gender fields for the person
       // fetched below.
-      OpenSocialRequestParameterSet params = new OpenSocialRequestParameterSet();
-      params.addParameter("fields", new String[] {"gender", "name"});
-      
+      Map<String, OpenSocialRequestParameter> params
+          = new HashMap<String, OpenSocialRequestParameter>();
+      params.put("fields", new OpenSocialRequestParameter(new String[]{"gender", "name"}));
+
       // Retrieve the profile data of the specified user using the OpenSocialClient
       // method fetchPerson; pass in the parameter set object created above
       OpenSocialPerson person = c.fetchPerson("03067092798963641994", params);
-      
+
       System.out.println("----------");
-      
+
       // Output the name, ID, and gender of the requested person
-      System.out.println("ID: " + person.getId());      
+      System.out.println("ID: " + person.getId());
       System.out.println("Name: " + person.getDisplayName());
       System.out.println("Gender: " + person.getField("gender").getStringValue());
 

@@ -13,45 +13,33 @@
  * limitations under the License.
  */
 
-
 package org.opensocial.client;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
 public class OpenSocialRequestParameter {
-
-  private List<String> values;
-
-  public OpenSocialRequestParameter() {
-    this.values = new Vector<String>(1);
-  }
+  private List<String> values = new Vector<String>(1);
 
   public OpenSocialRequestParameter(String[] values) {
-    this();
     this.addValues(values);
   }
 
   public OpenSocialRequestParameter(String value) {
-    this();    
     this.addValue(value);
   }
 
   public void addValues(String[] values) {
-    for (int i = 0; i < values.length; i++) {
-      this.values.add(values[i]);
-    }
+    this.values.addAll(Arrays.asList(values));
   }
 
   public void addValue(String value) {
     this.values.add(value);
   }
 
-  public String[] getValuesArray() {
-    String[] valuesArray = new String[values.size()];
-    valuesArray = values.toArray(valuesArray);
-
-    return valuesArray;
+  public List<String> getValues() {
+    return values;
   }
 
   public String getValuesString() {
@@ -73,6 +61,6 @@ public class OpenSocialRequestParameter {
    * otherwise.
    */
   public boolean isMultivalued() {
-    return (values.size() > 1);
+    return values.size() > 1;
   }
 }

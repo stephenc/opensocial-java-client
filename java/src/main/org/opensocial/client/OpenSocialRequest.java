@@ -13,14 +13,16 @@
  * limitations under the License.
  */
 
-
 package org.opensocial.client;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONArray;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * An object which represents a single OpenSocial REST/JSON-RPC request, which
@@ -37,30 +39,36 @@ public class OpenSocialRequest {
   private String rpcMethod;
   private String restMethod;
   private String restPathComponent;
-  private OpenSocialRequestParameterSet parameters;
+  private Map<String, OpenSocialRequestParameter> parameters
+      = new HashMap<String, OpenSocialRequestParameter>();
 
   public OpenSocialRequest(String restPathComponent, String restMethod, String rpcMethod) {
     this.restPathComponent = restPathComponent;
     this.restMethod = restMethod;
     this.rpcMethod = rpcMethod;
-
-    this.parameters = new OpenSocialRequestParameterSet();
-    this.id = null;
   }
 
   public OpenSocialRequest(String restPathComponent, String rpcMethod) {
     this(restPathComponent, "GET", rpcMethod);
   }
 
-  /** 
+  /**
    * Sets instance variable id to passed String.
    */
   public void setId(String id) {
     this.id = id;
   }
 
-  public void setParameters(OpenSocialRequestParameterSet parameters) {
+  public void setParameters(Map<String, OpenSocialRequestParameter> parameters) {
     this.parameters = parameters;
+  }
+
+  public void addParameter(String key, String[] values) {
+    this.parameters.put(key, new OpenSocialRequestParameter(values));
+  }
+
+  public void addParameter(String key, String value) {
+    this.parameters.put(key, new OpenSocialRequestParameter(value));
   }
 
   /**
@@ -68,7 +76,7 @@ public class OpenSocialRequest {
    * otherwise.
    */
   public boolean hasParameter(String key) {
-    return this.parameters.hasParameter(key);
+    return this.parameters.containsKey(key);
   }
 
   /**
@@ -76,16 +84,22 @@ public class OpenSocialRequest {
    * no parameter with that name exists.
    */
   public String getParameter(String key) {
-    return this.parameters.getParameter(key);
+    OpenSocialRequestParameter param = this.parameters.get(key);
+
+    if (param != null) {
+      return param.getValuesString();
+    }
+
+    return null;
   }
 
   public Set<Map.Entry<String, OpenSocialRequestParameter>> getParameters() {
-    return this.parameters.getParameters().entrySet();
+    return this.parameters.entrySet();
   }
 
   public String popParameter(String key) {
-    String value = this.parameters.getParameter(key);
-    this.parameters.removeParameter(key);
+    String value = getParameter(key);
+    this.parameters.remove(key);
 
     return value;
   }
@@ -97,7 +111,7 @@ public class OpenSocialRequest {
   public String getRestPathComponent() {
     return this.restPathComponent;
   }
-  
+
   public String getRestMethod() {
     return this.restMethod;
   }
@@ -113,18 +127,33 @@ public class OpenSocialRequest {
    * Returns a JSON-RPC serialization of the request including ID, RPC method,
    * and all added parameters. Used by other classes when preparing to submit
    * an RPC batch request.
-   * 
+   *
    * @throws JSONException
    */
   public String toJson() throws JSONException {
     JSONObject o = new JSONObject();
 
     if (this.id != null) {
-      o.put("id", this.id);      
+      o.put("id", this.id);
     }
     o.put("method", this.rpcMethod);
-    o.put("params", new JSONObject(this.parameters.toJson()));
+    o.put("params", new JSONObject(getParameterJson()));
 
     return o.toString();
+  }
+
+  public String getParameterJson() {
+    Map<String, Object> valuesMap = new HashMap<String, Object>();
+
+    for (Map.Entry<String, OpenSocialRequestParameter> entry : this.parameters.entrySet()) {
+      if (entry.getValue().isMultivalued()) {
+        List<String> strings = entry.getValue().getValues();
+        valuesMap.put(entry.getKey(), new JSONArray(strings));
+      } else {
+        valuesMap.put(entry.getKey(), entry.getValue().getValuesString());
+      }
+    }
+
+    return new JSONObject(valuesMap).toString();
   }
 }
