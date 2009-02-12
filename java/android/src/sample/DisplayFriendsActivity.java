@@ -15,6 +15,7 @@
 package sample;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -28,6 +29,7 @@ import org.opensocial.client.OpenSocialRequest;
 import org.opensocial.client.Token;
 import org.opensocial.data.OpenSocialPerson;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,7 +69,7 @@ public class DisplayFriendsActivity extends OpenSocialActivity {
   }
 
   private void showContacts(OpenSocialClient c) {
-    List<OpenSocialPerson> friends;
+    List<OpenSocialPerson> friends = new ArrayList<OpenSocialPerson>();
     try {
       if (provider.isOpenSocial) {
         friends = c.fetchFriends();
@@ -78,7 +80,8 @@ public class DisplayFriendsActivity extends OpenSocialActivity {
       }
     } catch (Exception e) {
       // TODO: Reduce the number of exceptions the library throws
-      throw new RuntimeException(e);
+      Log.i("DisplayFriendActivity", "Couldn't fetch friends from the container: "
+          + e.getMessage());
     }
 
     LinearLayout linearLayout = new LinearLayout(this);

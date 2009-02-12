@@ -52,15 +52,15 @@ public class OpenSocialActivity extends Activity {
       Map<OpenSocialProvider, Token> supportedProviders, String androidScheme) {
     prefs = getSharedPreferences("default", MODE_PRIVATE);
     Token accessToken = loadAccessToken();
-
-    if (accessToken.token == null && getIntent().getData() == null) {
-      // If the user is not already authenticated and this isn't a redirect from the browser,
-      // call OpenSocialChooserActivity
-      setupUsersOauthToken(supportedProviders, androidScheme);
-      return null;
-    }
-
     String providerString = prefs.getString(OpenSocialChooserActivity.CURRENT_PROVIDER_PREF, null);
+
+    if (accessToken.token == null && (getIntent().getData() == null || providerString == null)) {
+    // If the user is not already authenticated and this isn't a redirect from the browser,
+    // call OpenSocialChooserActivity
+    setupUsersOauthToken(supportedProviders, androidScheme);
+    return null;
+  }
+
     provider = OpenSocialProvider.valueOf(providerString.toUpperCase());
 
     OpenSocialClient client = getClient(provider, supportedProviders);
