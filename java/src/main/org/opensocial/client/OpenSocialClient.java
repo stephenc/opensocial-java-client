@@ -62,6 +62,7 @@ public class OpenSocialClient {
     public static final String TOKEN = "token";
     public static final String ACCESS_TOKEN = "accessToken";
     public static final String ACCESS_TOKEN_SECRET = "accessTokenSecret";
+    public static final String DEBUG = "debug";
   }
 
   private final Map<String, String> properties;

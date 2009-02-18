@@ -130,7 +130,16 @@ public class OpenSocialBatch {
 
     OpenSocialRequestSigner.signRequest(request, client);
 
-    return OpenSocialJsonParser.getResponse(request.execute());
+    String responseString = request.execute();
+
+    String debug = client.getProperty(OpenSocialClient.Properties.DEBUG);
+    if (debug != null && !debug.equals("")) {
+      System.out.println("Request URL:\n" + request.getUrl().toString());
+      System.out.println("Request body:\n" + request.getBody());
+      System.out.println("Response:\n" + responseString);
+    }
+
+    return OpenSocialJsonParser.getResponse(responseString);
   }
 
   /**
@@ -184,6 +193,18 @@ public class OpenSocialBatch {
 
     OpenSocialRequestSigner.signRequest(request, client);
 
-    return OpenSocialJsonParser.getResponse(request.execute(), r.getId());
+    String debug = client.getProperty(OpenSocialClient.Properties.DEBUG);
+    if (debug != null && !debug.equals("")) {
+      System.out.println("Request URL:\n" + request.getUrl().toString());
+      System.out.println("Request body:\n" + request.getBody());
+    }
+
+    String responseString = request.execute();
+
+    if (debug != null && !debug.equals("")) {
+      System.out.println("Response:\n" + responseString);
+    }
+
+    return OpenSocialJsonParser.getResponse(responseString, r.getId());
   }
 }
