@@ -23,6 +23,7 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
@@ -54,6 +55,8 @@ public class OpenSocialHttpRequest {
       this.request = new HttpPut();
     } else if (method.equals("POST")) {
       this.request = new HttpPost();
+    } else if (method.equals("DELETE")) {
+      this.request = new HttpDelete();
     }
   }
 

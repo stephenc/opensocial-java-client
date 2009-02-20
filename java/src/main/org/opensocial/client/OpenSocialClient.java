@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 /**
  * An object which provides methods for indirectly interacting with the
@@ -353,6 +354,61 @@ public class OpenSocialClient {
   }
 
   /**
+   * Method to delete app data value for the given key for the current user (@me)
+   * for the current app
+   * 
+   * @param key
+   * @throws OpenSocialRequestException
+   * @throws JSONException
+   * @throws OAuthException
+   * @throws IOException
+   * @throws URISyntaxException
+   */
+  public void deletePersonAppData(String key)
+	  throws OpenSocialRequestException, JSONException, OAuthException,
+	  IOException, URISyntaxException {
+	deletePersonAppData("@me", key);
+  }
+  
+  /**
+   * Method to delete the app data values for the given list of keys for the
+   * current user (@me) for the current app
+   * 
+   * @param keys
+   * @throws OpenSocialRequestException
+   * @throws JSONException
+   * @throws OAuthException
+   * @throws IOException
+   * @throws URISyntaxException
+   */
+  public void deletePersonAppData(List<String> keys)
+	  throws OpenSocialRequestException, JSONException, OAuthException,
+	  IOException, URISyntaxException {
+
+	  deletePersonAppData("@me", keys);
+  }
+
+  
+  public void deletePersonAppData(String userId, String key)
+  	  throws OpenSocialRequestException, JSONException, OAuthException,
+	  IOException, URISyntaxException {
+   
+	List<String> keys = new Vector<String>();
+	keys.add(key);
+
+	deletePersonAppData(userId, keys);
+  }
+
+  public void deletePersonAppData(String userId, List<String> keys)
+ 	  throws OpenSocialRequestException, JSONException, OAuthException,
+ 	  IOException, URISyntaxException {
+
+ 	deleteAppData(userId, keys);
+  }
+  
+  
+
+  /**
    * Creates and submits a new request to retrieve the person or group of
    * people selected by the arguments and returns the response from the
    * container as an OpenSocialResponse object.
@@ -435,6 +491,32 @@ public class OpenSocialClient {
     batch.addRequest(r, "appdata");
 
     return batch.send(this);
+  }
+
+
+  /**
+   * Creates an OpenSocialRequest for deleting app data, adds it to the batch
+   * and process the batch of requests.
+   * 
+   * @param userId - user whose app data must be deleted
+   * @param fields - list of app data keys for which the key-value pairs must be deleted
+   * @return
+   * @throws OpenSocialRequestException
+   * @throws JSONException
+   * @throws OAuthException
+   * @throws IOException
+   * @throws URISyntaxException
+   */
+  private OpenSocialResponse deleteAppData(String userId, List<String> fields)
+  	  throws OpenSocialRequestException, JSONException, OAuthException,
+  	  IOException, URISyntaxException {
+   
+	OpenSocialRequest r = OpenSocialClient.newDeletePersonAppDataRequest(userId, fields);
+
+	OpenSocialBatch batch = new OpenSocialBatch();
+	batch.addRequest(r, "appdata");
+
+	return batch.send(this);
   }
 
   /**
@@ -532,6 +614,31 @@ public class OpenSocialClient {
     return r;
   }
 
+
+  /**
+   * Creates an OpenSocialRequest with method type 'delete' or the corresponding RPC 
+   * method name and passes the list of keys that need to be deleted for the current app
+   * 
+   * @param userId
+   * @param fieldsList
+   * @return
+   */
+  public static OpenSocialRequest newDeletePersonAppDataRequest(
+	  String userId, List<String> fieldsList) {
+
+	OpenSocialRequest r = new OpenSocialRequest("appdata", "DELETE", "appdata.delete");
+
+	r.addParameter("groupId", "@self");
+	r.addParameter("userId", userId);
+	r.addParameter("appId", "@app");
+
+	String[] fields = new String[fieldsList.size()];
+	fields = fieldsList.toArray(fields);
+	r.addParameter("fields", fields);
+ 
+	return r;
+  } 
+  
   /**
    * Method to return all activities for all apps for the current user (@me)
    *
@@ -730,5 +837,4 @@ public class OpenSocialClient {
     r.addParameter("data", new JSONObject(data).toString());
     return r;
   }
-
 }
