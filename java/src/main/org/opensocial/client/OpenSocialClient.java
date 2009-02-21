@@ -70,12 +70,19 @@ public class OpenSocialClient {
   private OAuthHttpClient oAuthHttpClient;
 
   public OpenSocialClient() {
-    this(null);
+    this("");
   }
 
   public OpenSocialClient(String domain) {
     properties = new HashMap<String, String>();
     this.setProperty(Properties.DOMAIN, domain);
+  }
+
+  public OpenSocialClient(OpenSocialProvider provider) {
+    properties = new HashMap<String, String>();
+    this.setProperty(Properties.DOMAIN, provider.providerName);
+    this.setProperty(Properties.RPC_ENDPOINT, provider.rpcEndpoint);
+    this.setProperty(Properties.REST_BASE_URI, provider.restEndpoint);
   }
 
   /**

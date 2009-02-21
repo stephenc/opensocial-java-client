@@ -14,23 +14,21 @@
  */
 
 
-import org.opensocial.data.OpenSocialField;
-import org.opensocial.data.OpenSocialPerson;
 import org.opensocial.client.OpenSocialBatch;
 import org.opensocial.client.OpenSocialClient;
+import org.opensocial.client.OpenSocialProvider;
 import org.opensocial.client.OpenSocialResponse;
+import org.opensocial.data.OpenSocialField;
+import org.opensocial.data.OpenSocialPerson;
 
 import java.util.Collection;
 
 public class BatchRequests {
 
   public static void main(String[] args) {
-    OpenSocialClient c = new OpenSocialClient("orkut.com");
-
-    // orkut supports both the REST and RPC protocols; RPC is preferred because
-    // RPC supports batch requests
-    c.setProperty(OpenSocialClient.Properties.RPC_ENDPOINT,
-        "http://sandbox.orkut.com/social/rpc");
+    // Create a new OpenSocialClient instance configured to hit orkut endpoints;
+    // other pre-configured providers include MYSPACE, GOOGLE, and PLAXO
+    OpenSocialClient c = new OpenSocialClient(OpenSocialProvider.valueOf("ORKUT"));
     
     // Credentials provided here are associated with the gadget located at
     // http://opensocial-resources.googlecode.com/svn/samples/rest_rpc/sample.xml;

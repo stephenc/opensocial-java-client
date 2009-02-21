@@ -12,6 +12,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+
 package org.opensocial.client;
 
 import java.util.Map;
@@ -41,8 +43,13 @@ public enum OpenSocialProvider {
       "https://www.google.com/accounts/OAuthAuthorizeToken",
       "https://www.google.com/accounts/OAuthGetAccessToken",
       "http://sandbox.gmodules.com/api",
-      null,
+      "http://sandbox.gmodules.com/api/rpc",
       "Google", true),
+
+  ORKUT(null, null, null,
+      "http://www.orkut.com/social/rest/",
+      "http://www.orkut.com/social/rpc/",
+      "orkut", true),
 
   PARTUZA("http://www.partuza.nl/oauth/request_token",
       "http://www.partuza.nl/oauth/authorize",
