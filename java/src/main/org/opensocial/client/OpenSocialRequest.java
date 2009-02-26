@@ -15,7 +15,6 @@
 
 package org.opensocial.client;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
@@ -128,16 +127,21 @@ public class OpenSocialRequest {
    * and all added parameters. Used by other classes when preparing to submit
    * an RPC batch request.
    *
-   * @throws JSONException
+   * @throws OpenSocialRequestException
    */
-  public String toJson() throws JSONException {
+  public String toJson() throws OpenSocialRequestException {
     JSONObject o = new JSONObject();
 
-    if (this.id != null) {
-      o.put("id", this.id);
+    try {
+      if (this.id != null) {
+        o.put("id", this.id);
+      }
+      o.put("method", this.rpcMethod);
+      o.put("params", new JSONObject(getParameterJson()));
+    } catch (org.json.JSONException e) {
+      throw new OpenSocialRequestException(
+          "Unable to convert request to JSON string using parameters " + getParameterJson());
     }
-    o.put("method", this.rpcMethod);
-    o.put("params", new JSONObject(getParameterJson()));
 
     return o.toString();
   }

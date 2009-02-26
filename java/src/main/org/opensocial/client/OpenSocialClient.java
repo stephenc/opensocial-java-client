@@ -25,7 +25,6 @@ import net.oauth.client.httpclient4.HttpClientPool;
 import net.oauth.client.httpclient4.OAuthHttpClient;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.opensocial.data.OpenSocialActivity;
 import org.opensocial.data.OpenSocialAppData;
@@ -176,21 +175,16 @@ public class OpenSocialClient {
    * @throws OpenSocialRequestException if there are any runtime issues with
    *         establishing a RESTful or JSON-RPC connection or parsing the
    *         response that the container returns
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public OpenSocialPerson fetchPerson()
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     return this.fetchPerson("@me");
   }
 
   public OpenSocialPerson fetchPerson(Map<String, OpenSocialRequestParameter> parameters)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     return this.fetchPerson("@me", parameters);
   }
@@ -204,21 +198,16 @@ public class OpenSocialClient {
    * @throws OpenSocialRequestException if there are any runtime issues with
    *         establishing a RESTful or JSON-RPC connection or parsing the
    *         response that the container returns
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public OpenSocialPerson fetchPerson(String userId)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     return this.fetchPerson(userId, null);
   }
 
   public OpenSocialPerson fetchPerson(String userId, Map<String, OpenSocialRequestParameter> parameters)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     OpenSocialResponse response = fetchPeople(userId, "@self", parameters);
     return response.getItemAsPerson("people");
@@ -232,21 +221,16 @@ public class OpenSocialClient {
    * @throws OpenSocialRequestException if there are any runtime issues with
    *         establishing a RESTful or JSON-RPC connection or parsing the
    *         response that the container returns
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public List<OpenSocialPerson> fetchFriends()
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     return fetchFriends("@me");
   }
 
   public List<OpenSocialPerson> fetchFriends(Map<String, OpenSocialRequestParameter> parameters)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     return fetchFriends("@me", parameters);
   }
@@ -260,22 +244,17 @@ public class OpenSocialClient {
    * @throws OpenSocialRequestException if there are any runtime issues with
    *         establishing a RESTful or JSON-RPC connection or parsing the
    *         response that the container returns
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public List<OpenSocialPerson> fetchFriends(String userId)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     return this.fetchFriends(userId, null);
   }
 
   public List<OpenSocialPerson> fetchFriends(String userId,
       Map<String, OpenSocialRequestParameter> parameters)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     OpenSocialResponse response = fetchPeople(userId, "@friends", parameters);
     return response.getItemAsPersonCollection("people");
@@ -290,14 +269,10 @@ public class OpenSocialClient {
    * @throws OpenSocialRequestException if there are any runtime issues with
    *         establishing a RESTful or JSON-RPC connection or parsing the
    *         response that the container returns
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public OpenSocialAppData fetchPersonAppData(String userId)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     return fetchPersonAppData(userId, "@app");
   }
@@ -313,22 +288,17 @@ public class OpenSocialClient {
    * @throws OpenSocialRequestException if there are any runtime issues with
    *         establishing a RESTful or JSON-RPC connection or parsing the
    *         response that the container returns
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public OpenSocialAppData fetchPersonAppData(String userId, String appId)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     OpenSocialResponse response = fetchAppData(userId, "@self", appId);
     return response.getItemAsAppData("appdata");
   }
 
   public void updatePersonAppData(String key, String value)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     Map<String, String> data = new HashMap<String, String>();
     data.put(key, value);
@@ -337,15 +307,13 @@ public class OpenSocialClient {
   }
 
   public void updatePersonAppData(Map<String, String> data)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     updatePersonAppData("@viewer", data);
   }
 
   public void updatePersonAppData(String userId, String key, String value)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     Map<String, String> data = new HashMap<String, String>();
     data.put(key, value);
@@ -354,8 +322,7 @@ public class OpenSocialClient {
   }
 
   public void updatePersonAppData(String userId, Map<String, String> data)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     updateAppData(userId, data);
   }
@@ -366,14 +333,10 @@ public class OpenSocialClient {
    * 
    * @param key
    * @throws OpenSocialRequestException
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public void deletePersonAppData(String key)
-	  throws OpenSocialRequestException, JSONException, OAuthException,
-	  IOException, URISyntaxException {
+	  throws OpenSocialRequestException, IOException {
 	deletePersonAppData("@me", key);
   }
   
@@ -383,22 +346,17 @@ public class OpenSocialClient {
    * 
    * @param keys
    * @throws OpenSocialRequestException
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public void deletePersonAppData(List<String> keys)
-	  throws OpenSocialRequestException, JSONException, OAuthException,
-	  IOException, URISyntaxException {
+	  throws OpenSocialRequestException, IOException {
 
 	  deletePersonAppData("@me", keys);
   }
 
   
   public void deletePersonAppData(String userId, String key)
-  	  throws OpenSocialRequestException, JSONException, OAuthException,
-	  IOException, URISyntaxException {
+  	  throws OpenSocialRequestException, IOException {
    
 	List<String> keys = new Vector<String>();
 	keys.add(key);
@@ -407,8 +365,7 @@ public class OpenSocialClient {
   }
 
   public void deletePersonAppData(String userId, List<String> keys)
- 	  throws OpenSocialRequestException, JSONException, OAuthException,
- 	  IOException, URISyntaxException {
+ 	  throws OpenSocialRequestException, IOException {
 
  	deleteAppData(userId, keys);
   }
@@ -428,15 +385,11 @@ public class OpenSocialClient {
    * @throws OpenSocialRequestException if there are any runtime issues with
    *         establishing a RESTful or JSON-RPC connection or parsing the
    *         response that the container returns
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   private OpenSocialResponse fetchPeople(String userId, String groupId,
       Map<String, OpenSocialRequestParameter> parameters)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     if (userId.equals("") || groupId.equals("")) {
       throw new OpenSocialRequestException("Invalid request parameters");
@@ -465,15 +418,11 @@ public class OpenSocialClient {
    * @throws OpenSocialRequestException if there are any runtime issues with
    *         establishing a RESTful or JSON-RPC connection or parsing the
    *         response that the container returns
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   private OpenSocialResponse fetchAppData(
       String userId, String groupId, String appId)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     if (userId.equals("") || groupId.equals("") || appId.equals("")) {
       throw new OpenSocialRequestException("Invalid request parameters");
@@ -489,8 +438,7 @@ public class OpenSocialClient {
   }
 
   private OpenSocialResponse updateAppData(String userId, Map<String, String> data)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     OpenSocialRequest r = OpenSocialClient.newUpdatePersonAppDataRequest(userId, data);
 
@@ -509,14 +457,10 @@ public class OpenSocialClient {
    * @param fields - list of app data keys for which the key-value pairs must be deleted
    * @return
    * @throws OpenSocialRequestException
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   private OpenSocialResponse deleteAppData(String userId, List<String> fields)
-  	  throws OpenSocialRequestException, JSONException, OAuthException,
-  	  IOException, URISyntaxException {
+  	  throws OpenSocialRequestException, IOException {
    
 	OpenSocialRequest r = OpenSocialClient.newDeletePersonAppDataRequest(userId, fields);
 
@@ -651,14 +595,10 @@ public class OpenSocialClient {
    *
    * @return
    * @throws OpenSocialRequestException
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public List<OpenSocialActivity> fetchActivities()
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
     return fetchActivities("@me", "@self", "");
   }
 
@@ -668,14 +608,10 @@ public class OpenSocialClient {
    *
    * @return
    * @throws OpenSocialRequestException
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public List<OpenSocialActivity> fetchActivitiesForApp()
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
     return fetchActivities("@me", "@self", "@app");
   }
 
@@ -685,14 +621,10 @@ public class OpenSocialClient {
    * @param userId
    * @return
    * @throws OpenSocialRequestException
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public List<OpenSocialActivity> fetchActivitiesForPerson(String userId)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
     return fetchActivities(userId, "@self", "");
   }
 
@@ -702,14 +634,10 @@ public class OpenSocialClient {
    * @param userId
    * @return
    * @throws OpenSocialRequestException
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public List<OpenSocialActivity> fetchActivitiesForFriends(String userId)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
     return fetchActivities(userId, "@friends", "");
   }
 
@@ -723,14 +651,10 @@ public class OpenSocialClient {
    * @param appId
    * @return
    * @throws OpenSocialRequestException
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public List<OpenSocialActivity> fetchActivities(String userId, String groupId, String appId)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     if (userId.equals("") || groupId.equals("")) {
       throw new OpenSocialRequestException("Invalid request parameters");
@@ -775,14 +699,10 @@ public class OpenSocialClient {
    * @param title
    * @param body
    * @throws OpenSocialRequestException
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public void createActivity(String title, String body)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
     createActivity("@me", "", title, body);
   }
 
@@ -795,14 +715,10 @@ public class OpenSocialClient {
    * @param title
    * @param body
    * @throws OpenSocialRequestException
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public void createActivity(String userId, String appId, String title, String body)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     if (userId.equals("")) {
       throw new OpenSocialRequestException("Invalid request parameters");

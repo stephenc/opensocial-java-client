@@ -58,8 +58,11 @@ public class DisplayFriends {
 
       System.out.println("----------");
 
-    } catch (Exception e) {
-      System.out.println("Request failed:" );
+    } catch (org.opensocial.client.OpenSocialRequestException e) {
+      System.out.println("OpenSocialRequestException thrown: " + e.getMessage());
+      e.printStackTrace();
+    } catch (java.io.IOException e) {
+      System.out.println("IOException thrown: " + e.getMessage());
       e.printStackTrace();
     }
   }

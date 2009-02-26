@@ -37,7 +37,7 @@ public class OpenSocialRequestTest extends TestCase {
     assertEquals(true, r.getParameter(name).equals(value));
   }
 
-  public void testToJson() throws JSONException {
+  public void testToJson() throws OpenSocialRequestException, JSONException {
     String restPathComponent = "people/";
     String rpcMethod = "people.get";
     String n1 = "parameterName1";

@@ -19,11 +19,9 @@ package org.opensocial.client;
 import net.oauth.OAuthException;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,14 +65,10 @@ public class OpenSocialBatch {
    *                properties set
    * @return Object encapsulating the data requested from the container
    * @throws OpenSocialRequestException
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public OpenSocialResponse send(OpenSocialClient client)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     if (this.requests.size() == 0) {
       throw new OpenSocialRequestException(
@@ -106,21 +100,22 @@ public class OpenSocialBatch {
    * @param  client OpenSocialClient object with RPC_ENDPOINT property set
    * @return Object encapsulating the data requested from the container
    * @throws OpenSocialRequestException
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   private OpenSocialResponse submitRpc(OpenSocialClient client)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     String rpcEndpoint =
       client.getProperty(OpenSocialClient.Properties.RPC_ENDPOINT);
 
     JSONArray requestArray = new JSONArray();
     for (OpenSocialRequest r : this.requests) {
-      requestArray.put(new JSONObject(r.toJson()));
+      try {
+        requestArray.put(new JSONObject(r.toJson()));
+      } catch (org.json.JSONException e) {
+        throw new OpenSocialRequestException(
+            "Invalid JSON object string " + r.toJson());
+      }
     }
 
     OpenSocialUrl requestUrl = new OpenSocialUrl(rpcEndpoint);
@@ -150,14 +145,10 @@ public class OpenSocialBatch {
    * @param  client OpenSocialClient object with REST_BASE_URI property set
    * @return Object encapsulating the data requested from the container
    * @throws OpenSocialRequestException
-   * @throws JSONException
-   * @throws OAuthException
    * @throws IOException
-   * @throws URISyntaxException
    */
   private OpenSocialResponse submitRest(OpenSocialClient client)
-      throws OpenSocialRequestException, JSONException, OAuthException,
-      IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     String restBaseUri =
       client.getProperty(OpenSocialClient.Properties.REST_BASE_URI);

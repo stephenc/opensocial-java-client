@@ -23,7 +23,6 @@ import net.oauth.OAuthException;
 import net.oauth.OAuthMessage;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Map;
 
 /**
@@ -48,13 +47,12 @@ public class OpenSocialRequestSigner {
    *         parameter when signing POST requests
    * @param  client OpenSocialClient object with various properties, both
    *         optional and required, used during the signing process
-   * @throws OAuthException
+   * @throws OpenSocialRequestException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public static void signRequest(
       OpenSocialHttpRequest request, OpenSocialClient client)
-      throws OAuthException, IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     String token =
       client.getProperty(OpenSocialClient.Properties.TOKEN);
@@ -99,13 +97,12 @@ public class OpenSocialRequestSigner {
    *         requests made by the client application.
    * @param accessToken Used in 3 legged OAuth. The user's access token.
    * @param accessTokenSecret Used in 3 legged OAuth. The user's access token secret.
-   * @throws OAuthException
+   * @throws OpenSocialRequestException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public static void signRequest(OpenSocialHttpRequest request, String token, String viewerId,
       String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret)
-      throws OAuthException, IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     OpenSocialUrl requestUrl = request.getUrl();
 
@@ -136,13 +133,12 @@ public class OpenSocialRequestSigner {
    *         requests made by the client application.
    * @param accessToken Used in 3 legged OAuth. The user's access token.
    * @param accessTokenSecret Used in 3 legged OAuth. The user's access token secret.
-   * @throws OAuthException
+   * @throws OpenSocialRequestException
    * @throws IOException
-   * @throws URISyntaxException
    */
   public static void signRequest(OpenSocialHttpRequest request, String consumerKey,
       String consumerSecret, String accessToken, String accessTokenSecret)
-      throws OAuthException, IOException, URISyntaxException {
+      throws OpenSocialRequestException, IOException {
 
     String requestBody = request.getBody();
     String requestMethod = request.getMethod();
@@ -168,7 +164,15 @@ public class OpenSocialRequestSigner {
         accessor.accessToken = "";
       }
 
-      message.addRequiredParameters(accessor);
+      try {
+        message.addRequiredParameters(accessor);        
+      } catch (OAuthException e) {
+        throw new OpenSocialRequestException(
+            "OAuth error thrown while signing request " + e.getMessage());
+      } catch (java.net.URISyntaxException e) {
+        throw new OpenSocialRequestException(
+            "Malformed request URL " + message.URL + " could not be signed");
+      }
 
       /****/
       //System.out.println(net.oauth.signature.OAuthSignatureMethod.getBaseString(message));
@@ -177,8 +181,8 @@ public class OpenSocialRequestSigner {
       for (Map.Entry<String, String> p : message.getParameters()) {
         if (!p.getKey().equals(requestBody)) {
           requestUrl.addQueryStringParameter(
-              OAuth.percentEncode(p.getKey()),
-              OAuth.percentEncode(p.getValue()));
+            OAuth.percentEncode(p.getKey()),
+            OAuth.percentEncode(p.getValue()));
         }
       }
     }

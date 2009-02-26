@@ -17,6 +17,7 @@
 import org.opensocial.client.OpenSocialBatch;
 import org.opensocial.client.OpenSocialClient;
 import org.opensocial.client.OpenSocialProvider;
+import org.opensocial.client.OpenSocialRequestException;
 import org.opensocial.client.OpenSocialResponse;
 import org.opensocial.data.OpenSocialField;
 import org.opensocial.data.OpenSocialPerson;
@@ -98,8 +99,11 @@ public class BatchRequests {
 
       System.out.println("----------");
 
-    } catch (Exception e) {
-      System.out.println("Request failed:" );
+    } catch (org.opensocial.client.OpenSocialRequestException e) {
+      System.out.println("OpenSocialRequestException thrown: " + e.getMessage());
+      e.printStackTrace();
+    } catch (java.io.IOException e) {
+      System.out.println("IOException thrown: " + e.getMessage());
       e.printStackTrace();
     }
   }

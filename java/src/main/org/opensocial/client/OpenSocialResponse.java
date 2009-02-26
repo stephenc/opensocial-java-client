@@ -16,7 +16,6 @@
 
 package org.opensocial.client;
 
-import org.json.JSONException;
 import org.opensocial.data.OpenSocialActivity;
 import org.opensocial.data.OpenSocialAppData;
 import org.opensocial.data.OpenSocialPerson;
@@ -49,10 +48,9 @@ public class OpenSocialResponse {
    *
    * @param  id ID of the response item to parse
    * @throws OpenSocialRequestException
-   * @throws JSONException
    */
   public OpenSocialPerson getItemAsPerson(String id)
-      throws OpenSocialRequestException, JSONException {
+      throws OpenSocialRequestException {
 
     String item = this.items.get(id);
     return OpenSocialJsonParser.parseAsPerson(item);
@@ -64,10 +62,9 @@ public class OpenSocialResponse {
    *
    * @param  id ID of the response item to parse
    * @throws OpenSocialRequestException
-   * @throws JSONException
    */
   public List<OpenSocialPerson> getItemAsPersonCollection(String id)
-      throws OpenSocialRequestException, JSONException {
+      throws OpenSocialRequestException {
 
     String item = this.items.get(id);
 
@@ -80,10 +77,9 @@ public class OpenSocialResponse {
    *
    * @param  id ID of the response item to parse
    * @throws OpenSocialRequestException
-   * @throws JSONException
    */
   public OpenSocialAppData getItemAsAppData(String id)
-      throws OpenSocialRequestException, JSONException {
+      throws OpenSocialRequestException {
 
     String item = this.items.get(id);
 
@@ -97,10 +93,9 @@ public class OpenSocialResponse {
    * @param id
    * @return
    * @throws OpenSocialRequestException
-   * @throws JSONException
    */
   public List<OpenSocialActivity> getItemAsActivityCollection(String id)
-      throws OpenSocialRequestException, JSONException {
+      throws OpenSocialRequestException {
 
     String item = this.items.get(id);
 

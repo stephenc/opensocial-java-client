@@ -69,7 +69,7 @@ public class OpenSocialHttpRequest {
       this.request.setURI(this.url.toUri());
       return httpClient.execute(this.request, responseHandler);
     } catch (java.net.URISyntaxException e) {
-      throw new OpenSocialRequestException("Malformed URL: " + this.url.toString());
+      throw new OpenSocialRequestException("Malformed URL " + this.url.toString());
     }    
   }
 
