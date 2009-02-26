@@ -15,6 +15,7 @@
 package org.opensocial.android;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -24,10 +25,10 @@ import org.opensocial.client.OpenSocialClient;
 import org.opensocial.client.OpenSocialProvider;
 import org.opensocial.client.Token;
 
-import java.util.ArrayList;
-import java.util.Map;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Map;
 
 /**
  * Any Android activity that wishes to use the OpenSocial apis should extend this class.
@@ -41,20 +42,35 @@ import java.net.URISyntaxException;
  *
  * @author Cassandra Doll
  */
-public class OpenSocialActivity extends Activity {
+public class OpenSocialActivity {
   private static final String ACCESS_TOKEN_PREF = "accessToken";
   private static final String ACCESS_TOKEN_SECRET_PREF = "accessTokenSecret";
 
-  protected SharedPreferences prefs;
-  protected OpenSocialProvider provider;
+  private OpenSocialProvider provider;
+  private Context context;
+  private SharedPreferences prefs;
+  private Intent intent;
+  private Map<OpenSocialProvider, Token> supportedProviders;
+  private String androidScheme;
 
-  protected OpenSocialClient getOpenSocialClient(
-      Map<OpenSocialProvider, Token> supportedProviders, String androidScheme) {
-    prefs = getSharedPreferences("default", MODE_PRIVATE);
+  public OpenSocialActivity(Activity context, Map<OpenSocialProvider, Token> supportedProviders,
+      String androidScheme) {
+    this.context = context;
+    this.prefs = context.getSharedPreferences("default", Activity.MODE_PRIVATE);
+    this.intent = context.getIntent();
+    this.supportedProviders = supportedProviders;
+    this.androidScheme = androidScheme;
+  }
+
+  public OpenSocialProvider getProvider() {
+    return provider;
+  }
+
+  public OpenSocialClient getOpenSocialClient() {
     Token accessToken = loadAccessToken();
     String providerString = prefs.getString(OpenSocialChooserActivity.CURRENT_PROVIDER_PREF, null);
 
-    if (accessToken.token == null && (getIntent().getData() == null || providerString == null)) {
+    if (accessToken.token == null && (intent.getData() == null || providerString == null)) {
     // If the user is not already authenticated and this isn't a redirect from the browser,
     // call OpenSocialChooserActivity
     setupUsersOauthToken(supportedProviders, androidScheme);
@@ -65,7 +81,7 @@ public class OpenSocialActivity extends Activity {
 
     OpenSocialClient client = getClient(provider, supportedProviders);
 
-    if (getIntent().getData() != null) {
+    if (intent.getData() != null) {
       try {
         accessToken = client.getAccessToken(provider, loadRequestToken());
       } catch (IOException e) {
@@ -104,7 +120,7 @@ public class OpenSocialActivity extends Activity {
   private void setupUsersOauthToken(Map<OpenSocialProvider, Token> supportedProviders,
       String browserScheme) {
 
-    Intent oauthLibrary = new Intent(this, OpenSocialChooserActivity.class);
+    Intent oauthLibrary = new Intent(context, OpenSocialChooserActivity.class);
 
     ArrayList<String> providerStrings = new ArrayList<String>();
     for (Map.Entry<OpenSocialProvider, Token> entry : supportedProviders.entrySet()) {
@@ -115,7 +131,7 @@ public class OpenSocialActivity extends Activity {
     oauthLibrary.putExtra(OpenSocialChooserActivity.ANDROID_SCHEME, browserScheme);
     oauthLibrary.putStringArrayListExtra(OpenSocialChooserActivity.PROVIDERS, providerStrings);
 
-    startActivity(oauthLibrary);
+    context.startActivity(oauthLibrary);
   }
 
   private void addConsumerTokenExtra(Intent oauthLibrary, OpenSocialProvider provider,
@@ -158,7 +174,7 @@ public class OpenSocialActivity extends Activity {
       return new Token(requestTokenPref, requestTokenSecretPref);
     }
 
-    Uri data = getIntent().getData();
+    Uri data = intent.getData();
     // Unregistered oauth providers hand back the request token on the url
     if (data != null) {
       int tokenIndex = data.toString().indexOf("oauth_token");

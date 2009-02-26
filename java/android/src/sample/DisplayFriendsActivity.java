@@ -14,6 +14,7 @@
  */
 package sample;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -40,10 +41,11 @@ import java.util.Map;
  *
  * @author Cassandra Doll
  */
-public class DisplayFriendsActivity extends OpenSocialActivity {
+public class DisplayFriendsActivity extends Activity {
   private static String ANDROID_SCHEME = "x-opensocial-demo-app";
   private static Map<OpenSocialProvider, Token> SUPPORTED_PROVIDERS
       = new HashMap<OpenSocialProvider, Token>();
+  public OpenSocialActivity util;
 
   static {
     // Setup all the OpenSocial containers you want to integrate with
@@ -60,15 +62,16 @@ public class DisplayFriendsActivity extends OpenSocialActivity {
   }
 
   private void setupClient() {
-    OpenSocialClient client = getOpenSocialClient(SUPPORTED_PROVIDERS, ANDROID_SCHEME);
+    util = new OpenSocialActivity(this, SUPPORTED_PROVIDERS, ANDROID_SCHEME);
+    OpenSocialClient client = util.getOpenSocialClient();
 
     // If the client is null the OpenSocialChooserActivity will be started
     if (client != null) {
-      showContacts(client);
+      showContacts(client, util.getProvider());
     }
   }
 
-  private void showContacts(OpenSocialClient c) {
+  private void showContacts(OpenSocialClient c, OpenSocialProvider provider) {
     List<OpenSocialPerson> friends = new ArrayList<OpenSocialPerson>();
     try {
       if (provider.isOpenSocial) {
@@ -110,7 +113,7 @@ public class DisplayFriendsActivity extends OpenSocialActivity {
     clearAuthButton.setText("Clear Auth");
     clearAuthButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View view) {
-        activity.clearSavedAuthentication();
+        util.clearSavedAuthentication();
       }
     });
 
