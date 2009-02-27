@@ -299,7 +299,6 @@ public class OpenSocialClient {
 
   public void updatePersonAppData(String key, String value)
       throws OpenSocialRequestException, IOException {
-
     Map<String, String> data = new HashMap<String, String>();
     data.put(key, value);
 
@@ -550,13 +549,12 @@ public class OpenSocialClient {
 
   public static OpenSocialRequest newUpdatePersonAppDataRequest(
       String userId, Map<String, String> data) {
-
     OpenSocialRequest r = new OpenSocialRequest("appdata", "PUT", "appdata.update");
     r.addParameter("groupId", "@self");
     r.addParameter("userId", userId);
     r.addParameter("appId", "@app");
 
-    r.addParameter("data", new JSONObject(data).toString());
+    r.addParameter("data", data);
 
     String[] fields = new String[data.size()];
     fields = data.keySet().toArray(fields);
@@ -564,7 +562,6 @@ public class OpenSocialClient {
 
     return r;
   }
-
 
   /**
    * Creates an OpenSocialRequest with method type 'delete' or the corresponding RPC 

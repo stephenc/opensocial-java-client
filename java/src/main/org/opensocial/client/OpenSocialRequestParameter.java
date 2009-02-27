@@ -17,40 +17,56 @@ package org.opensocial.client;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 public class OpenSocialRequestParameter {
-  private List<String> values = new Vector<String>(1);
+  private List<String> valuesList = null;
+  private Map<String, String> valuesMap = null;
+
+  public OpenSocialRequestParameter(Map<String, String> valuesMap) {
+    this.valuesMap = valuesMap;
+  }
 
   public OpenSocialRequestParameter(String[] values) {
+    valuesList = new Vector<String>(values.length);
     this.addValues(values);
   }
 
   public OpenSocialRequestParameter(String value) {
+    valuesList = new Vector<String>(1);
     this.addValue(value);
   }
 
-  public void addValues(String[] values) {
-    this.values.addAll(Arrays.asList(values));
+  private void addValues(String[] values) {
+    this.valuesList.addAll(Arrays.asList(values));
   }
 
-  public void addValue(String value) {
-    this.values.add(value);
+  private void addValue(String value) {
+    this.valuesList.add(value);
   }
 
-  public List<String> getValues() {
-    return values;
+  public Map<String, String> getValuesMap() {
+    return valuesMap;
+  }
+
+  public List<String> getValuesList() {
+    return valuesList;
   }
 
   public String getValuesString() {
+    if (valuesList == null) {
+      return null;
+    }
+
     StringBuilder list = new StringBuilder();
 
-    for (int i = 0; i < values.size(); i++) {
+    for (int i = 0; i < valuesList.size(); i++) {
       if (i != 0) {
         list.append(",");
       }
 
-      list.append(values.get(i));
+      list.append(valuesList.get(i));
     }
 
     return list.toString();
@@ -61,6 +77,13 @@ public class OpenSocialRequestParameter {
    * otherwise.
    */
   public boolean isMultivalued() {
-    return values.size() > 1;
+    return valuesList.size() > 1;
+  }
+
+  /**
+   * Returns true if there are one or more key-value pairs associated with this parameter.
+   */
+  public boolean isMultikeyed() {
+    return valuesMap != null;
   }
 }

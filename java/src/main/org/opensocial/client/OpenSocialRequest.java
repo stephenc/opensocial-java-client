@@ -15,8 +15,9 @@
 
 package org.opensocial.client;
 
-import org.json.JSONObject;
 import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONStringer;
 
 import java.util.Map;
 import java.util.Set;
@@ -60,6 +61,10 @@ public class OpenSocialRequest {
 
   public void setParameters(Map<String, OpenSocialRequestParameter> parameters) {
     this.parameters = parameters;
+  }
+
+  public void addParameter(String key, Map<String, String> valuesMap) {
+    this.parameters.put(key, new OpenSocialRequestParameter(valuesMap));
   }
 
   public void addParameter(String key, String[] values) {
@@ -137,27 +142,27 @@ public class OpenSocialRequest {
         o.put("id", this.id);
       }
       o.put("method", this.rpcMethod);
-      o.put("params", new JSONObject(getParameterJson()));
+
+      JSONObject params = new JSONObject();
+      for (Map.Entry<String, OpenSocialRequestParameter> entry : this.parameters.entrySet()) {
+        OpenSocialRequestParameter parameter = entry.getValue();
+        String parameterName = entry.getKey();
+
+        if (parameter.isMultikeyed()) {
+          params.put(parameterName, new JSONObject(parameter.getValuesMap()));
+        } else if (parameter.isMultivalued()) {
+          params.put(parameterName, new JSONArray(parameter.getValuesList()));
+        } else {
+          params.put(parameterName, parameter.getValuesString());
+        }
+      }
+
+      o.put("params", params);
     } catch (org.json.JSONException e) {
       throw new OpenSocialRequestException(
-          "Unable to convert request to JSON string using parameters " + getParameterJson());
+          "Unable to convert request to JSON string");
     }
 
     return o.toString();
-  }
-
-  public String getParameterJson() {
-    Map<String, Object> valuesMap = new HashMap<String, Object>();
-
-    for (Map.Entry<String, OpenSocialRequestParameter> entry : this.parameters.entrySet()) {
-      if (entry.getValue().isMultivalued()) {
-        List<String> strings = entry.getValue().getValues();
-        valuesMap.put(entry.getKey(), new JSONArray(strings));
-      } else {
-        valuesMap.put(entry.getKey(), entry.getValue().getValuesString());
-      }
-    }
-
-    return new JSONObject(valuesMap).toString();
   }
 }

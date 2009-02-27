@@ -175,7 +175,11 @@ public class OpenSocialRequestSigner {
       }
 
       /****/
-      //System.out.println(net.oauth.signature.OAuthSignatureMethod.getBaseString(message));
+      /*try {
+        System.out.println("Signature base string: " + net.oauth.signature.OAuthSignatureMethod.getBaseString(message));        
+      } catch (Exception e) {
+        
+      }*/
       /****/
 
       for (Map.Entry<String, String> p : message.getParameters()) {
