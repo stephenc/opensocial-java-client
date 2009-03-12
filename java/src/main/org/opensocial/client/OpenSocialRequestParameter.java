@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.json.JSONObject;
+
 public class OpenSocialRequestParameter {
   private List<String> valuesList = null;
   private Map<String, String> valuesMap = null;
@@ -55,10 +57,19 @@ public class OpenSocialRequestParameter {
   }
 
   public String getValuesString() {
-    if (valuesList == null) {
-      return null;
+    if (valuesList != null) {
+      return getValuesListAsString();
     }
-
+    else if (valuesMap != null) {
+    	return getValuesMapAsString();
+    }
+    else {
+    	return null;
+    }
+  }
+  
+  public String getValuesListAsString() {
+    
     StringBuilder list = new StringBuilder();
 
     for (int i = 0; i < valuesList.size(); i++) {
@@ -71,7 +82,16 @@ public class OpenSocialRequestParameter {
 
     return list.toString();
   }
-
+  
+  public String getValuesMapAsString() {
+	  JSONObject json = new JSONObject(valuesMap);
+	  
+	  if (json == null) {
+		  return null;
+	  }
+	  
+	  return json.toString();
+  }
   /**
    * Returns true if the number of stored values is greater than one, false
    * otherwise.
