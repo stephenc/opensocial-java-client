@@ -44,25 +44,25 @@ public class OpenSocialHttpClient implements net.oauth.http.HttpClient {
 	 */
 	public HttpResponseMessage execute(HttpMessage request) throws IOException {
 		final String method = request.method;
-        final URL url = new URL(request.url.toExternalForm());
-        final InputStream body = request.getBody();
-        final boolean isDelete = DELETE.equalsIgnoreCase(method);
-        final boolean isPost = POST.equalsIgnoreCase(method);
-        final boolean isPut = PUT.equalsIgnoreCase(method);
+    final URL url = new URL(request.url.toExternalForm());
+    final InputStream body = request.getBody();
+    final boolean isDelete = DELETE.equalsIgnoreCase(method);
+    final boolean isPost = POST.equalsIgnoreCase(method);
+    final boolean isPut = PUT.equalsIgnoreCase(method);
         
-        String bodyString = getBodyString(body);
+    String bodyString = getBodyString(body);
         
-        OpenSocialHttpResponseMessage response = null;
-        if (isPost) {
-        	response = send("POST", url, bodyString);
-        } else if (isPut) {
-        	response = send("PUT", url, bodyString);
-        } else if (isDelete) {
-            response = send("DELETE", url);
-        } else {
-        	response = send("GET", url);
-        }
-        return response;
+    OpenSocialHttpResponseMessage response = null;
+    if (isPost) {
+      response = send("POST", url, bodyString);
+    } else if (isPut) {
+      response = send("PUT", url, bodyString);
+    } else if (isDelete) {
+      response = send("DELETE", url);
+    } else {
+      response = send("GET", url);
+    }
+    return response;
 	}
 	
 	/**
@@ -75,17 +75,17 @@ public class OpenSocialHttpClient implements net.oauth.http.HttpClient {
 	 */
 	private String getBodyString(InputStream body) throws IOException {
 		String bodyString = null;
-        if (body != null) {
-        	BufferedReader reader = new BufferedReader(new InputStreamReader(body));
-        	StringBuilder builder = new StringBuilder();
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-            	builder.append(line + "\n");
-            }
-            bodyString = builder.toString();
-        }
-        
-        return bodyString;
+    if (body != null) {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(body));
+      StringBuilder builder = new StringBuilder();
+      String line = null;
+      while ((line = reader.readLine()) != null) {
+        builder.append(line + "\n");
+      }
+      bodyString = builder.toString();
+    }
+    
+    return bodyString;
 	}
 	
 	/**
@@ -124,11 +124,11 @@ public class OpenSocialHttpClient implements net.oauth.http.HttpClient {
 		try {
 			HttpURLConnection connection = getConnection(method, url);
 			OutputStreamWriter out =
-				new OutputStreamWriter(connection.getOutputStream());
-	        out.write(body);
-	        out.flush();
-	        
-	        responseCode = connection.getResponseCode();
+			  new OutputStreamWriter(connection.getOutputStream());
+			out.write(body);
+			out.flush();
+			
+	    responseCode = connection.getResponseCode();
 	        
 			return new OpenSocialHttpResponseMessage(method, url,
 					connection.getInputStream(), responseCode);
