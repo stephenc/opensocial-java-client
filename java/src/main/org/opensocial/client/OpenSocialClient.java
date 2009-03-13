@@ -21,10 +21,9 @@ import net.oauth.OAuthConsumer;
 import net.oauth.OAuthException;
 import net.oauth.OAuthMessage;
 import net.oauth.OAuthServiceProvider;
-import net.oauth.client.httpclient4.HttpClientPool;
-import net.oauth.client.httpclient4.OAuthHttpClient;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
+import net.oauth.client.OAuthClient;
+import net.oauth.http.HttpClient;
+
 import org.json.JSONObject;
 import org.opensocial.data.OpenSocialActivity;
 import org.opensocial.data.OpenSocialAppData;
@@ -32,7 +31,6 @@ import org.opensocial.data.OpenSocialPerson;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +64,7 @@ public class OpenSocialClient {
   }
 
   private final Map<String, String> properties;
-  private OAuthHttpClient oAuthHttpClient;
+  private OAuthClient oAuthClient;
 
   public OpenSocialClient() {
     this("");
@@ -110,20 +108,14 @@ public class OpenSocialClient {
         getProperty(Properties.CONSUMER_SECRET), serviceProvider);
   }
 
-  private OAuthHttpClient getOAuthHttpClient() {
-    if (oAuthHttpClient == null) {
-      final HttpClient httpClient = new DefaultHttpClient();
+  private OAuthClient getOAuthClient() {
+    if (oAuthClient == null) {
+      final HttpClient httpClient = new OpenSocialHttpClient();
 
-      HttpClientPool clientPool = new HttpClientPool() {
-        public HttpClient getHttpClient(URL server) {
-          return httpClient;
-        }
-      };
-
-      oAuthHttpClient = new OAuthHttpClient(clientPool);
+      oAuthClient = new OAuthClient(httpClient);
     }
 
-    return oAuthHttpClient;
+    return oAuthClient;
   }
 
   public Token getRequestToken(OpenSocialProvider provider)
@@ -134,7 +126,7 @@ public class OpenSocialClient {
       return new Token("", "");
     }
 
-    OAuthHttpClient httpClient = getOAuthHttpClient();
+    OAuthClient httpClient = getOAuthClient();
     OAuthAccessor accessor = new OAuthAccessor(getOAuthConsumer(provider));
 
     Set<Map.Entry<String,String>> extraParams = null;
@@ -158,7 +150,7 @@ public class OpenSocialClient {
 
   public Token getAccessToken(OpenSocialProvider provider, Token requestToken)
       throws IOException, URISyntaxException, OAuthException {
-    OAuthHttpClient httpClient = getOAuthHttpClient();
+    OAuthClient httpClient = getOAuthClient();
     OAuthAccessor accessor = new OAuthAccessor(getOAuthConsumer(provider));
     accessor.accessToken = requestToken.token;
     accessor.tokenSecret = requestToken.secret;
