@@ -16,14 +16,6 @@
 
 package org.opensocial.client;
 
-import net.oauth.OAuthAccessor;
-import net.oauth.OAuthConsumer;
-import net.oauth.OAuthException;
-import net.oauth.OAuthMessage;
-import net.oauth.OAuthServiceProvider;
-import net.oauth.client.OAuthClient;
-import net.oauth.http.HttpClient;
-
 import org.json.JSONObject;
 import org.opensocial.data.OpenSocialActivity;
 import org.opensocial.data.OpenSocialAppData;
@@ -64,7 +56,6 @@ public class OpenSocialClient {
   }
 
   private final Map<String, String> properties;
-  private OAuthClient oAuthClient;
 
   public OpenSocialClient() {
     this("");
@@ -99,64 +90,6 @@ public class OpenSocialClient {
    */
   public void setProperty(String name, String value) {
     properties.put(name, value);
-  }
-
-  private OAuthConsumer getOAuthConsumer(OpenSocialProvider provider) {
-    OAuthServiceProvider serviceProvider = new OAuthServiceProvider(provider.requestTokenUrl,
-        provider.authorizeUrl, provider.accessTokenUrl);
-    return new OAuthConsumer(null, getProperty(Properties.CONSUMER_KEY),
-        getProperty(Properties.CONSUMER_SECRET), serviceProvider);
-  }
-
-  private OAuthClient getOAuthClient() {
-    if (oAuthClient == null) {
-      final HttpClient httpClient = new OpenSocialHttpClient();
-
-      oAuthClient = new OAuthClient(httpClient);
-    }
-
-    return oAuthClient;
-  }
-
-  public Token getRequestToken(OpenSocialProvider provider)
-      throws IOException, URISyntaxException, OAuthException {
-
-    if (provider.requestTokenUrl == null) {
-      // Used for unregistered oauth
-      return new Token("", "");
-    }
-
-    OAuthClient httpClient = getOAuthClient();
-    OAuthAccessor accessor = new OAuthAccessor(getOAuthConsumer(provider));
-
-    Set<Map.Entry<String,String>> extraParams = null;
-    if (provider.requestTokenParams != null) {
-      extraParams = provider.requestTokenParams.entrySet();
-    }
-    httpClient.getRequestToken(accessor, "GET", extraParams);
-
-    return new Token(accessor.requestToken, accessor.tokenSecret);
-  }
-
-  public String getAuthorizationUrl(OpenSocialProvider provider, Token requestToken,
-      String callbackUrl) {
-    if (requestToken.token == null || requestToken.token.equals("")) {
-      // This is an unregistered oauth request
-      return provider.authorizeUrl + "?oauth_callback=" + callbackUrl;
-    }
-    return provider.authorizeUrl + "?oauth_token=" + requestToken.token
-        + "&oauth_callback=" + callbackUrl;
-  }
-
-  public Token getAccessToken(OpenSocialProvider provider, Token requestToken)
-      throws IOException, URISyntaxException, OAuthException {
-    OAuthClient httpClient = getOAuthClient();
-    OAuthAccessor accessor = new OAuthAccessor(getOAuthConsumer(provider));
-    accessor.accessToken = requestToken.token;
-    accessor.tokenSecret = requestToken.secret;
-
-    OAuthMessage message = httpClient.invoke(accessor, "GET", provider.accessTokenUrl, null);
-    return new Token(message.getToken(), message.getParameter("oauth_token_secret"));
   }
 
   /**

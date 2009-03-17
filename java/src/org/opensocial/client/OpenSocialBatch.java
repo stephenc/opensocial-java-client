@@ -123,7 +123,7 @@ public class OpenSocialBatch {
     OpenSocialHttpRequest request = new OpenSocialHttpRequest("POST", requestUrl);
     request.setBody(requestArray.toString());
 
-    OpenSocialRequestSigner.signRequest(request, client);
+    OpenSocialOAuthClient.signRequest(request, client);
 
     String responseString = request.execute();
 
@@ -182,7 +182,7 @@ public class OpenSocialBatch {
       requestUrl.addQueryStringParameter(entry.getKey(), entry.getValue().getValuesString());
     }
 
-    OpenSocialRequestSigner.signRequest(request, client);
+    OpenSocialOAuthClient.signRequest(request, client);
 
     String debug = client.getProperty(OpenSocialClient.Properties.DEBUG);
     if (debug != null && !debug.equals("")) {
