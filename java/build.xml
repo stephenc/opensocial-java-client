@@ -4,8 +4,8 @@
   <property name="app.version" value="20081217"/>
 
   <!-- Paths for source code -->
-  <property name="src-main.home" value="${basedir}/src/main"/>
-  <property name="src-test.home" value="${basedir}/src/test"/>
+  <property name="src-main.home" value="${basedir}/src"/>
+  <property name="src-test.home" value="${basedir}/test"/>
 
   <!-- Path for client library sample application source code -->
   <property name="samples-src.home" value="${basedir}/samples"/>
