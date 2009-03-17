@@ -42,8 +42,8 @@ public enum OpenSocialProvider {
   GOOGLE("https://www.google.com/accounts/OAuthGetRequestToken",
       "https://www.google.com/accounts/OAuthAuthorizeToken",
       "https://www.google.com/accounts/OAuthGetAccessToken",
-      "http://sandbox.gmodules.com/api",
-      "http://sandbox.gmodules.com/api/rpc",
+      "http://www-opensocial-sandbox.googleusercontent.com/api",
+      "http://www-opensocial-sandbox.googleusercontent.com/api/rpc",
       "Google", true),
 
   ORKUT(null, null, null,
