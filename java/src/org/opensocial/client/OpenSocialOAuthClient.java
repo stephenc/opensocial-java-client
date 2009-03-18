@@ -67,6 +67,8 @@ public class OpenSocialOAuthClient {
 
     String token =
       client.getProperty(OpenSocialClient.Properties.TOKEN);
+    String debug =
+      client.getProperty(OpenSocialClient.Properties.DEBUG);
     String viewerId =
       client.getProperty(OpenSocialClient.Properties.VIEWER_ID);
     String consumerKey =
@@ -80,7 +82,7 @@ public class OpenSocialOAuthClient {
       client.getProperty(OpenSocialClient.Properties.ACCESS_TOKEN_SECRET);
 
     signRequest(request, token, viewerId, consumerKey, consumerSecret,
-        accessToken, accessTokenSecret);
+        accessToken, accessTokenSecret, debug);
   }
 
   /**
@@ -111,8 +113,9 @@ public class OpenSocialOAuthClient {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  public static void signRequest(OpenSocialHttpRequest request, String token, String viewerId,
-      String consumerKey, String consumerSecret, String accessToken, String accessTokenSecret)
+  public static void signRequest(OpenSocialHttpRequest request, String token,
+      String viewerId, String consumerKey, String consumerSecret,
+      String accessToken, String accessTokenSecret, String debug)
       throws OpenSocialRequestException, IOException {
 
     OpenSocialUrl requestUrl = request.getUrl();
@@ -124,7 +127,8 @@ public class OpenSocialOAuthClient {
       requestUrl.addQueryStringParameter("st", token);
     }
 
-    signRequest(request, consumerKey, consumerSecret, accessToken, accessTokenSecret);
+    signRequest(request, consumerKey, consumerSecret, accessToken,
+        accessTokenSecret, debug);
   }
 
   /**
@@ -147,8 +151,9 @@ public class OpenSocialOAuthClient {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  public static void signRequest(OpenSocialHttpRequest request, String consumerKey,
-      String consumerSecret, String accessToken, String accessTokenSecret)
+  public static void signRequest(OpenSocialHttpRequest request,
+      String consumerKey, String consumerSecret, String accessToken,
+      String accessTokenSecret, String debug)
       throws OpenSocialRequestException, IOException {
 
     String requestBody = request.getBody();
@@ -185,13 +190,14 @@ public class OpenSocialOAuthClient {
             "Malformed request URL " + message.URL + " could not be signed");
       }
 
-      /****/
-      /*try {
-        System.out.println("Signature base string: " + net.oauth.signature.OAuthSignatureMethod.getBaseString(message));        
-      } catch (Exception e) {
-        
-      }*/
-      /****/
+      if (debug != null) {
+        try {
+          System.out.println("Signature base string:\n" +
+              net.oauth.signature.OAuthSignatureMethod.getBaseString(message));
+        } catch (URISyntaxException e) {
+          // Ignore exception thrown
+        }
+      }
 
       for (Map.Entry<String, String> p : message.getParameters()) {
         if (!p.getKey().equals(requestBody)) {
