@@ -26,7 +26,7 @@
         <os family="windows"/>
     </condition>
 
-    <property name="external-libs" value="libs" />
+    <property name="external-libs" value="lib" />
     <condition property="external-libs-ospath"
             value="${basedir}\${external-libs}"
             else="${basedir}/${external-libs}" >
