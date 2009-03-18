@@ -51,36 +51,7 @@ public class OpenSocialJsonParser {
   public static OpenSocialResponse getResponse(String in)
       throws OpenSocialRequestException {
 
-    if (!isJsonArray(in)) {
-      if (isJsonObject(in)) {
-        JSONObject errorObject = null;
-
-        try {
-          errorObject = new JSONObject(in);
-        } catch (JSONException e) {
-          throw new OpenSocialRequestException(
-              "Invalid JSON object string " + in);
-        }
-
-        String errorCode = null;
-        String errorMessage = null;
-
-        try {
-          errorCode = errorObject.getString("code");
-          errorMessage = errorObject.getString("message");
-        } catch (JSONException e) {
-          // Ignore exception thrown if code and/or message keys aren't found
-        }
-        
-        if (errorCode != null && errorMessage != null) {
-          throw new OpenSocialRequestException(
-              "Container returned error " + errorCode + " " + errorMessage);          
-        } else {
-          throw new OpenSocialRequestException(
-              "Container returned error response " + in);
-        }
-      }
-      
+    if (!isJsonArray(in)) {      
       return null;
     }
 
@@ -97,10 +68,30 @@ public class OpenSocialJsonParser {
 
     for (int i = 0; i < responseArray.length(); i++) {
       try {
+        String id = null;
         JSONObject o = responseArray.getJSONObject(i);
 
         if (o.has("id")) {
-          String id = o.getString("id");
+          id = o.getString("id");
+
+          try {
+            JSONObject errorObject = o.getJSONObject("error");
+            String errorMessage = errorObject.getString("message");
+            String errorCode = errorObject.getString("code");
+
+            if (errorCode != null && errorMessage != null) {
+              throw new OpenSocialRequestException(
+                  "Container returned error " + errorCode + " \"" +
+                  errorMessage + "\" for request ID \"" + id + "\"");
+            } else {
+              throw new OpenSocialRequestException(
+                  "Container returned error response " + o.toString());
+            }
+          } catch (JSONException e) {
+            // Ignore exception thrown if error object or code and/or message
+            // keys aren't found
+          }
+
           r.addItem(id, escape(o.toString()));
         }
       } catch (JSONException e) {
