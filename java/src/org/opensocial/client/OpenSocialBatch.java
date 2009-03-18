@@ -80,12 +80,20 @@ public class OpenSocialBatch {
     String restBaseUri =
       client.getProperty(OpenSocialClient.Properties.REST_BASE_URI);
 
+    String urlRegEx = "([A-Za-z][A-Za-z0-9+.-]{1,120}:[A-Za-z0-9/]" +
+        "(([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]{2}){1,333}" + 
+        "(#([a-zA-Z0-9][a-zA-Z0-9$_.+!*,;/?:@&~=%-]{0,1000}))?)";
+
     if (rpcEndpoint == null && restBaseUri == null) {
       throw new OpenSocialRequestException(
           "REST base URI or RPC endpoint required");
+    } else if (!rpcEndpoint.matches(urlRegEx) &&
+        !restBaseUri.matches(urlRegEx)) {
+      throw new OpenSocialRequestException(
+          "REST base URI and RPC endpoint must be valid URLs");
     }
 
-    if (rpcEndpoint != null) {
+    if (rpcEndpoint != null && rpcEndpoint.matches(urlRegEx)) {
       return this.submitRpc(client);
     } else {
       return this.submitRest(client);
