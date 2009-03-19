@@ -131,6 +131,9 @@ public class OpenSocialBatch {
     OpenSocialHttpRequest request = new OpenSocialHttpRequest("POST", requestUrl);
     request.setBody(requestArray.toString());
 
+    request.setContentType(
+        client.getProperty(OpenSocialClient.Properties.CONTENT_TYPE));
+
     OpenSocialOAuthClient.signRequest(request, client);
 
     String responseString = request.execute();
@@ -184,6 +187,9 @@ public class OpenSocialBatch {
         request.setBody(r.popParameter("data"));
       }
     }
+    
+    request.setContentType(
+        client.getProperty(OpenSocialClient.Properties.CONTENT_TYPE));
 
     Set<Map.Entry<String, OpenSocialRequestParameter>> parameters = r.getParameters();
     for (Map.Entry<String, OpenSocialRequestParameter> entry : parameters) {

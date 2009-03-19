@@ -80,9 +80,18 @@ public class OpenSocialOAuthClient {
       client.getProperty(OpenSocialClient.Properties.ACCESS_TOKEN);
     String accessTokenSecret =
       client.getProperty(OpenSocialClient.Properties.ACCESS_TOKEN_SECRET);
+    
+    boolean requiresBodySigning = 
+      Boolean.parseBoolean(
+          client.getProperty(OpenSocialClient.Properties.REQURES_BODY_SIGNING));
+    boolean requiresBodyHashSigning = 
+      Boolean.parseBoolean(
+        client.getProperty(
+          OpenSocialClient.Properties.REQURES_BODYHASH_SIGNING));
 
     signRequest(request, token, viewerId, consumerKey, consumerSecret,
-        accessToken, accessTokenSecret, debug);
+        accessToken, accessTokenSecret, debug, requiresBodySigning, 
+        requiresBodyHashSigning);
   }
 
   /**
@@ -115,7 +124,8 @@ public class OpenSocialOAuthClient {
    */
   public static void signRequest(OpenSocialHttpRequest request, String token,
       String viewerId, String consumerKey, String consumerSecret,
-      String accessToken, String accessTokenSecret, String debug)
+      String accessToken, String accessTokenSecret, String debug,
+      boolean requiresBodySigning, boolean requiresBodyHashSigning)
       throws OpenSocialRequestException, IOException {
 
     OpenSocialUrl requestUrl = request.getUrl();
@@ -128,7 +138,7 @@ public class OpenSocialOAuthClient {
     }
 
     signRequest(request, consumerKey, consumerSecret, accessToken,
-        accessTokenSecret, debug);
+        accessTokenSecret, debug, requiresBodySigning, requiresBodyHashSigning);
   }
 
   /**
@@ -153,7 +163,8 @@ public class OpenSocialOAuthClient {
    */
   public static void signRequest(OpenSocialHttpRequest request,
       String consumerKey, String consumerSecret, String accessToken,
-      String accessTokenSecret, String debug)
+      String accessTokenSecret, String debug,
+      boolean requiresBodySigning, boolean requiresBodyHashSigning)
       throws OpenSocialRequestException, IOException {
 
     String requestBody = request.getBody();
@@ -164,7 +175,7 @@ public class OpenSocialOAuthClient {
       OAuthMessage message =
           new OAuthMessage(requestMethod, requestUrl.toString(), null);
       
-      if (requestBody != null) {
+      if (requestBody != null && requiresBodySigning) {
         message.addParameter(requestBody, "");
       }
 

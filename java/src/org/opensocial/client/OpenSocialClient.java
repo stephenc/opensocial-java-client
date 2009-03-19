@@ -53,6 +53,9 @@ public class OpenSocialClient {
     public static final String ACCESS_TOKEN = "accessToken";
     public static final String ACCESS_TOKEN_SECRET = "accessTokenSecret";
     public static final String DEBUG = "debug";
+    public static final String REQURES_BODY_SIGNING = "requiresBodySigning";
+    public static final String REQURES_BODYHASH_SIGNING = "requiresBodyHashSigning";
+    public static final String CONTENT_TYPE = "contentType";
   }
 
   private final Map<String, String> properties;
@@ -71,6 +74,9 @@ public class OpenSocialClient {
     this.setProperty(Properties.DOMAIN, provider.providerName);
     this.setProperty(Properties.RPC_ENDPOINT, provider.rpcEndpoint);
     this.setProperty(Properties.REST_BASE_URI, provider.restEndpoint);
+    this.setProperty(Properties.REQURES_BODY_SIGNING, String.valueOf(provider.requiresBodySigning));
+    this.setProperty(Properties.REQURES_BODYHASH_SIGNING, String.valueOf(provider.requiresBodyHashSigning));
+    this.setProperty(Properties.CONTENT_TYPE, String.valueOf(provider.contentType));   
   }
 
   /**

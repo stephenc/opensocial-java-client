@@ -36,12 +36,14 @@ public class OpenSocialHttpRequest {
 
   private String method;
   private String body;
+  private String contentType;
   private OpenSocialUrl url;
   private HttpURLConnection connection;
 
   public OpenSocialHttpRequest(String method, OpenSocialUrl url) throws IOException {
     this.method = method;
     this.body = null;
+    this.contentType = null;
     this.connection = null;    
     this.setUrl(url);
   }
@@ -60,6 +62,7 @@ public class OpenSocialHttpRequest {
     }
 
     this.connection.setRequestMethod(this.method);
+    this.connection.setRequestProperty("Content-Type", this.contentType);
 
     if (this.body == null) {
       this.connection.connect();
@@ -124,6 +127,13 @@ public class OpenSocialHttpRequest {
   public String getBody() {
     return this.body;
   }
+  
+  /**
+   * Returns the content type of the reqeust body
+   */
+  public String getContentType() {
+    return this.contentType;
+  }
 
   /**
    * Returns instance variable: url.
@@ -145,6 +155,14 @@ public class OpenSocialHttpRequest {
    */
   public void setBody(String body) {
     this.body = body;
+  }
+  
+  /**
+   * Sets the content type of the request body
+   * @param contentType
+   */
+  public void setContentType(String contentType) {
+    this.contentType = contentType;
   }
 
   /**
