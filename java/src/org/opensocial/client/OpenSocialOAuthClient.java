@@ -27,8 +27,11 @@ import net.oauth.client.OAuthClient;
 import net.oauth.http.HttpClient;
 import net.oauth.signature.RSA_SHA1;
 
+import org.apache.commons.codec.binary.Base64;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -80,53 +83,11 @@ public class OpenSocialOAuthClient {
       client.getProperty(OpenSocialClient.Properties.ACCESS_TOKEN);
     String accessTokenSecret =
       client.getProperty(OpenSocialClient.Properties.ACCESS_TOKEN_SECRET);
-    
-    boolean requiresBodySigning = 
-      Boolean.parseBoolean(
-          client.getProperty(OpenSocialClient.Properties.REQURES_BODY_SIGNING));
-    boolean requiresBodyHashSigning = 
-      Boolean.parseBoolean(
-        client.getProperty(
-          OpenSocialClient.Properties.REQURES_BODYHASH_SIGNING));
 
-    signRequest(request, token, viewerId, consumerKey, consumerSecret,
-        accessToken, accessTokenSecret, debug, requiresBodySigning, 
-        requiresBodyHashSigning);
-  }
-
-  /**
-   * Adds optional query string parameters to request URL if present, then
-   * passes the passed OpenSocialHttpRequest to a separate method which
-   * does the actual signing.
-   *
-   * @param  request OpenSocialHttpRequest object which contains both the URL
-   *         to sign as well as the POST body which must be included as a
-   *         parameter when signing POST requests
-   * @param  token Security token which can be borrowed from a running gadget
-   *         and appended to the URL as a query string parameter instead of
-   *         signing the request. These types of tokens are typically short-
-   *         lived and must be refreshed often, making signing much more
-   *         practical.
-   * @param  viewerId ID of the user currently using the application (or for
-   *         whom the application is making requests on behalf of). The ID
-   *         is appended to the URL as a query string parameter so it can
-   *         be signed with the rest of the URL.
-   * @param  consumerKey Application key assigned and used by containers to
-   *         uniquely identify applications
-   * @param  consumerSecret Secret key shared between application owner and
-   *         container. Used to generate the signature which is attached to
-   *         the request so containers can verify the authenticity of the
-   *         requests made by the client application.
-   * @param accessToken Used in 3 legged OAuth. The user's access token.
-   * @param accessTokenSecret Used in 3 legged OAuth. The user's access token secret.
-   * @throws OpenSocialRequestException
-   * @throws IOException
-   */
-  public static void signRequest(OpenSocialHttpRequest request, String token,
-      String viewerId, String consumerKey, String consumerSecret,
-      String accessToken, String accessTokenSecret, String debug,
-      boolean requiresBodySigning, boolean requiresBodyHashSigning)
-      throws OpenSocialRequestException, IOException {
+    String signBody = 
+      client.getProperty(OpenSocialClient.Properties.SIGN_BODY);
+    String appendBodyHash =
+      client.getProperty(OpenSocialClient.Properties.APPEND_BODY_HASH);
 
     OpenSocialUrl requestUrl = request.getUrl();
 
@@ -137,48 +98,13 @@ public class OpenSocialOAuthClient {
       requestUrl.addQueryStringParameter("st", token);
     }
 
-    signRequest(request, consumerKey, consumerSecret, accessToken,
-        accessTokenSecret, debug, requiresBodySigning, requiresBodyHashSigning);
-  }
-
-  /**
-   * Signs the URL associated with the passed request object using the passed
-   * consumer key and secret in accordance with the OAuth specification and
-   * appends signature and other required parameters to the URL as query
-   * string parameters.
-   *
-   * @param  request OpenSocialHttpRequest object which contains both the URL
-   *         to sign as well as the POST body which must be included as a
-   *         parameter when signing POST requests
-   * @param  consumerKey Application key assigned and used by containers to
-   *         uniquely identify applications
-   * @param  consumerSecret Secret key shared between application owner and
-   *         container. Used to generate the signature which is attached to
-   *         the request so containers can verify the authenticity of the
-   *         requests made by the client application.
-   * @param accessToken Used in 3 legged OAuth. The user's access token.
-   * @param accessTokenSecret Used in 3 legged OAuth. The user's access token secret.
-   * @throws OpenSocialRequestException
-   * @throws IOException
-   */
-  public static void signRequest(OpenSocialHttpRequest request,
-      String consumerKey, String consumerSecret, String accessToken,
-      String accessTokenSecret, String debug,
-      boolean requiresBodySigning, boolean requiresBodyHashSigning)
-      throws OpenSocialRequestException, IOException {
-
     String requestBody = request.getBody();
     String requestMethod = request.getMethod();
-    OpenSocialUrl requestUrl = request.getUrl();
 
     if (consumerKey != null && consumerSecret != null) {
       OAuthMessage message =
           new OAuthMessage(requestMethod, requestUrl.toString(), null);
       
-      if (requestBody != null && requiresBodySigning) {
-        message.addParameter(requestBody, "");
-      }
-
       OAuthConsumer consumer =
           new OAuthConsumer(null, consumerKey, consumerSecret, null);
       consumer.setProperty(OAuth.OAUTH_SIGNATURE_METHOD, OAuth.HMAC_SHA1);
@@ -189,6 +115,26 @@ public class OpenSocialOAuthClient {
         accessor.tokenSecret = accessTokenSecret;
       } else {
         accessor.accessToken = "";
+      }
+
+      if (requestBody != null && signBody.equals("true")) {
+        message.addParameter(requestBody, "");
+      }
+
+      if (requestBody != null && appendBodyHash.equals("true")) {
+        try {
+          MessageDigest md = MessageDigest.getInstance("SHA-1");
+
+          byte[] hash = md.digest(requestBody.getBytes("UTF-8"));
+          byte[] encodedHash = new Base64().encode(hash);
+
+          message.addParameter("oauth_body_hash",
+              new String(encodedHash, "UTF-8"));
+        } catch (java.security.NoSuchAlgorithmException e) {
+          // Ignore exception
+        } catch (java.io.UnsupportedEncodingException e) {
+          // Ignore exception
+        }
       }
 
       try {
@@ -212,9 +158,8 @@ public class OpenSocialOAuthClient {
 
       for (Map.Entry<String, String> p : message.getParameters()) {
         if (!p.getKey().equals(requestBody)) {
-          requestUrl.addQueryStringParameter(
-            OAuth.percentEncode(p.getKey()),
-            OAuth.percentEncode(p.getValue()));
+          requestUrl.addQueryStringParameter(OAuth.percentEncode(p.getKey()),
+              OAuth.percentEncode(p.getValue()));
         }
       }
     }

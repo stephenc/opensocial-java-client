@@ -115,6 +115,8 @@ public class OpenSocialBatch {
 
     String rpcEndpoint =
       client.getProperty(OpenSocialClient.Properties.RPC_ENDPOINT);
+    String contentType =
+      client.getProperty(OpenSocialClient.Properties.CONTENT_TYPE);
 
     JSONArray requestArray = new JSONArray();
     for (OpenSocialRequest r : this.requests) {
@@ -128,11 +130,9 @@ public class OpenSocialBatch {
 
     OpenSocialUrl requestUrl = new OpenSocialUrl(rpcEndpoint);
 
-    OpenSocialHttpRequest request = new OpenSocialHttpRequest("POST", requestUrl);
+    OpenSocialHttpRequest request = new OpenSocialHttpRequest("POST",
+        contentType, requestUrl);
     request.setBody(requestArray.toString());
-
-    request.setContentType(
-        client.getProperty(OpenSocialClient.Properties.CONTENT_TYPE));
 
     OpenSocialOAuthClient.signRequest(request, client);
 
@@ -163,6 +163,8 @@ public class OpenSocialBatch {
 
     String restBaseUri =
       client.getProperty(OpenSocialClient.Properties.REST_BASE_URI);
+    String contentType =
+      client.getProperty(OpenSocialClient.Properties.CONTENT_TYPE);
 
     OpenSocialRequest r = this.requests.get(0);
 
@@ -180,7 +182,9 @@ public class OpenSocialBatch {
     }
 
     String method = r.getRestMethod();
-    OpenSocialHttpRequest request = new OpenSocialHttpRequest(method, requestUrl);
+
+    OpenSocialHttpRequest request = new OpenSocialHttpRequest(method,
+        contentType, requestUrl);
     
     if (method.equals("PUT")  || method.equals("POST")) {
       if (r.hasParameter("data")) {

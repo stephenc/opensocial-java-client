@@ -34,16 +34,20 @@ import java.net.URL;
  */
 public class OpenSocialHttpRequest {
 
-  private String method;
   private String body;
+  private String method;
   private String contentType;
-  private OpenSocialUrl url;
   private HttpURLConnection connection;
+  private OpenSocialUrl url;
 
   public OpenSocialHttpRequest(String method, OpenSocialUrl url) throws IOException {
-    this.method = method;
+    this(method, "application/json", url);
+  }
+
+  public OpenSocialHttpRequest(String method, String contentType, OpenSocialUrl url) throws IOException {
     this.body = null;
-    this.contentType = null;
+    this.method = method;
+    this.contentType = contentType;
     this.connection = null;    
     this.setUrl(url);
   }
@@ -56,13 +60,21 @@ public class OpenSocialHttpRequest {
    * @return HTTP status code of request, e.g. 200, 401, 500, etc.
    * @throws IOException
    */
-  public String execute() throws IOException {
+  public String execute() throws OpenSocialRequestException, IOException {
     if (this.connection == null) {
       this.connection = this.getConnection();
     }
 
-    this.connection.setRequestMethod(this.method);
-    this.connection.setRequestProperty("Content-Type", this.contentType);
+    if (this.contentType != null && !this.contentType.equals("")) {
+      this.connection.setRequestProperty("Content-Type", this.contentType);      
+    }
+
+    if (this.method != null && !this.method.equals("")) {
+      this.connection.setRequestMethod(this.method);      
+    } else {
+      throw new OpenSocialRequestException("Invalid HTTP method specified " +
+          this.method);
+    }
 
     if (this.body == null) {
       this.connection.connect();

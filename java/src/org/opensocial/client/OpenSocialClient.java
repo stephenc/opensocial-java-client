@@ -50,12 +50,15 @@ public class OpenSocialClient {
     public static final String VIEWER_ID = "viewer_id";
     public static final String DOMAIN = "domain";
     public static final String TOKEN = "token";
-    public static final String ACCESS_TOKEN = "accessToken";
-    public static final String ACCESS_TOKEN_SECRET = "accessTokenSecret";
+
+    public static final String ACCESS_TOKEN_SECRET = "access_token_secret";
+    public static final String ACCESS_TOKEN = "access_token";
+
+    public static final String APPEND_BODY_HASH = "append_body_hash";
+    public static final String CONTENT_TYPE = "content_type";
+    public static final String SIGN_BODY = "sign_body";
+
     public static final String DEBUG = "debug";
-    public static final String REQURES_BODY_SIGNING = "requiresBodySigning";
-    public static final String REQURES_BODYHASH_SIGNING = "requiresBodyHashSigning";
-    public static final String CONTENT_TYPE = "contentType";
   }
 
   private final Map<String, String> properties;
@@ -67,6 +70,10 @@ public class OpenSocialClient {
   public OpenSocialClient(String domain) {
     properties = new HashMap<String, String>();
     this.setProperty(Properties.DOMAIN, domain);
+
+    this.setProperty(Properties.CONTENT_TYPE, "application/json");
+    this.setProperty(Properties.APPEND_BODY_HASH, "true");
+    this.setProperty(Properties.SIGN_BODY, "false");
   }
 
   public OpenSocialClient(OpenSocialProvider provider) {
@@ -74,9 +81,10 @@ public class OpenSocialClient {
     this.setProperty(Properties.DOMAIN, provider.providerName);
     this.setProperty(Properties.RPC_ENDPOINT, provider.rpcEndpoint);
     this.setProperty(Properties.REST_BASE_URI, provider.restEndpoint);
-    this.setProperty(Properties.REQURES_BODY_SIGNING, String.valueOf(provider.requiresBodySigning));
-    this.setProperty(Properties.REQURES_BODYHASH_SIGNING, String.valueOf(provider.requiresBodyHashSigning));
-    this.setProperty(Properties.CONTENT_TYPE, String.valueOf(provider.contentType));   
+
+    this.setProperty(Properties.CONTENT_TYPE, provider.contentType);
+    this.setProperty(Properties.APPEND_BODY_HASH, provider.appendBodyHash);
+    this.setProperty(Properties.SIGN_BODY, provider.signBody);
   }
 
   /**
