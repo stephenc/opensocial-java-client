@@ -25,7 +25,6 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 
 import net.oauth.http.HttpMessage;
-import net.oauth.http.HttpResponseMessage;
 
 /**
  * A small implementation of HttpClient to serve the needs of the OAuth library
@@ -34,126 +33,120 @@ import net.oauth.http.HttpResponseMessage;
  * @author Dan Holevoet
  */
 public class OpenSocialHttpClient implements net.oauth.http.HttpClient {
-	
-	/**
-	 * Executes the request, sending the request body if applicable.
-	 * 
-	 * @param request
-	 * @return Response message
-	 * @throws IOException
-	 */
-	public HttpResponseMessage execute(HttpMessage request) throws IOException {
-		final String method = request.method;
-    final URL url = new URL(request.url.toExternalForm());
-    final InputStream body = request.getBody();
-    final boolean isDelete = DELETE.equalsIgnoreCase(method);
-    final boolean isPost = POST.equalsIgnoreCase(method);
+
+  /**
+   * Executes the request, sending the request body if applicable.
+   * 
+   * @param request
+   * @return Response message
+   * @throws IOException
+   */
+  public OpenSocialHttpResponseMessage execute(HttpMessage request) throws
+      IOException {
+    OpenSocialHttpMessage openSocialRequest = new OpenSocialHttpMessage(
+        request.method, new OpenSocialUrl(request.url.toExternalForm()), null);
+
+    return execute(openSocialRequest);
+  }
+
+  /**
+   * Executes the request, sending the request body if applicable.
+   * 
+   * @param request
+   * @return Response message
+   * @throws IOException
+   */
+  public OpenSocialHttpResponseMessage execute(
+      OpenSocialHttpMessage request) throws IOException {
+    final String method = request.method;
     final boolean isPut = PUT.equalsIgnoreCase(method);
-        
-    String bodyString = getBodyString(body);
-        
+    final boolean isPost = POST.equalsIgnoreCase(method);
+    final boolean isDelete = DELETE.equalsIgnoreCase(method);
+
+    final String bodyString = request.getBodyString();
+    final String contentType = request.getHeader(HttpMessage.CONTENT_TYPE);
+    final OpenSocialUrl url = request.getUrl();
+
     OpenSocialHttpResponseMessage response = null;
-    if (isPost) {
-      response = send("POST", url, bodyString);
-    } else if (isPut) {
-      response = send("PUT", url, bodyString);
+    if (isPut) {
+      response = send("PUT", url, contentType, bodyString);
+    } else if (isPost) {
+      response = send("POST", url, contentType, bodyString);
     } else if (isDelete) {
-      response = send("DELETE", url);
+      response = send("DELETE", url, contentType);
     } else {
-      response = send("GET", url);
+      response = send("GET", url, contentType);
     }
+
     return response;
-	}
-	
-	/**
-	 * Converts the request body from an InputStream to a String that can be
-	 * consumed by the send method.
-	 * 
-	 * @param body
-	 * @return Request body as a String
-	 * @throws IOException
-	 */
-	private String getBodyString(InputStream body) throws IOException {
-		String bodyString = null;
-    if (body != null) {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(body));
-      StringBuilder builder = new StringBuilder();
-      String line = null;
-      while ((line = reader.readLine()) != null) {
-        builder.append(line + "\n");
+  }
+
+  /**
+   * Executes a request without writing any data in the request's body.
+   * 
+   * @param method
+   * @param url
+   * @return Response message
+   */
+  private OpenSocialHttpResponseMessage send(String method, OpenSocialUrl url,
+      String contentType) throws IOException {
+    return send(method, url, contentType, null);
+  }
+  
+  /**
+   * Executes a request and writes all data in the request's body to the
+   * output stream.
+   * 
+   * @param method
+   * @param url
+   * @param body
+   * @return Response message
+   */
+  private OpenSocialHttpResponseMessage send(String method, OpenSocialUrl url,
+      String contentType, String body) throws IOException {
+    int responseCode = 0;
+    try {
+      HttpURLConnection connection = getConnection(method, url, contentType);
+
+      if (body != null) {
+        OutputStreamWriter out =
+          new OutputStreamWriter(connection.getOutputStream());
+        out.write(body);
+        out.flush();
+        out.close();
       }
-      bodyString = builder.toString();
+
+      responseCode = connection.getResponseCode();
+
+      return new OpenSocialHttpResponseMessage(method, url,
+          connection.getInputStream(), responseCode);
+    } catch (IOException e) {
+      return new OpenSocialHttpResponseMessage(method, url, null,
+          responseCode);
     }
-    
-    return bodyString;
-	}
-	
-	/**
-	 * Executes a request without writing any data in the request's body.
-	 * 
-	 * @param method
-	 * @param url
-	 * @return Response message
-	 */
-	private OpenSocialHttpResponseMessage send(String method, URL url) {
-		int responseCode = 0;
-		try {
-			HttpURLConnection connection = getConnection(method, url);
-			responseCode = connection.getResponseCode();
-			
-			return new OpenSocialHttpResponseMessage(method, url,
-					connection.getInputStream(), responseCode);
-		} catch (IOException e) {
-			return new OpenSocialHttpResponseMessage(method, url, null, 
-					responseCode);
-		}
-	}
-	
-	/**
-	 * Executes a request and writes all data in the request's body to the
-	 * output stream.
-	 * 
-	 * @param method
-	 * @param url
-	 * @param body
-	 * @return Response message
-	 */
-	private OpenSocialHttpResponseMessage send(String method, URL url,
-			String body) {
-		int responseCode = 0;
-		try {
-			HttpURLConnection connection = getConnection(method, url);
-			OutputStreamWriter out =
-			  new OutputStreamWriter(connection.getOutputStream());
-			out.write(body);
-			out.flush();
-			
-	    responseCode = connection.getResponseCode();
-	        
-			return new OpenSocialHttpResponseMessage(method, url,
-					connection.getInputStream(), responseCode);
-		} catch (IOException e) {
-			return new OpenSocialHttpResponseMessage(method, url, null,
-					responseCode);
-		}
-	}
-	
-	/**
-	 * Opens a new HTTP connection for the URL associated with this object.
-	 * 
-	 * @param method
-	 * @param url
-	 * @return Opened connection
-	 * @throws IOException if URL is invalid, or unsupported
-	 */
-	private HttpURLConnection getConnection(String method, URL url)
-			throws IOException {
-		HttpURLConnection connection = null;
-		connection = (HttpURLConnection) url.openConnection();
-		connection.setDoOutput(true);
-		connection.setRequestMethod(method);
-		connection.connect();
-		
-		return connection;
-	}
+  }
+
+  /**
+   * Opens a new HTTP connection for the URL associated with this object.
+   * 
+   * @param method
+   * @param url
+   * @return Opened connection
+   * @throws IOException if URL is invalid, or unsupported
+   */
+  private HttpURLConnection getConnection(String method, OpenSocialUrl url,
+      String contentType) throws IOException {
+    HttpURLConnection connection =
+      (HttpURLConnection) new URL(url.toString()).openConnection();
+
+    if (contentType != null && !contentType.equals("")) {
+      connection.setRequestProperty(HttpMessage.CONTENT_TYPE, contentType);
+    }
+
+    connection.setRequestMethod(method);
+    connection.setDoOutput(true);
+    connection.connect();
+
+    return connection;
+  }
 }

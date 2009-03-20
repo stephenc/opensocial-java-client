@@ -27,7 +27,13 @@ public class DisplayProfileData {
     // Create a new OpenSocialClient instance configured to hit orkut endpoints;
     // other pre-configured providers include MYSPACE, GOOGLE, and PLAXO
     OpenSocialClient c = new OpenSocialClient(OpenSocialProvider.valueOf("ORKUT"));
-    
+
+    c.setProperty(OpenSocialClient.Properties.DEBUG, "true");
+
+    if (args.length > 0 && args[0].equalsIgnoreCase("REST")) {
+      c.setProperty(OpenSocialClient.Properties.RPC_ENDPOINT, null);
+    }
+
     // Credentials provided here are associated with the gadget located at
     // http://opensocial-resources.googlecode.com/svn/samples/rest_rpc/sample.xml;
     // If you install this gadget, you can substitute your own OpenSocial ID

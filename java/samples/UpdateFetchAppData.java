@@ -1,4 +1,4 @@
-/* Copyright (c) 2008 Google Inc.
+/* Copyright (c) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,11 @@
 
 import org.opensocial.client.OpenSocialClient;
 import org.opensocial.client.OpenSocialProvider;
-import org.opensocial.client.OpenSocialRequestParameter;
-import org.opensocial.data.OpenSocialPerson;
+import org.opensocial.data.OpenSocialAppData;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Collection;
 
-public class DisplayExtendedProfileData {
+public class UpdateFetchAppData {
 
   public static void main(String[] args) {
     // Create a new OpenSocialClient instance configured to hit orkut endpoints;
@@ -32,6 +30,8 @@ public class DisplayExtendedProfileData {
 
     if (args.length > 0 && args[0].equalsIgnoreCase("REST")) {
       c.setProperty(OpenSocialClient.Properties.RPC_ENDPOINT, null);
+      c.setProperty(OpenSocialClient.Properties.REST_BASE_URI,
+          "http://sandbox.orkut.com/social/rest/");
     }
 
     // Credentials provided here are associated with the gadget located at
@@ -46,29 +46,29 @@ public class DisplayExtendedProfileData {
         "03067092798963641994");
 
     try {
-      // Create a new OpenSocialRequestParameterSet object to indicate which request
-      // parameters you want to pass with your request; in this case, we are asking
-      // orkut specifically to return the name and gender fields for the person
-      // fetched below.
-      Map<String, OpenSocialRequestParameter> params
-          = new HashMap<String, OpenSocialRequestParameter>();
-      params.put("fields", new OpenSocialRequestParameter(new String[]{"gender", "name"}));
+      // Update app data for key "key1" -- store a random number under the
+      // given "key1" for the current user
+      c.updatePersonAppData("key1", "fake");
 
-      // Retrieve the profile data of the specified user using the OpenSocialClient
-      // method fetchPerson; pass in the parameter set object created above
-      OpenSocialPerson person = c.fetchPerson("03067092798963641994", params);
+      // Retrieve all key-value pairs stored as app data for the specified user
+      // including the pair added above
+      OpenSocialAppData appData = c.fetchPersonAppData("03067092798963641994");
 
       System.out.println("----------");
 
-      // Output the name, ID, and gender of the requested person
-      System.out.println("ID: " + person.getId());
-      System.out.println("Name: " + person.getDisplayName());
-      System.out.println("Gender: " + person.getField("gender").getStringValue());
+      // Print all app data values associated with the user
+      for (String key : appData.getFieldNamesForUser("03067092798963641994")) {
+        System.out.println(key + ": " +
+            appData.getStringForUser("03067092798963641994", key));
+      }
 
       System.out.println("----------");
 
     } catch (org.opensocial.client.OpenSocialRequestException e) {
       System.out.println("OpenSocialRequestException thrown: " + e.getMessage());
+      e.printStackTrace();
+    } catch (org.opensocial.data.OpenSocialException e) {
+      System.out.println("OpenSocialException thrown: " + e.getMessage());
       e.printStackTrace();
     } catch (java.io.IOException e) {
       System.out.println("IOException thrown: " + e.getMessage());

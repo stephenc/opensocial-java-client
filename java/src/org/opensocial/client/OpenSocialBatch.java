@@ -22,10 +22,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 
 /**
  * An object representing a collection of OpenSocial requests. Instances may be
@@ -39,9 +39,11 @@ import java.util.Vector;
 public class OpenSocialBatch {
 
   private List<OpenSocialRequest> requests;
+  private OpenSocialHttpClient httpClient;
 
   public OpenSocialBatch() {
-    this.requests = new Vector<OpenSocialRequest>();
+    this.requests = new ArrayList<OpenSocialRequest>();
+    this.httpClient = new OpenSocialHttpClient();
   }
 
   /**
@@ -87,16 +89,20 @@ public class OpenSocialBatch {
     if (rpcEndpoint == null && restBaseUri == null) {
       throw new OpenSocialRequestException(
           "REST base URI or RPC endpoint required");
-    } else if (!rpcEndpoint.matches(urlRegEx) &&
-        !restBaseUri.matches(urlRegEx)) {
-      throw new OpenSocialRequestException(
-          "REST base URI and RPC endpoint must be valid URLs");
-    }
+    } else if (rpcEndpoint == null) {
+      if (!restBaseUri.matches(urlRegEx)) {
+        throw new OpenSocialRequestException(
+            "REST base URI must be a valid URL");
+      }
 
-    if (rpcEndpoint != null && rpcEndpoint.matches(urlRegEx)) {
-      return this.submitRpc(client);
-    } else {
       return this.submitRest(client);
+    } else {
+      if (!rpcEndpoint.matches(urlRegEx)) {
+        throw new OpenSocialRequestException(
+            "RPC endpoint must be a valid URL");
+      }
+
+      return this.submitRpc(client);
     }
   }
 
@@ -129,20 +135,21 @@ public class OpenSocialBatch {
     }
 
     OpenSocialUrl requestUrl = new OpenSocialUrl(rpcEndpoint);
-
-    OpenSocialHttpRequest request = new OpenSocialHttpRequest("POST",
-        contentType, requestUrl);
-    request.setBody(requestArray.toString());
+    
+    OpenSocialHttpMessage request = new OpenSocialHttpMessage("POST",
+        requestUrl, requestArray.toString());
+    request.addHeader(OpenSocialHttpMessage.CONTENT_TYPE, contentType);
 
     OpenSocialOAuthClient.signRequest(request, client);
 
-    String responseString = request.execute();
+    OpenSocialHttpResponseMessage response = httpClient.execute(request);
+    String responseString = response.getBodyString();
 
     String debug = client.getProperty(OpenSocialClient.Properties.DEBUG);
     if (debug != null && !debug.equals("")) {
       System.out.println("Request URL:\n" + request.getUrl().toString());
-      System.out.println("Request body:\n" + request.getBody());
-      System.out.println("Response:\n" + responseString);
+      System.out.println("Request body:\n" + request.getBodyString());
+      System.out.println("Container response:\n" + responseString);
     }
 
     return OpenSocialJsonParser.getResponse(responseString);
@@ -181,37 +188,32 @@ public class OpenSocialBatch {
       requestUrl.addPathComponent((String) r.popParameter("appId"));
     }
 
-    String method = r.getRestMethod();
-
-    OpenSocialHttpRequest request = new OpenSocialHttpRequest(method,
-        contentType, requestUrl);
-    
-    if (method.equals("PUT")  || method.equals("POST")) {
-      if (r.hasParameter("data")) {
-        request.setBody(r.popParameter("data"));
-      }
+    String requestBody = null;
+    if (r.hasParameter("data")) {
+      requestBody = (String) r.popParameter("data");
     }
-    
-    request.setContentType(
-        client.getProperty(OpenSocialClient.Properties.CONTENT_TYPE));
 
-    Set<Map.Entry<String, OpenSocialRequestParameter>> parameters = r.getParameters();
+    Set<Map.Entry<String, OpenSocialRequestParameter>> parameters =
+        r.getParameters();
     for (Map.Entry<String, OpenSocialRequestParameter> entry : parameters) {
-      requestUrl.addQueryStringParameter(entry.getKey(), entry.getValue().getValuesString());
+      requestUrl.addQueryStringParameter(entry.getKey(),
+          entry.getValue().getValuesString());
     }
+
+    OpenSocialHttpMessage request = new OpenSocialHttpMessage(
+        r.getRestMethod(), requestUrl, requestBody);
+    request.addHeader(OpenSocialHttpMessage.CONTENT_TYPE, contentType);
 
     OpenSocialOAuthClient.signRequest(request, client);
+
+    OpenSocialHttpResponseMessage response = httpClient.execute(request);
+    String responseString = response.getBodyString();
 
     String debug = client.getProperty(OpenSocialClient.Properties.DEBUG);
     if (debug != null && !debug.equals("")) {
       System.out.println("Request URL:\n" + request.getUrl().toString());
-      System.out.println("Request body:\n" + request.getBody());
-    }
-
-    String responseString = request.execute();
-
-    if (debug != null && !debug.equals("")) {
-      System.out.println("Response:\n" + responseString);
+      System.out.println("Request body:\n" + request.getBodyString());
+      System.out.println("Container response:\n" + responseString);
     }
 
     return OpenSocialJsonParser.getResponse(responseString, r.getId());

@@ -27,8 +27,12 @@ import net.oauth.http.HttpClient;
 
 import org.apache.commons.codec.binary.Base64;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.util.Map;
 import java.util.Set;
@@ -58,7 +62,7 @@ public class OpenSocialOAuthClient {
    * @throws IOException
    */
   public static void signRequest(
-      OpenSocialHttpRequest request, OpenSocialClient client)
+      OpenSocialHttpMessage request, OpenSocialClient client)
       throws OpenSocialRequestException, IOException {
 
     String token =
@@ -91,8 +95,8 @@ public class OpenSocialOAuthClient {
       requestUrl.addQueryStringParameter("st", token);
     }
 
-    String requestBody = request.getBody();
-    String requestMethod = request.getMethod();
+    String requestBody = request.getBodyString();
+    String requestMethod = request.method;
 
     if (consumerKey != null && consumerSecret != null) {
       OAuthMessage message =
