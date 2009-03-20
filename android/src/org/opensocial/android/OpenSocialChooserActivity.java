@@ -26,6 +26,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import net.oauth.OAuthException;
 import org.opensocial.client.OpenSocialClient;
+import org.opensocial.client.OpenSocialOAuthClient;
 import org.opensocial.client.OpenSocialProvider;
 import org.opensocial.client.Token;
 
@@ -85,7 +86,7 @@ public class OpenSocialChooserActivity extends ListActivity {
         
         Token token;
         try {
-          token = client.getRequestToken(provider);
+          token = OpenSocialOAuthClient.getRequestToken(client, provider);
         } catch (IOException e) {
           throw new RuntimeException("Error occured fetching request token", e);
         } catch (URISyntaxException e) {
@@ -95,7 +96,8 @@ public class OpenSocialChooserActivity extends ListActivity {
         }
 
         persistRequestToken(token, providerString);
-        String url = client.getAuthorizationUrl(provider, token, androidScheme + "://");
+        String url = OpenSocialOAuthClient.getAuthorizationUrl(provider, token,
+            androidScheme + "://");
 
         // Browse to webpage
         Intent i = new Intent(Intent.ACTION_VIEW);

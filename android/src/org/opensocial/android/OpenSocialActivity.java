@@ -22,6 +22,7 @@ import android.net.Uri;
 import net.oauth.OAuth;
 import net.oauth.OAuthException;
 import org.opensocial.client.OpenSocialClient;
+import org.opensocial.client.OpenSocialOAuthClient;
 import org.opensocial.client.OpenSocialProvider;
 import org.opensocial.client.Token;
 
@@ -83,7 +84,8 @@ public class OpenSocialActivity {
 
     if (intent.getData() != null) {
       try {
-        accessToken = client.getAccessToken(provider, loadRequestToken());
+        accessToken = OpenSocialOAuthClient.getAccessToken(client, provider,
+            loadRequestToken());
       } catch (IOException e) {
         throw new RuntimeException("Error occured fetching access token", e);
       } catch (URISyntaxException e) {
