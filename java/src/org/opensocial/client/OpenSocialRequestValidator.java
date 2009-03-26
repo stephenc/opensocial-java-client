@@ -1,4 +1,4 @@
-/* Copyright (c) 2008 Google Inc.
+/* Copyright (c) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 package org.opensocial.client;
 
@@ -36,7 +35,7 @@ import javax.servlet.http.HttpServletRequest;
  * A utility object containing static methods for verifying the signature of
  * requests signed by OpenSocial containers.
  *
- * @author Jason Cooper
+ * @author apijason@google.com (Jason Cooper)
  */
 public class OpenSocialRequestValidator {
 
@@ -44,7 +43,7 @@ public class OpenSocialRequestValidator {
    * Validates the passed request by reconstructing the original URL and
    * parameters and generating a signature following the OAuth HMAC-SHA1
    * specification and using the passed secret key.
-   * 
+   *
    * @param  request Servlet request containing required information for
    *         reconstructing the signature such as the request's URL
    *         components and parameters

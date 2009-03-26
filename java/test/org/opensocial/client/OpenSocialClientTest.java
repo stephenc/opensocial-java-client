@@ -8,7 +8,7 @@ public class OpenSocialClientTest extends TestCase {
   }
   
   public void testGetProperty() {
-    String n = OpenSocialClient.Properties.DOMAIN;
+    OpenSocialClient.Property n = OpenSocialClient.Property.DOMAIN;
     String v = "orkut.com";
     
     OpenSocialClient c = new OpenSocialClient();
@@ -20,8 +20,7 @@ public class OpenSocialClientTest extends TestCase {
   public void testNewFetchPersonRequest() {
     String userId = "user123";
     
-    OpenSocialClient c = new OpenSocialClient();
-    OpenSocialRequest r = c.newFetchPersonRequest(userId);
+    OpenSocialRequest r = OpenSocialClient.newFetchPersonRequest(userId);
     
     assertEquals(true, r.getRestPathComponent().equals("people"));
     assertEquals(true, r.getParameter("groupId").equals("@self"));

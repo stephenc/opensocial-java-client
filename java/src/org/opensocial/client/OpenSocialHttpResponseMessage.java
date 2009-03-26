@@ -13,26 +13,24 @@
  * limitations under the License.
  */
 
-
 package org.opensocial.client;
+
+import net.oauth.http.HttpResponseMessage;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-
-import net.oauth.http.HttpResponseMessage;
 
 /**
  * A small implementation of an HttpResponseMessage that does not require
  * org.apache.http.client as a dependency.
  *
- * @author Dan Holevoet, Jason Cooper
+ * @author api.dwh@google.com (Dan Holevoet)
+ * @author apijason@google.com (Jason Cooper)
  */
-public class OpenSocialHttpResponseMessage extends HttpResponseMessage {
-  
+class OpenSocialHttpResponseMessage extends HttpResponseMessage {
+
   protected int status;
   protected String body;
   protected OpenSocialUrl url;
@@ -45,10 +43,10 @@ public class OpenSocialHttpResponseMessage extends HttpResponseMessage {
     this.body = getResponseString(responseStream);
     this.status = status;
   }
-  
+
   /**
    * Returns the status code for the response.
-   * 
+   *
    * @return Status code
    * @throws IOException if the status code is 0 (not set)
    */
@@ -72,8 +70,9 @@ public class OpenSocialHttpResponseMessage extends HttpResponseMessage {
   /**
    * After executing the request, transforms response output contained in the
    * connection's InputStream object into a string representation which can
-   * later be parsed into a more meaningful object, e.g. OpenSocialPerson. 
+   * later be parsed into a more meaningful object, e.g. OpenSocialPerson.
    *
+   * @return Data in InputStream as a String
    * @throws IOException if the open connection's input stream is not
    *         retrievable or accessible
    */

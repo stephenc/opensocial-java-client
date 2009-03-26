@@ -13,26 +13,22 @@
  * limitations under the License.
  */
 
-
 package org.opensocial.client;
 
+import net.oauth.http.HttpMessage;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
-
-import net.oauth.http.HttpMessage;
+import java.net.URL;
 
 /**
  * A small implementation of HttpClient to serve the needs of the OAuth library
  * rather than requiring org.apache.http.client as a dependency.
  *
- * @author Dan Holevoet
+ * @author api.dwh@google.com (Dan Holevoet)
  */
-public class OpenSocialHttpClient implements net.oauth.http.HttpClient {
+class OpenSocialHttpClient implements net.oauth.http.HttpClient {
 
   /**
    * Executes the request, sending the request body if applicable.
@@ -56,8 +52,8 @@ public class OpenSocialHttpClient implements net.oauth.http.HttpClient {
    * @return Response message
    * @throws IOException
    */
-  public OpenSocialHttpResponseMessage execute(
-      OpenSocialHttpMessage request) throws IOException {
+  public OpenSocialHttpResponseMessage execute(OpenSocialHttpMessage request)
+      throws IOException {
     final String method = request.method;
     final boolean isPut = PUT.equalsIgnoreCase(method);
     final boolean isPost = POST.equalsIgnoreCase(method);
@@ -83,7 +79,7 @@ public class OpenSocialHttpClient implements net.oauth.http.HttpClient {
 
   /**
    * Executes a request without writing any data in the request's body.
-   * 
+   *
    * @param method
    * @param url
    * @return Response message
@@ -92,11 +88,11 @@ public class OpenSocialHttpClient implements net.oauth.http.HttpClient {
       String contentType) throws IOException {
     return send(method, url, contentType, null);
   }
-  
+
   /**
    * Executes a request and writes all data in the request's body to the
    * output stream.
-   * 
+   *
    * @param method
    * @param url
    * @param body
@@ -128,7 +124,7 @@ public class OpenSocialHttpClient implements net.oauth.http.HttpClient {
 
   /**
    * Opens a new HTTP connection for the URL associated with this object.
-   * 
+   *
    * @param method
    * @param url
    * @return Opened connection
@@ -138,11 +134,9 @@ public class OpenSocialHttpClient implements net.oauth.http.HttpClient {
       String contentType) throws IOException {
     HttpURLConnection connection =
       (HttpURLConnection) new URL(url.toString()).openConnection();
-
     if (contentType != null && !contentType.equals("")) {
       connection.setRequestProperty(HttpMessage.CONTENT_TYPE, contentType);
     }
-
     connection.setRequestMethod(method);
     connection.setDoOutput(true);
     connection.connect();

@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-
 package org.opensocial.client;
 
 import net.oauth.http.HttpMessage;
@@ -22,12 +21,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A small implementation of an HttpResponseMessage that does not require
- * org.apache.http.client as a dependency.
+ * A simple extension of net.oauth.http.HttpMessage using an OpenSocialUrl
+ * instead of java.net.URL and encoding the body as a String instead of an
+ * InputStream.
  *
- * @author Dan Holevoet
+ * @author apijason@google.com (Jason Cooper)
  */
-public class OpenSocialHttpMessage extends HttpMessage {
+class OpenSocialHttpMessage extends HttpMessage {
 
   protected String body;
   protected OpenSocialUrl url;

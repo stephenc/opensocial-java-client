@@ -63,7 +63,6 @@ public class OpenSocialActivity extends OpenSocialObject {
    * Generic method which takes the name of the string field and returns its value
    *
    * @param fieldName
-   * @return
    */
   public String getStringField(String fieldName) {
     OpenSocialField field = this.getField(fieldName);

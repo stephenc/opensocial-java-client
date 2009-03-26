@@ -1,4 +1,4 @@
-/* Copyright (c) 2008 Google Inc.
+/* Copyright (c) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 package org.opensocial.client;
 
@@ -32,7 +31,7 @@ import java.util.Map;
  * which parse a particular response item and return the appropriate
  * OpenSocialObject type.
  *
- * @author Jason Cooper
+ * @author apijason@google.com (Jason Cooper)
  */
 public class OpenSocialResponse {
 
@@ -46,12 +45,11 @@ public class OpenSocialResponse {
    * Retrieves and parses the JSON-encoded response item with the passed ID and
    * returns the parsed item as an OpenSocialPerson object.
    *
-   * @param  id ID of the response item to parse
+   * @param id ID of the response item to parse
    * @throws OpenSocialRequestException
    */
-  public OpenSocialPerson getItemAsPerson(String id)
-      throws OpenSocialRequestException {
-
+  public OpenSocialPerson getItemAsPerson(String id) throws
+      OpenSocialRequestException {
     String item = this.items.get(id);
     return OpenSocialJsonParser.parseAsPerson(item);
   }
@@ -60,12 +58,11 @@ public class OpenSocialResponse {
    * Retrieves and parses the JSON-encoded response item with the passed ID and
    * returns the parsed item as a List of OpenSocialPerson objects.
    *
-   * @param  id ID of the response item to parse
+   * @param id ID of the response item to parse
    * @throws OpenSocialRequestException
    */
-  public List<OpenSocialPerson> getItemAsPersonCollection(String id)
-      throws OpenSocialRequestException {
-
+  public List<OpenSocialPerson> getItemAsPersonCollection(String id) throws
+      OpenSocialRequestException {
     String item = this.items.get(id);
 
     return OpenSocialJsonParser.parseAsPersonCollection(item);
@@ -75,12 +72,11 @@ public class OpenSocialResponse {
    * Retrieves and parses the JSON-encoded response item with the passed ID and
    * returns the parsed item as an OpenSocialAppData object.
    *
-   * @param  id ID of the response item to parse
+   * @param id ID of the response item to parse
    * @throws OpenSocialRequestException
    */
-  public OpenSocialAppData getItemAsAppData(String id)
-      throws OpenSocialRequestException {
-
+  public OpenSocialAppData getItemAsAppData(String id) throws
+      OpenSocialRequestException {
     String item = this.items.get(id);
 
     return OpenSocialJsonParser.parseAsAppData(item);
@@ -91,12 +87,10 @@ public class OpenSocialResponse {
    * returns the parsed item as a List of OpenSocialActivity objects.
    *
    * @param id
-   * @return
    * @throws OpenSocialRequestException
    */
   public List<OpenSocialActivity> getItemAsActivityCollection(String id)
       throws OpenSocialRequestException {
-
     String item = this.items.get(id);
 
     return OpenSocialJsonParser.parseAsActivityCollection(item);
@@ -111,10 +105,5 @@ public class OpenSocialResponse {
    */
   public void addItem(String id, String objectString) {
     this.items.put(id, objectString);
-  }
-
-  // FIX ME...
-  public Map getItems() {
-    return this.items;
   }
 }

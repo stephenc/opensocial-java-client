@@ -1,4 +1,4 @@
-/* Copyright (c) 2008 Google Inc.
+/* Copyright (c) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,10 @@ package org.opensocial.client;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * An object which represents a single OpenSocial REST/JSON-RPC request, which
@@ -31,7 +29,7 @@ import java.util.List;
  * from static OpenSocialClient methods which take care to set all
  * properties appropriately given the request type.
  *
- * @author Jason Cooper
+ * @author apijason@google.com (Jason Cooper)
  */
 public class OpenSocialRequest {
 
@@ -39,10 +37,11 @@ public class OpenSocialRequest {
   private String rpcMethod;
   private String restMethod;
   private String restPathComponent;
-  private Map<String, OpenSocialRequestParameter> parameters
-      = new HashMap<String, OpenSocialRequestParameter>();
+  private Map<String, OpenSocialRequestParameter> parameters;
 
-  public OpenSocialRequest(String restPathComponent, String restMethod, String rpcMethod) {
+  public OpenSocialRequest(String restPathComponent, String restMethod,
+      String rpcMethod) {
+    this.parameters = new HashMap<String, OpenSocialRequestParameter>();
     this.restPathComponent = restPathComponent;
     this.restMethod = restMethod;
     this.rpcMethod = rpcMethod;
@@ -59,8 +58,8 @@ public class OpenSocialRequest {
     this.id = id;
   }
 
-  public void setParameters(Map<String, OpenSocialRequestParameter> parameters) {
-    this.parameters = parameters;
+  public void setParameters(Map<String, OpenSocialRequestParameter> params) {
+    this.parameters = params;
   }
 
   public void addParameter(String key, Map<String, String> valuesMap) {
@@ -76,16 +75,16 @@ public class OpenSocialRequest {
   }
 
   /**
-   * Returns true if a parameter with the given key is registered, false
-   * otherwise.
+   * @return true if a parameter with the given key is registered, false
+   *         otherwise
    */
   public boolean hasParameter(String key) {
     return this.parameters.containsKey(key);
   }
 
   /**
-   * Returns the value of the parameter with the given name or null if
-   * no parameter with that name exists.
+   * @return value of the parameter with the given name or null if no
+   *         parameter with that name exists
    */
   public String getParameter(String key) {
     OpenSocialRequestParameter param = this.parameters.get(key);
@@ -109,8 +108,7 @@ public class OpenSocialRequest {
   }
 
   /**
-   * Returns instance variable: restPathComponent. If path component does not
-   * have a trailing backslash, one is added before being returned.
+   * @return instance variable restPathComponent with trailing backslash
    */
   public String getRestPathComponent() {
     return this.restPathComponent;
@@ -120,9 +118,6 @@ public class OpenSocialRequest {
     return this.restMethod;
   }
 
-  /**
-   * Returns instance variable: id.
-   */
   public String getId() {
     return this.id;
   }
@@ -144,7 +139,8 @@ public class OpenSocialRequest {
       o.put("method", this.rpcMethod);
 
       JSONObject params = new JSONObject();
-      for (Map.Entry<String, OpenSocialRequestParameter> entry : this.parameters.entrySet()) {
+      for (Map.Entry<String, OpenSocialRequestParameter> entry :
+          this.parameters.entrySet()) {
         OpenSocialRequestParameter parameter = entry.getValue();
         String parameterName = entry.getKey();
 

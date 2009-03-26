@@ -27,22 +27,23 @@ public class DisplayExtendedProfileData {
   public static void main(String[] args) {
     // Create a new OpenSocialClient instance configured to hit orkut endpoints;
     // other pre-configured providers include MYSPACE, GOOGLE, and PLAXO
-    OpenSocialClient c = new OpenSocialClient(OpenSocialProvider.valueOf("ORKUT"));
-    c.setProperty(OpenSocialClient.Properties.DEBUG, "true");
+    OpenSocialClient c =
+      new OpenSocialClient(OpenSocialProvider.valueOf("ORKUT_SANDBOX"));
+    c.setProperty(OpenSocialClient.Property.DEBUG, "true");
 
     if (args.length > 0 && args[0].equalsIgnoreCase("REST")) {
-      c.setProperty(OpenSocialClient.Properties.RPC_ENDPOINT, null);
+      c.setProperty(OpenSocialClient.Property.RPC_ENDPOINT, null);
     }
 
     // Credentials provided here are associated with the gadget located at
     // http://opensocial-resources.googlecode.com/svn/samples/rest_rpc/sample.xml;
     // If you install this gadget, you can substitute your own OpenSocial ID
     // for the one used below and fetch your profile data and friends
-    c.setProperty(OpenSocialClient.Properties.CONSUMER_SECRET,
+    c.setProperty(OpenSocialClient.Property.CONSUMER_SECRET,
         "uynAeXiWTisflWX99KU1D2q5");
-    c.setProperty(OpenSocialClient.Properties.CONSUMER_KEY,
+    c.setProperty(OpenSocialClient.Property.CONSUMER_KEY,
         "orkut.com:623061448914");
-    c.setProperty(OpenSocialClient.Properties.VIEWER_ID,
+    c.setProperty(OpenSocialClient.Property.VIEWER_ID,
         "03067092798963641994");
 
     try {
@@ -50,8 +51,8 @@ public class DisplayExtendedProfileData {
       // parameters you want to pass with your request; in this case, we are asking
       // orkut specifically to return the name and gender fields for the person
       // fetched below.
-      Map<String, OpenSocialRequestParameter> params
-          = new HashMap<String, OpenSocialRequestParameter>();
+      Map<String, OpenSocialRequestParameter> params =
+        new HashMap<String, OpenSocialRequestParameter>();
       params.put("fields", new OpenSocialRequestParameter(new String[]{"gender", "name"}));
 
       // Retrieve the profile data of the specified user using the OpenSocialClient

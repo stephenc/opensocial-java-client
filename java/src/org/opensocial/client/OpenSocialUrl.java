@@ -1,4 +1,4 @@
-/* Copyright (c) 2008 Google Inc.
+/* Copyright (c) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,7 +12,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 package org.opensocial.client;
 
@@ -28,9 +27,9 @@ import java.util.Vector;
  * are in place, the object can be serialized into a string. This class
  * is used by internal classes and not by clients directly.
  *
- * @author Jason Cooper
+ * @author apijason@google.com (Jason Cooper)
  */
-public class OpenSocialUrl {
+class OpenSocialUrl {
 
   private String base;
   private List<String> components;
@@ -69,6 +68,8 @@ public class OpenSocialUrl {
    * followed by any path components added to the path component queue
    * and, last but not least, appending any query string parameters as
    * name-value pairs after the full path.
+   * 
+   * @return
    */
   public String toString() {
     StringBuilder s = new StringBuilder(this.base);
@@ -80,18 +81,18 @@ public class OpenSocialUrl {
       s.append(pathComponent);
     }
 
-    String connector = "?";
+    char connector = '?';
     for (Map.Entry<String, String> e : this.queryStringParameters.entrySet()) {
       s.append(connector);
       s.append(e.getKey());
-      s.append("=");
+      s.append('=');
       s.append(e.getValue());
-      connector = "&";
+      connector = '&';
     }
 
     return s.toString();
   }
-  
+
   public URI toUri() throws java.net.URISyntaxException {
     return new URI(this.toString());
   }

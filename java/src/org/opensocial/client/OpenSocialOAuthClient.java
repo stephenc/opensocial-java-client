@@ -1,4 +1,4 @@
-/* Copyright (c) 2008 Google Inc.
+/* Copyright (c) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-
 package org.opensocial.client;
 
 import net.oauth.OAuth;
@@ -27,12 +26,8 @@ import net.oauth.http.HttpClient;
 
 import org.apache.commons.codec.binary.Base64;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +37,8 @@ import java.util.Set;
  * the context of OpenSocial. Included are static methods for digitally signing
  * requests and fetching/parsing tokens from OpenSocial containers.
  *
- * @author Jason Cooper, Cassandra Doll <doll@google.com>
+ * @author apijason@google.com (Jason Cooper)
+ * @author doll@google.com (Cassandra Doll)
  */
 public class OpenSocialOAuthClient {
 
@@ -61,30 +57,28 @@ public class OpenSocialOAuthClient {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  public static void signRequest(
-      OpenSocialHttpMessage request, OpenSocialClient client)
-      throws OpenSocialRequestException, IOException {
+  public static void signRequest(OpenSocialHttpMessage request, OpenSocialClient
+      client) throws OpenSocialRequestException, IOException {
+    String token = client.getProperty(
+        OpenSocialClient.Property.TOKEN);
+    String debug = client.getProperty(
+        OpenSocialClient.Property.DEBUG);
+    String viewerId = client.getProperty(
+        OpenSocialClient.Property.VIEWER_ID);
+    String consumerKey = client.getProperty(
+        OpenSocialClient.Property.CONSUMER_KEY);
+    String consumerSecret = client.getProperty(
+        OpenSocialClient.Property.CONSUMER_SECRET);
 
-    String token =
-      client.getProperty(OpenSocialClient.Properties.TOKEN);
-    String debug =
-      client.getProperty(OpenSocialClient.Properties.DEBUG);
-    String viewerId =
-      client.getProperty(OpenSocialClient.Properties.VIEWER_ID);
-    String consumerKey =
-      client.getProperty(OpenSocialClient.Properties.CONSUMER_KEY);
-    String consumerSecret =
-      client.getProperty(OpenSocialClient.Properties.CONSUMER_SECRET);
+    String accessToken = client.getProperty(
+        OpenSocialClient.Property.ACCESS_TOKEN);
+    String accessTokenSecret = client.getProperty(
+        OpenSocialClient.Property.ACCESS_TOKEN_SECRET);
 
-    String accessToken =
-      client.getProperty(OpenSocialClient.Properties.ACCESS_TOKEN);
-    String accessTokenSecret =
-      client.getProperty(OpenSocialClient.Properties.ACCESS_TOKEN_SECRET);
-
-    String signBody = 
-      client.getProperty(OpenSocialClient.Properties.SIGN_BODY);
-    String appendBodyHash =
-      client.getProperty(OpenSocialClient.Properties.APPEND_BODY_HASH);
+    String signBody = client.getProperty(
+        OpenSocialClient.Property.SIGN_BODY);
+    String appendBodyHash = client.getProperty(
+        OpenSocialClient.Property.APPEND_BODY_HASH);
 
     OpenSocialUrl requestUrl = request.getUrl();
 
@@ -101,7 +95,7 @@ public class OpenSocialOAuthClient {
     if (consumerKey != null && consumerSecret != null) {
       OAuthMessage message =
           new OAuthMessage(requestMethod, requestUrl.toString(), null);
-      
+
       OAuthConsumer consumer =
           new OAuthConsumer(null, consumerKey, consumerSecret, null);
       consumer.setProperty(OAuth.OAUTH_SIGNATURE_METHOD, OAuth.HMAC_SHA1);
@@ -116,7 +110,7 @@ public class OpenSocialOAuthClient {
 
       if (requestBody != null) {
         if (signBody.equals("true")) {
-          message.addParameter(requestBody, "");          
+          message.addParameter(requestBody, "");
         }
         if (appendBodyHash.equals("true")) {
           try {
@@ -136,7 +130,7 @@ public class OpenSocialOAuthClient {
       }
 
       try {
-        message.addRequiredParameters(accessor);        
+        message.addRequiredParameters(accessor);
       } catch (OAuthException e) {
         throw new OpenSocialRequestException(
             "OAuth error thrown while signing request " + e.getMessage());
@@ -217,8 +211,8 @@ public class OpenSocialOAuthClient {
           provider.accessTokenUrl);
 
     return new OAuthConsumer(null,
-        client.getProperty(OpenSocialClient.Properties.CONSUMER_KEY),
-        client.getProperty(OpenSocialClient.Properties.CONSUMER_SECRET),
+        client.getProperty(OpenSocialClient.Property.CONSUMER_KEY),
+        client.getProperty(OpenSocialClient.Property.CONSUMER_SECRET),
         serviceProvider);
   }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2008 Google Inc.
+/* Copyright (c) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,7 @@
  * limitations under the License.
  */
 
-
 package org.opensocial.client;
-
-import net.oauth.OAuthException;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,7 +31,7 @@ import java.util.Set;
  * method. The requests are then submitted to the container with the send
  * method.
  *
- * @author Jason Cooper
+ * @author apijason@google.com (Jason Cooper)
  */
 public class OpenSocialBatch {
 
@@ -52,7 +49,7 @@ public class OpenSocialBatch {
    *
    * @param request OpenSocialRequest object to add to internal collection
    * @param id Request label, used to extract data from OpenSocialResponse
-   *           object returned
+   *        object returned
    */
   public void addRequest(OpenSocialRequest request, String id) {
     request.setId(id);
@@ -69,8 +66,8 @@ public class OpenSocialBatch {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  public OpenSocialResponse send(OpenSocialClient client)
-      throws OpenSocialRequestException, IOException {
+  public OpenSocialResponse send(OpenSocialClient client) throws
+      OpenSocialRequestException, IOException {
 
     if (this.requests.size() == 0) {
       throw new OpenSocialRequestException(
@@ -78,9 +75,9 @@ public class OpenSocialBatch {
     }
 
     String rpcEndpoint =
-      client.getProperty(OpenSocialClient.Properties.RPC_ENDPOINT);
+      client.getProperty(OpenSocialClient.Property.RPC_ENDPOINT);
     String restBaseUri =
-      client.getProperty(OpenSocialClient.Properties.REST_BASE_URI);
+      client.getProperty(OpenSocialClient.Property.REST_BASE_URI);
 
     String urlRegEx = "([A-Za-z][A-Za-z0-9+.-]{1,120}:[A-Za-z0-9/]" +
         "(([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]{2}){1,333}" + 
@@ -116,13 +113,13 @@ public class OpenSocialBatch {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  private OpenSocialResponse submitRpc(OpenSocialClient client)
-      throws OpenSocialRequestException, IOException {
+  private OpenSocialResponse submitRpc(OpenSocialClient client) throws
+      OpenSocialRequestException, IOException {
 
     String rpcEndpoint =
-      client.getProperty(OpenSocialClient.Properties.RPC_ENDPOINT);
+      client.getProperty(OpenSocialClient.Property.RPC_ENDPOINT);
     String contentType =
-      client.getProperty(OpenSocialClient.Properties.CONTENT_TYPE);
+      client.getProperty(OpenSocialClient.Property.CONTENT_TYPE);
 
     JSONArray requestArray = new JSONArray();
     for (OpenSocialRequest r : this.requests) {
@@ -135,7 +132,7 @@ public class OpenSocialBatch {
     }
 
     OpenSocialUrl requestUrl = new OpenSocialUrl(rpcEndpoint);
-    
+
     OpenSocialHttpMessage request = new OpenSocialHttpMessage("POST",
         requestUrl, requestArray.toString());
     request.addHeader(OpenSocialHttpMessage.CONTENT_TYPE, contentType);
@@ -145,7 +142,7 @@ public class OpenSocialBatch {
     OpenSocialHttpResponseMessage response = httpClient.execute(request);
     String responseString = response.getBodyString();
 
-    String debug = client.getProperty(OpenSocialClient.Properties.DEBUG);
+    String debug = client.getProperty(OpenSocialClient.Property.DEBUG);
     if (debug != null && !debug.equals("")) {
       System.out.println("Request URL:\n" + request.getUrl().toString());
       System.out.println("Request body:\n" + request.getBodyString());
@@ -165,13 +162,13 @@ public class OpenSocialBatch {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  private OpenSocialResponse submitRest(OpenSocialClient client)
-      throws OpenSocialRequestException, IOException {
+  private OpenSocialResponse submitRest(OpenSocialClient client) throws
+      OpenSocialRequestException, IOException {
 
     String restBaseUri =
-      client.getProperty(OpenSocialClient.Properties.REST_BASE_URI);
+      client.getProperty(OpenSocialClient.Property.REST_BASE_URI);
     String contentType =
-      client.getProperty(OpenSocialClient.Properties.CONTENT_TYPE);
+      client.getProperty(OpenSocialClient.Property.CONTENT_TYPE);
 
     OpenSocialRequest r = this.requests.get(0);
 
@@ -194,7 +191,7 @@ public class OpenSocialBatch {
     }
 
     Set<Map.Entry<String, OpenSocialRequestParameter>> parameters =
-        r.getParameters();
+      r.getParameters();
     for (Map.Entry<String, OpenSocialRequestParameter> entry : parameters) {
       requestUrl.addQueryStringParameter(entry.getKey(),
           entry.getValue().getValuesString());
@@ -209,7 +206,7 @@ public class OpenSocialBatch {
     OpenSocialHttpResponseMessage response = httpClient.execute(request);
     String responseString = response.getBodyString();
 
-    String debug = client.getProperty(OpenSocialClient.Properties.DEBUG);
+    String debug = client.getProperty(OpenSocialClient.Property.DEBUG);
     if (debug != null && !debug.equals("")) {
       System.out.println("Request URL:\n" + request.getUrl().toString());
       System.out.println("Request body:\n" + request.getBodyString());

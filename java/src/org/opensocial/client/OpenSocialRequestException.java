@@ -1,4 +1,4 @@
-/* Copyright (c) 2008 Google Inc.
+/* Copyright (c) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * limitations under the License.
  */
 
-
 package org.opensocial.client;
 
 /**
@@ -21,7 +20,7 @@ package org.opensocial.client;
  * event, condition, or server response occurs while or after issuing
  * a RESTful or JSON-RPC request to a container.
  *
- * @author Jason Cooper
+ * @author apijason@google.com (Jason Cooper)
  */
 public class OpenSocialRequestException extends Exception {
 

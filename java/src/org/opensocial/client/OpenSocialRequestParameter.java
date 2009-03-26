@@ -1,4 +1,4 @@
-/* Copyright (c) 2008 Google Inc.
+/* Copyright (c) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,20 @@
 
 package org.opensocial.client;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import org.json.JSONObject;
 
+/**
+ * An object which represents an OpenSocial data request parameter. Parameters
+ * can be single- or multi-valued (e.g. count is single-valued while fields can
+ * have one or more values) or single- or multi-keyed.
+ *
+ * @author apijason@google.com (Jason Cooper)
+ */
 public class OpenSocialRequestParameter {
   private List<String> valuesList = null;
   private Map<String, String> valuesMap = null;
@@ -31,12 +38,12 @@ public class OpenSocialRequestParameter {
   }
 
   public OpenSocialRequestParameter(String[] values) {
-    valuesList = new Vector<String>(values.length);
+    valuesList = new ArrayList<String>(values.length);
     this.addValues(values);
   }
 
   public OpenSocialRequestParameter(String value) {
-    valuesList = new Vector<String>(1);
+    valuesList = new ArrayList<String>(1);
     this.addValue(value);
   }
 
@@ -67,9 +74,8 @@ public class OpenSocialRequestParameter {
     	return null;
     }
   }
-  
+
   public String getValuesListAsString() {
-    
     StringBuilder list = new StringBuilder();
 
     for (int i = 0; i < valuesList.size(); i++) {
@@ -82,26 +88,27 @@ public class OpenSocialRequestParameter {
 
     return list.toString();
   }
-  
+
   public String getValuesMapAsString() {
-	  JSONObject json = new JSONObject(valuesMap);
-	  
-	  if (json == null) {
-		  return null;
-	  }
-	  
-	  return json.toString();
+    JSONObject json = new JSONObject(valuesMap);
+    if (json == null) {
+      return null;
+    }
+
+    return json.toString();
   }
+
   /**
-   * Returns true if the number of stored values is greater than one, false
-   * otherwise.
+   * @return true if the number of stored values is greater than one, false
+   *         otherwise.
    */
   public boolean isMultivalued() {
     return valuesList.size() > 1;
   }
 
   /**
-   * Returns true if there are one or more key-value pairs associated with this parameter.
+   * @return true if there are one or more key-value pairs associated with this
+   *         parameter.
    */
   public boolean isMultikeyed() {
     return valuesMap != null;
