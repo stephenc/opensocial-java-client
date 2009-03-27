@@ -188,6 +188,8 @@ public class OpenSocialBatch {
     String requestBody = null;
     if (r.hasParameter("data")) {
       requestBody = (String) r.popParameter("data");
+    } else if (r.hasParameter("activity")) {
+      requestBody = (String) r.popParameter("activity");
     }
 
     Set<Map.Entry<String, OpenSocialRequestParameter>> parameters =

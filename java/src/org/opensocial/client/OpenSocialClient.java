@@ -43,8 +43,7 @@ public class OpenSocialClient {
   /** Enumeration of OpenSocialClient properties that can be set by app */
   public static enum Property {
     CONSUMER_KEY, CONSUMER_SECRET, REST_BASE_URI, RPC_ENDPOINT, VIEWER_ID,
-    DOMAIN, ACCESS_TOKEN_SECRET, ACCESS_TOKEN, TOKEN, APPEND_BODY_HASH,
-    CONTENT_TYPE, SIGN_BODY, DEBUG
+    DOMAIN, ACCESS_TOKEN_SECRET, ACCESS_TOKEN, TOKEN, CONTENT_TYPE, DEBUG
   }
 
   private final Map<Property, String> properties;
@@ -58,21 +57,15 @@ public class OpenSocialClient {
 
     this.setProperty(Property.DOMAIN, domain);
     this.setProperty(Property.CONTENT_TYPE, "application/json");
-    this.setProperty(Property.APPEND_BODY_HASH, "true");
-    this.setProperty(Property.SIGN_BODY, "false");
   }
 
   public OpenSocialClient(OpenSocialProvider provider) {
     properties = new HashMap<Property, String>();
 
     this.setProperty(Property.DOMAIN, provider.providerName);
+    this.setProperty(Property.CONTENT_TYPE, provider.contentType);
     this.setProperty(Property.REST_BASE_URI, provider.restEndpoint);
     this.setProperty(Property.RPC_ENDPOINT, provider.rpcEndpoint);
-    this.setProperty(Property.CONTENT_TYPE, provider.contentType);
-    this.setProperty(Property.APPEND_BODY_HASH,
-        String.valueOf(provider.appendBodyHash));
-    this.setProperty(Property.SIGN_BODY,
-        String.valueOf(provider.signBody));
   }
 
   /**
@@ -368,7 +361,7 @@ public class OpenSocialClient {
    */
   public void createActivity(String title, String body) throws
       OpenSocialRequestException, IOException {
-    createActivity("@me", null, title, body);
+    createActivity("@me", "@app", title, body);
   }
 
   /**
@@ -612,7 +605,7 @@ public class OpenSocialClient {
    */
   public static OpenSocialRequest newFetchActivitiesRequest(String userId,
       String groupId, String appId) {
-    OpenSocialRequest r = new OpenSocialRequest("activities", "activity.get");
+    OpenSocialRequest r = new OpenSocialRequest("activities", "activities.get");
     r.addParameter("userId", userId);
     r.addParameter("groupId", groupId);
 
@@ -635,15 +628,16 @@ public class OpenSocialClient {
   public static OpenSocialRequest newCreateActivityRequest(String userId,
       String appId, Map<String, String> data) {
     OpenSocialRequest r = new OpenSocialRequest("activities", "POST",
-        "activity.create");
+        "activities.create");
     r.addParameter("userId", userId);
+    r.addParameter("groupId", "@self");
 
     // If appId is null, retrieve activities across all of the user's apps
     if (appId != null) {
       r.addParameter("appId", appId);
     }
 
-    r.addParameter("data", new JSONObject(data).toString());
+    r.addParameter("activity", new JSONObject(data).toString());
     return r;
   }
 }

@@ -15,7 +15,9 @@
 
 package org.opensocial.client;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +62,13 @@ class OpenSocialUrl {
    * @param  value Parameter value
    */
   public void addQueryStringParameter(String key, String value) {
-    queryStringParameters.put(key, value);
+    try {
+      queryStringParameters.put(URLEncoder.encode(key, "UTF-8"),
+          URLEncoder.encode(value, "UTF-8"));
+    } catch (UnsupportedEncodingException e) {
+      // "UTF-8" is a supported encoding so this exception should never be
+      // thrown
+    }
   }
 
   /**

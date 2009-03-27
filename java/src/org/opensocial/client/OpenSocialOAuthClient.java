@@ -75,11 +75,6 @@ public class OpenSocialOAuthClient {
     String accessTokenSecret = client.getProperty(
         OpenSocialClient.Property.ACCESS_TOKEN_SECRET);
 
-    String signBody = client.getProperty(
-        OpenSocialClient.Property.SIGN_BODY);
-    String appendBodyHash = client.getProperty(
-        OpenSocialClient.Property.APPEND_BODY_HASH);
-
     OpenSocialUrl requestUrl = request.getUrl();
 
     if (viewerId != null) {
@@ -109,23 +104,18 @@ public class OpenSocialOAuthClient {
       }
 
       if (requestBody != null) {
-        if (signBody.equals("true")) {
-          message.addParameter(requestBody, "");
-        }
-        if (appendBodyHash.equals("true")) {
-          try {
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
+        try {
+          MessageDigest md = MessageDigest.getInstance("SHA-1");
 
-            byte[] hash = md.digest(requestBody.getBytes("UTF-8"));
-            byte[] encodedHash = new Base64().encode(hash);
+          byte[] hash = md.digest(requestBody.getBytes("UTF-8"));
+          byte[] encodedHash = new Base64().encode(hash);
 
-            message.addParameter("oauth_body_hash",
-                new String(encodedHash, "UTF-8"));
-          } catch (java.security.NoSuchAlgorithmException e) {
-            // Ignore exception
-          } catch (java.io.UnsupportedEncodingException e) {
-            // Ignore exception
-          }
+          message.addParameter("oauth_body_hash",
+              new String(encodedHash, "UTF-8"));
+        } catch (java.security.NoSuchAlgorithmException e) {
+          // Ignore exception
+        } catch (java.io.UnsupportedEncodingException e) {
+          // Ignore exception
         }
       }
 
@@ -150,8 +140,7 @@ public class OpenSocialOAuthClient {
 
       for (Map.Entry<String, String> p : message.getParameters()) {
         if (!p.getKey().equals(requestBody)) {
-          requestUrl.addQueryStringParameter(OAuth.percentEncode(p.getKey()),
-              OAuth.percentEncode(p.getValue()));
+          requestUrl.addQueryStringParameter(p.getKey(), p.getValue());
         }
       }
     }
