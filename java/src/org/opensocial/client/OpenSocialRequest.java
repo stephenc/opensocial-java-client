@@ -33,6 +33,15 @@ import java.util.Set;
  */
 public class OpenSocialRequest {
 
+  /** Parameter used to designate the request's user target. */
+  static final String USER_PARAMETER = "userId";
+
+  /** Parameter used to designate the request's group target. */
+  static final String GROUP_PARAMETER = "groupId";
+
+  /** Parameter used to designate the request's application target. */
+  static final String APP_PARAMETER = "appId";
+
   private String id;
   private String rpcMethod;
   private String restMethod;
@@ -79,7 +88,7 @@ public class OpenSocialRequest {
    *         otherwise
    */
   public boolean hasParameter(String key) {
-    return this.parameters.containsKey(key);
+    return parameters.containsKey(key);
   }
 
   /**
@@ -87,7 +96,7 @@ public class OpenSocialRequest {
    *         parameter with that name exists
    */
   public String getParameter(String key) {
-    OpenSocialRequestParameter param = this.parameters.get(key);
+    OpenSocialRequestParameter param = parameters.get(key);
 
     if (param != null) {
       return param.getValuesString();
@@ -97,12 +106,12 @@ public class OpenSocialRequest {
   }
 
   public Set<Map.Entry<String, OpenSocialRequestParameter>> getParameters() {
-    return this.parameters.entrySet();
+    return parameters.entrySet();
   }
 
   public String popParameter(String key) {
     String value = getParameter(key);
-    this.parameters.remove(key);
+    parameters.remove(key);
 
     return value;
   }
@@ -111,15 +120,15 @@ public class OpenSocialRequest {
    * @return instance variable restPathComponent with trailing backslash
    */
   public String getRestPathComponent() {
-    return this.restPathComponent;
+    return restPathComponent;
   }
 
   public String getRestMethod() {
-    return this.restMethod;
+    return restMethod;
   }
 
   public String getId() {
-    return this.id;
+    return id;
   }
 
   /**
@@ -133,14 +142,14 @@ public class OpenSocialRequest {
     JSONObject o = new JSONObject();
 
     try {
-      if (this.id != null) {
-        o.put("id", this.id);
+      if (id != null) {
+        o.put("id", id);
       }
-      o.put("method", this.rpcMethod);
+      o.put("method", rpcMethod);
 
       JSONObject params = new JSONObject();
       for (Map.Entry<String, OpenSocialRequestParameter> entry :
-          this.parameters.entrySet()) {
+          parameters.entrySet()) {
         OpenSocialRequestParameter parameter = entry.getValue();
         String parameterName = entry.getKey();
 

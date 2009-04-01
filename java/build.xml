@@ -23,6 +23,8 @@
 
   <property name="lib.home" value="${basedir}/lib"/>
 
+  <property name="test.class.name" value="org.opensocial.AllTests"/>
+
   <path id="compile.classpath">
     <fileset dir="${lib.home}">
       <include name="*.jar"/>
@@ -34,6 +36,14 @@
       <include name="*.jar"/>
     </fileset>
     <fileset dir="${dist.home}">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <path id="test.classpath">
+    <pathelement location="${src-main.home}"/>
+    <pathelement location="${src-test.home}"/>
+    <fileset dir="${lib.home}">
       <include name="*.jar"/>
     </fileset>
   </path>
@@ -71,6 +81,21 @@
     <javadoc sourcepath="${src-main.home}" destdir="${docs.home}" packagenames="*">
       <classpath refid="compile.classpath"/>
     </javadoc>
+  </target>
+
+  <target name="test" depends="compile" description="Run JUnit test suites">
+    <junit printsummary="false" haltonfailure="true">
+      <formatter type="brief" usefile="false" />
+      <batchtest>
+        <fileset dir="${build.home}" includes="**/*Test.class" />
+      </batchtest>
+      <classpath>
+        <fileset dir="${lib.home}">
+          <include name="*.jar"/>
+        </fileset>
+      </classpath>
+      <classpath location="${build.home}"/>
+    </junit>
   </target>
 
   <target name="clean">

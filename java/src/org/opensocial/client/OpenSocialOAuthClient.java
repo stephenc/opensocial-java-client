@@ -75,6 +75,9 @@ public class OpenSocialOAuthClient {
     String accessTokenSecret = client.getProperty(
         OpenSocialClient.Property.ACCESS_TOKEN_SECRET);
 
+    String signBody = client.getProperty(
+        OpenSocialClient.Property.SIGN_BODY);
+
     OpenSocialUrl requestUrl = request.getUrl();
 
     if (viewerId != null) {
@@ -104,6 +107,10 @@ public class OpenSocialOAuthClient {
       }
 
       if (requestBody != null) {
+        if (signBody.equals("true")) {
+          message.addParameter(requestBody, "");
+        }
+
         try {
           MessageDigest md = MessageDigest.getInstance("SHA-1");
 

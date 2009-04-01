@@ -43,8 +43,22 @@ public class OpenSocialClient {
   /** Enumeration of OpenSocialClient properties that can be set by app */
   public static enum Property {
     CONSUMER_KEY, CONSUMER_SECRET, REST_BASE_URI, RPC_ENDPOINT, VIEWER_ID,
-    DOMAIN, ACCESS_TOKEN_SECRET, ACCESS_TOKEN, TOKEN, CONTENT_TYPE, DEBUG
+    DOMAIN, ACCESS_TOKEN_SECRET, ACCESS_TOKEN, TOKEN, CONTENT_TYPE, SIGN_BODY,
+    DEBUG
   }
+
+  /** Constant used to set the request's user target to the current viewer. */
+  public static final String ME = "@me";
+
+  /** Constant used to set the request's group target to the individual. */
+  public static final String SELF = "@self";
+
+  /** Constant used to set the request's group target to the user's friends. */
+  public static final String FRIENDS = "@friends";
+
+  /** Constant used to set the request's application target to the current 
+   *  app. */
+  public static final String APP = "@app";
 
   private final Map<Property, String> properties;
 
@@ -55,17 +69,19 @@ public class OpenSocialClient {
   public OpenSocialClient(String domain) {
     properties = new HashMap<Property, String>();
 
-    this.setProperty(Property.DOMAIN, domain);
-    this.setProperty(Property.CONTENT_TYPE, "application/json");
+    setProperty(Property.DOMAIN, domain);
+    setProperty(Property.SIGN_BODY, "false");
+    setProperty(Property.CONTENT_TYPE, "application/json");
   }
 
   public OpenSocialClient(OpenSocialProvider provider) {
     properties = new HashMap<Property, String>();
 
-    this.setProperty(Property.DOMAIN, provider.providerName);
-    this.setProperty(Property.CONTENT_TYPE, provider.contentType);
-    this.setProperty(Property.REST_BASE_URI, provider.restEndpoint);
-    this.setProperty(Property.RPC_ENDPOINT, provider.rpcEndpoint);
+    setProperty(Property.DOMAIN, provider.providerName);
+    setProperty(Property.CONTENT_TYPE, provider.contentType);
+    setProperty(Property.SIGN_BODY, String.valueOf(provider.signBody));
+    setProperty(Property.REST_BASE_URI, provider.restEndpoint);
+    setProperty(Property.RPC_ENDPOINT, provider.rpcEndpoint);
   }
 
   /**
@@ -99,13 +115,13 @@ public class OpenSocialClient {
    */
   public OpenSocialPerson fetchPerson()
       throws OpenSocialRequestException, IOException {
-    return this.fetchPerson("@me");
+    return fetchPerson(ME);
   }
 
   public OpenSocialPerson fetchPerson(
       Map<String, OpenSocialRequestParameter> parameters) throws
       OpenSocialRequestException, IOException {
-    return this.fetchPerson("@me", parameters);
+    return fetchPerson(ME, parameters);
   }
 
   /**
@@ -121,13 +137,13 @@ public class OpenSocialClient {
    */
   public OpenSocialPerson fetchPerson(String userId) throws
       OpenSocialRequestException, IOException {
-    return this.fetchPerson(userId, null);
+    return fetchPerson(userId, null);
   }
 
   public OpenSocialPerson fetchPerson(String userId,
       Map<String, OpenSocialRequestParameter> parameters) throws
       OpenSocialRequestException, IOException {
-    OpenSocialResponse response = fetchPeople(userId, "@self", parameters);
+    OpenSocialResponse response = fetchPeople(userId, SELF, parameters);
     return response.getItemAsPerson("people");
   }
 
@@ -143,13 +159,13 @@ public class OpenSocialClient {
    */
   public List<OpenSocialPerson> fetchFriends()
       throws OpenSocialRequestException, IOException {
-    return fetchFriends("@me");
+    return fetchFriends(ME);
   }
 
   public List<OpenSocialPerson> fetchFriends(
       Map<String, OpenSocialRequestParameter> parameters) throws
       OpenSocialRequestException, IOException {
-    return fetchFriends("@me", parameters);
+    return fetchFriends(ME, parameters);
   }
 
   /**
@@ -165,13 +181,13 @@ public class OpenSocialClient {
    */
   public List<OpenSocialPerson> fetchFriends(String userId) throws
       OpenSocialRequestException, IOException {
-    return this.fetchFriends(userId, null);
+    return fetchFriends(userId, null);
   }
 
   public List<OpenSocialPerson> fetchFriends(String userId,
       Map<String, OpenSocialRequestParameter> parameters) throws
       OpenSocialRequestException, IOException {
-    OpenSocialResponse response = fetchPeople(userId, "@friends", parameters);
+    OpenSocialResponse response = fetchPeople(userId, FRIENDS, parameters);
     return response.getItemAsPersonCollection("people");
   }
 
@@ -188,7 +204,7 @@ public class OpenSocialClient {
    */
   public OpenSocialAppData fetchPersonAppData(String userId) throws
       OpenSocialRequestException, IOException {
-    return fetchPersonAppData(userId, "@app");
+    return fetchPersonAppData(userId, APP);
   }
 
   /**
@@ -206,7 +222,7 @@ public class OpenSocialClient {
    */
   public OpenSocialAppData fetchPersonAppData(String userId, String appId)
       throws OpenSocialRequestException, IOException {
-    OpenSocialResponse response = fetchAppData(userId, "@self", appId);
+    OpenSocialResponse response = fetchAppData(userId, SELF, appId);
     return response.getItemAsAppData("appdata");
   }
 
@@ -246,7 +262,7 @@ public class OpenSocialClient {
    */
   public void removePersonAppData(String key) throws OpenSocialRequestException,
       IOException {
-    removePersonAppData("@me", key);
+    removePersonAppData(ME, key);
   }
 
   /**
@@ -259,7 +275,7 @@ public class OpenSocialClient {
    */
   public void removePersonAppData(List<String> keys) throws
       OpenSocialRequestException, IOException {
-    removePersonAppData("@me", keys);
+    removePersonAppData(ME, keys);
   }
 
   public void removePersonAppData(String userId, String key) throws
@@ -284,7 +300,7 @@ public class OpenSocialClient {
    */
   public List<OpenSocialActivity> fetchActivities() throws
       OpenSocialRequestException, IOException {
-    return fetchActivities("@me", "@self", null);
+    return fetchActivities(ME, SELF, null);
   }
 
   /**
@@ -296,7 +312,7 @@ public class OpenSocialClient {
    */
   public List<OpenSocialActivity> fetchActivitiesForApp() throws
       OpenSocialRequestException, IOException {
-    return fetchActivities("@me", "@self", "@app");
+    return fetchActivities(ME, SELF, APP);
   }
 
   /**
@@ -308,7 +324,7 @@ public class OpenSocialClient {
    */
   public List<OpenSocialActivity> fetchActivitiesForPerson(String userId)
       throws OpenSocialRequestException, IOException {
-    return fetchActivities(userId, "@self", null);
+    return fetchActivities(userId, SELF, null);
   }
 
   /**
@@ -321,7 +337,7 @@ public class OpenSocialClient {
    */
   public List<OpenSocialActivity> fetchActivitiesForFriends(String userId)
       throws OpenSocialRequestException, IOException {
-    return fetchActivities(userId, "@friends", null);
+    return fetchActivities(userId, FRIENDS, null);
   }
 
   /**
@@ -361,11 +377,11 @@ public class OpenSocialClient {
    */
   public void createActivity(String title, String body) throws
       OpenSocialRequestException, IOException {
-    createActivity("@me", "@app", title, body);
+    createActivity(ME, APP, title, body);
   }
 
   /**
-   * Creates an activity for the specified user and application witht he passed
+   * Creates an activity for the specified user and application with the passed
    * title and body.
    *
    * @param userId
@@ -488,7 +504,7 @@ public class OpenSocialClient {
    * @param userId OpenSocial ID of the request's target
    */
   public static OpenSocialRequest newFetchPersonRequest(String userId) {
-    return newFetchPeopleRequest(userId, "@self", null);
+    return newFetchPeopleRequest(userId, SELF, null);
   }
 
   /**
@@ -498,7 +514,7 @@ public class OpenSocialClient {
    * @param userId OpenSocial ID of the request's target
    */
   public static OpenSocialRequest newFetchFriendsRequest(String userId) {
-    return newFetchPeopleRequest(userId, "@friends", null);
+    return newFetchPeopleRequest(userId, FRIENDS, null);
   }
 
   /**
@@ -515,8 +531,8 @@ public class OpenSocialClient {
     if (parameters != null) {
       r.setParameters(parameters);
     }
-    r.addParameter("groupId", groupId);
-    r.addParameter("userId", userId);
+    r.addParameter(OpenSocialRequest.GROUP_PARAMETER, groupId);
+    r.addParameter(OpenSocialRequest.USER_PARAMETER, userId);
 
     return r;
   }
@@ -535,9 +551,9 @@ public class OpenSocialClient {
   public static OpenSocialRequest newFetchPersonAppDataRequest(String userId,
       String groupId, String appId) {
     OpenSocialRequest r = new OpenSocialRequest("appdata", "appdata.get");
-    r.addParameter("groupId", groupId);
-    r.addParameter("userId", userId);
-    r.addParameter("appId", appId);
+    r.addParameter(OpenSocialRequest.GROUP_PARAMETER, groupId);
+    r.addParameter(OpenSocialRequest.USER_PARAMETER, userId);
+    r.addParameter(OpenSocialRequest.APP_PARAMETER, appId);
 
     return r;
   }
@@ -553,16 +569,16 @@ public class OpenSocialClient {
    */
   public static OpenSocialRequest newFetchPersonAppDataRequest(String userId,
       String groupId) {
-    return newFetchPersonAppDataRequest(userId, groupId, "@app");
+    return newFetchPersonAppDataRequest(userId, groupId, APP);
   }
 
   public static OpenSocialRequest newUpdatePersonAppDataRequest(String userId,
       Map<String, String> data) {
     OpenSocialRequest r = new OpenSocialRequest("appdata", "PUT",
         "appdata.update");
-    r.addParameter("groupId", "@self");
-    r.addParameter("userId", userId);
-    r.addParameter("appId", "@app");
+    r.addParameter(OpenSocialRequest.GROUP_PARAMETER, SELF);
+    r.addParameter(OpenSocialRequest.USER_PARAMETER, userId);
+    r.addParameter(OpenSocialRequest.APP_PARAMETER, APP);
     r.addParameter("data", data);
 
     String[] fields = new String[data.size()];
@@ -584,9 +600,9 @@ public class OpenSocialClient {
 
     OpenSocialRequest r = new OpenSocialRequest("appdata", "DELETE",
         "appdata.delete");
-    r.addParameter("groupId", "@self");
-    r.addParameter("userId", userId);
-    r.addParameter("appId", "@app");
+    r.addParameter(OpenSocialRequest.GROUP_PARAMETER, SELF);
+    r.addParameter(OpenSocialRequest.USER_PARAMETER, userId);
+    r.addParameter(OpenSocialRequest.APP_PARAMETER, APP);
 
     String[] fields = new String[fieldsList.size()];
     fields = fieldsList.toArray(fields);
@@ -606,12 +622,12 @@ public class OpenSocialClient {
   public static OpenSocialRequest newFetchActivitiesRequest(String userId,
       String groupId, String appId) {
     OpenSocialRequest r = new OpenSocialRequest("activities", "activities.get");
-    r.addParameter("userId", userId);
-    r.addParameter("groupId", groupId);
+    r.addParameter(OpenSocialRequest.USER_PARAMETER, userId);
+    r.addParameter(OpenSocialRequest.GROUP_PARAMETER, groupId);
 
     // If appId is null, retrieve activities across all of the user's apps
     if (appId != null) {
-      r.addParameter("appId", appId);
+      r.addParameter(OpenSocialRequest.APP_PARAMETER, appId);
     }
 
     return r;
@@ -629,12 +645,12 @@ public class OpenSocialClient {
       String appId, Map<String, String> data) {
     OpenSocialRequest r = new OpenSocialRequest("activities", "POST",
         "activities.create");
-    r.addParameter("userId", userId);
-    r.addParameter("groupId", "@self");
+    r.addParameter(OpenSocialRequest.USER_PARAMETER, userId);
+    r.addParameter(OpenSocialRequest.GROUP_PARAMETER, SELF);
 
     // If appId is null, retrieve activities across all of the user's apps
     if (appId != null) {
-      r.addParameter("appId", appId);
+      r.addParameter(OpenSocialRequest.APP_PARAMETER, appId);
     }
 
     r.addParameter("activity", new JSONObject(data).toString());
