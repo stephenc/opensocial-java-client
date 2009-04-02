@@ -102,8 +102,6 @@ public class OpenSocialOAuthClient {
       if (accessToken != null) {
         accessor.accessToken = accessToken;
         accessor.tokenSecret = accessTokenSecret;
-      } else {
-        //accessor.accessToken = "";
       }
 
       if (requestBody != null) {
