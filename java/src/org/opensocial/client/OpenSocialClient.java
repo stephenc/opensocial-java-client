@@ -43,8 +43,8 @@ public class OpenSocialClient {
   /** Enumeration of OpenSocialClient properties that can be set by app */
   public static enum Property {
     CONSUMER_KEY, CONSUMER_SECRET, REST_BASE_URI, RPC_ENDPOINT, VIEWER_ID,
-    DOMAIN, ACCESS_TOKEN_SECRET, ACCESS_TOKEN, TOKEN, CONTENT_TYPE, SIGN_BODY,
-    DEBUG
+    DOMAIN, ACCESS_TOKEN_SECRET, ACCESS_TOKEN, TOKEN, CONTENT_TYPE,
+    SIGN_BODY_HASH, DEBUG
   }
 
   /** Constant used to set the request's user target to the current viewer. */
@@ -70,7 +70,7 @@ public class OpenSocialClient {
     properties = new HashMap<Property, String>();
 
     setProperty(Property.DOMAIN, domain);
-    setProperty(Property.SIGN_BODY, "false");
+    setProperty(Property.SIGN_BODY_HASH, "true");
     setProperty(Property.CONTENT_TYPE, "application/json");
   }
 
@@ -79,7 +79,7 @@ public class OpenSocialClient {
 
     setProperty(Property.DOMAIN, provider.providerName);
     setProperty(Property.CONTENT_TYPE, provider.contentType);
-    setProperty(Property.SIGN_BODY, String.valueOf(provider.signBody));
+    setProperty(Property.SIGN_BODY_HASH, String.valueOf(provider.signBodyHash));
     setProperty(Property.REST_BASE_URI, provider.restEndpoint);
     setProperty(Property.RPC_ENDPOINT, provider.rpcEndpoint);
   }

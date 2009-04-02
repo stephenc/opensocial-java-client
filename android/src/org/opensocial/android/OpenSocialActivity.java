@@ -84,12 +84,8 @@ public class OpenSocialActivity {
 
     if (intent.getData() != null) {
       try {
-        Token myToken = loadRequestToken();
-        System.out.println("Token: " + myToken.token);
-        System.out.println("Secret: " + myToken.secret);
-        System.out.println("Access Token URL: " + provider.accessTokenUrl);
         accessToken = OpenSocialOAuthClient.getAccessToken(client, provider,
-            myToken);
+            loadRequestToken());
       } catch (IOException e) {
         throw new RuntimeException("Error occured fetching access token", e);
       } catch (URISyntaxException e) {

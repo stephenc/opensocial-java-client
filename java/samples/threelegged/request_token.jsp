@@ -7,7 +7,10 @@
     requestToken = OpenSocialOAuthClient.getRequestToken(client, provider);
     session.setAttribute("token_secret", requestToken.secret);
   } catch (Exception e) {
-    out.println("<b>ERROR:</b> Failed to fetch request token.");
+    out.println("<b>ERROR:</b> Failed to fetch request token: " + e.getClass());
+    out.println("<pre>");
+    e.printStackTrace(new java.io.PrintWriter(out));
+    out.println("</pre>");
     return;
   }
 

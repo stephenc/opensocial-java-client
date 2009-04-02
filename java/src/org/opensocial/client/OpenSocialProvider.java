@@ -27,40 +27,40 @@ import java.util.HashMap;
 public enum OpenSocialProvider {
   FRIENDCONNECT(null, null, null, "http://www.google.com/friendconnect/api",
       "http://www.google.com/friendconnect/api/rpc", "friendconnect",
-      Feature.OPENSOCIAL, Feature.NO_SIGN_BODY),
+      BodySigningMethod.SIGN_BODY_HASH, true),
 
   GOOGLE("https://www.google.com/accounts/OAuthGetRequestToken",
       "https://www.google.com/accounts/OAuthAuthorizeToken",
       "https://www.google.com/accounts/OAuthGetAccessToken",
       "http://www-opensocial-sandbox.googleusercontent.com/api",
       "http://www-opensocial-sandbox.googleusercontent.com/api/rpc",
-      "Google", Feature.OPENSOCIAL, Feature.NO_SIGN_BODY),
+      "Google", BodySigningMethod.SIGN_BODY_HASH, true),
 
   MYSPACE("http://api.myspace.com/request_token",
       "http://api.myspace.com/authorize",
       "http://api.myspace.com/access_token",
-      "http://api.myspace.com/v2", null, "MySpace", Feature.OPENSOCIAL,
-      Feature.NO_SIGN_BODY),
+      "http://api.myspace.com/v2", null, "MySpace",
+      BodySigningMethod.SIGN_BODY_HASH, true),
 
   ORKUT(null, null, null, "http://www.orkut.com/social/rest/",
-      "http://www.orkut.com/social/rpc/", "orkut.com", Feature.OPENSOCIAL,
-      Feature.NO_SIGN_BODY),
+      "http://www.orkut.com/social/rpc/", "orkut.com",
+      BodySigningMethod.SIGN_BODY_HASH, true),
 
   ORKUT_SANDBOX(null, null, null, "http://sandbox.orkut.com/social/rest/",
-      "http://sandbox.orkut.com/social/rpc/", "orkut.com", Feature.OPENSOCIAL,
-      Feature.NO_SIGN_BODY),
+      "http://sandbox.orkut.com/social/rpc", "orkut.com",
+      BodySigningMethod.SIGN_BODY_HASH, true),
 
   PARTUZA("http://www.partuza.nl/oauth/request_token",
       "http://www.partuza.nl/oauth/authorize",
       "http://www.partuza.nl/oauth/access_token",
       "http://modules.partuza.nl/social/rest", null, "Partuza",
-      Feature.OPENSOCIAL, Feature.SIGN_BODY),
+      BodySigningMethod.SIGN_RAW_BODY, true),
 
   PLAXO("http://www.plaxo.com/oauth/request",
       "http://www.plaxo.com/oauth/authorize",
       "http://www.plaxo.com/oauth/activate",
       "http://www.plaxo.com/pdata/contacts", null, "Plaxo",
-      Feature.NO_OPENSOCIAL, Feature.NO_SIGN_BODY);
+      BodySigningMethod.SIGN_BODY_HASH, false);
 
   static {
     GOOGLE.requestTokenParams = new HashMap<String, String>();
@@ -68,8 +68,12 @@ public enum OpenSocialProvider {
         "http://sandbox.gmodules.com/api/people");
   }
 
-  private enum Feature {
-    OPENSOCIAL, NO_OPENSOCIAL, SIGN_BODY, NO_SIGN_BODY
+  /** For an explanation of these different signing methods, see
+   *  http://tr.im/osbodysigningmethod; SIGN_RAW_BODY is deprecated and should
+   *  only be used for the purposes of maintaing backwards-compatibility with
+   *  containers which do not accept the signed body hash. */
+  private enum BodySigningMethod {
+    SIGN_BODY_HASH, @Deprecated SIGN_RAW_BODY
   }
 
   public String requestTokenUrl;
@@ -79,14 +83,15 @@ public enum OpenSocialProvider {
   public String restEndpoint;
   public String rpcEndpoint;
   public String providerName;
+  public boolean signBodyHash;
   public boolean isOpenSocial;
-  public boolean signBody;
 
   public String contentType;
 
   OpenSocialProvider(String requestTokenUrl, String authorizeUrl,
       String accessTokenUrl, String restEndpoint, String rpcEndpoint,
-      String providerName, Feature isOpenSocial, Feature signBody) {
+      String providerName, BodySigningMethod bodySigningMethod,
+      boolean isOpenSocial) {
     this.requestTokenUrl = requestTokenUrl;
     this.authorizeUrl = authorizeUrl;
     this.accessTokenUrl = accessTokenUrl;
@@ -94,14 +99,11 @@ public enum OpenSocialProvider {
     this.rpcEndpoint = rpcEndpoint;
     this.providerName = providerName;
     this.contentType = "application/json";
+    this.isOpenSocial = isOpenSocial;
 
-    this.isOpenSocial = true;
-    if (isOpenSocial.equals(Feature.NO_OPENSOCIAL)) {
-      this.isOpenSocial = false;
-    }
-    this.signBody = false;
-    if (signBody.equals(Feature.SIGN_BODY)) {
-      this.signBody = true;
+    signBodyHash = true;
+    if (bodySigningMethod.equals(BodySigningMethod.SIGN_RAW_BODY)) {
+      signBodyHash = false;
     }
   }
 }

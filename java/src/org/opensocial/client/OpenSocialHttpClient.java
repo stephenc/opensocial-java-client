@@ -100,9 +100,9 @@ class OpenSocialHttpClient implements net.oauth.http.HttpClient {
    */
   private OpenSocialHttpResponseMessage send(String method, OpenSocialUrl url,
       String contentType, String body) throws IOException {
-    int responseCode = 0;
+    HttpURLConnection connection = null;
     try {
-      HttpURLConnection connection = getConnection(method, url, contentType);
+      connection = getConnection(method, url, contentType);
 
       if (body != null) {
         OutputStreamWriter out =
@@ -112,13 +112,11 @@ class OpenSocialHttpClient implements net.oauth.http.HttpClient {
         out.close();
       }
 
-      responseCode = connection.getResponseCode();
-
       return new OpenSocialHttpResponseMessage(method, url,
-          connection.getInputStream(), responseCode);
+          connection.getInputStream(), connection.getResponseCode());
     } catch (IOException e) {
-      return new OpenSocialHttpResponseMessage(method, url, null,
-          responseCode);
+      throw new IOException("Container returned status " +
+          connection.getResponseCode() + " \"" + e.getMessage() + "\"");
     }
   }
 

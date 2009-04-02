@@ -24,9 +24,9 @@
     session.setAttribute("access_token_secret", accessTokenSecret);
   }
 
-  client.setProperty(OpenSocialClient.Properties.TOKEN, requestToken);
-  client.setProperty(OpenSocialClient.Properties.ACCESS_TOKEN, accessToken);
-  client.setProperty(OpenSocialClient.Properties.ACCESS_TOKEN_SECRET, accessTokenSecret);
+  client.setProperty(OpenSocialClient.Property.TOKEN, requestToken);
+  client.setProperty(OpenSocialClient.Property.ACCESS_TOKEN, accessToken);
+  client.setProperty(OpenSocialClient.Property.ACCESS_TOKEN_SECRET, accessTokenSecret);
 %>
 
 <html>

@@ -38,7 +38,7 @@ public class UpdateFetchAppData {
     // Credentials provided here are associated with the gadget located at
     // http://opensocial-resources.googlecode.com/svn/samples/rest_rpc/sample.xml;
     // If you install this gadget, you can substitute your own OpenSocial ID
-    // for the one used below and fetch your profile data and friends
+    // for the one used below and update and fetch your own app data keys
     c.setProperty(OpenSocialClient.Property.CONSUMER_SECRET,
         "uynAeXiWTisflWX99KU1D2q5");
     c.setProperty(OpenSocialClient.Property.CONSUMER_KEY,

@@ -10,6 +10,6 @@
   final OpenSocialProvider provider = OpenSocialProvider.valueOf("MYSPACE");
   final OpenSocialClient client = new OpenSocialClient(provider);
 
-  client.setProperty(OpenSocialClient.Properties.CONSUMER_SECRET, secretKey);
-  client.setProperty(OpenSocialClient.Properties.CONSUMER_KEY, consumerKey);
+  client.setProperty(OpenSocialClient.Property.CONSUMER_SECRET, secretKey);
+  client.setProperty(OpenSocialClient.Property.CONSUMER_KEY, consumerKey);
 %>
