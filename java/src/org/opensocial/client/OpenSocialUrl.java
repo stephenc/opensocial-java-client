@@ -16,7 +16,8 @@
 package org.opensocial.client;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
@@ -101,7 +102,7 @@ class OpenSocialUrl {
     return s.toString();
   }
 
-  public URI toUri() throws java.net.URISyntaxException {
-    return new URI(this.toString());
+  public URL toURL() throws MalformedURLException {
+    return new URL(this.toString());
   }
 }

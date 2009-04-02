@@ -73,8 +73,8 @@ public class OpenSocialChooserActivity extends ListActivity {
     String[] consumerToken = intent.getStringArrayExtra(providerString.toUpperCase());
 
     if (consumerToken != null && consumerToken.length == 2) {
-      client.setProperty(OpenSocialClient.Properties.CONSUMER_KEY, consumerToken[0]);
-      client.setProperty(OpenSocialClient.Properties.CONSUMER_SECRET, consumerToken[1]);
+      client.setProperty(OpenSocialClient.Property.CONSUMER_KEY, consumerToken[0]);
+      client.setProperty(OpenSocialClient.Property.CONSUMER_SECRET, consumerToken[1]);
     }
 
     final AlertDialog alert = new AlertDialog.Builder(this).create();

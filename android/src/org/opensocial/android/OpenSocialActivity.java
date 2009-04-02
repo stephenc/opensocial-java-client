@@ -84,8 +84,12 @@ public class OpenSocialActivity {
 
     if (intent.getData() != null) {
       try {
+        Token myToken = loadRequestToken();
+        System.out.println("Token: " + myToken.token);
+        System.out.println("Secret: " + myToken.secret);
+        System.out.println("Access Token URL: " + provider.accessTokenUrl);
         accessToken = OpenSocialOAuthClient.getAccessToken(client, provider,
-            loadRequestToken());
+            myToken);
       } catch (IOException e) {
         throw new RuntimeException("Error occured fetching access token", e);
       } catch (URISyntaxException e) {
@@ -96,11 +100,11 @@ public class OpenSocialActivity {
       persistAccessToken(accessToken);
     }
 
-    client.setProperty(OpenSocialClient.Properties.ACCESS_TOKEN, accessToken.token);
-    client.setProperty(OpenSocialClient.Properties.ACCESS_TOKEN_SECRET, accessToken.secret);
+    client.setProperty(OpenSocialClient.Property.ACCESS_TOKEN, accessToken.token);
+    client.setProperty(OpenSocialClient.Property.ACCESS_TOKEN_SECRET, accessToken.secret);
 
-    client.setProperty(OpenSocialClient.Properties.REST_BASE_URI, provider.restEndpoint);
-    client.setProperty(OpenSocialClient.Properties.RPC_ENDPOINT, provider.rpcEndpoint);
+    client.setProperty(OpenSocialClient.Property.REST_BASE_URI, provider.restEndpoint);
+    client.setProperty(OpenSocialClient.Property.RPC_ENDPOINT, provider.rpcEndpoint);
 
     return client;
   }
@@ -112,8 +116,8 @@ public class OpenSocialActivity {
 
     Token consumerToken = supportedProviders.get(provider);
     if (consumerToken != null) {
-      client.setProperty(OpenSocialClient.Properties.CONSUMER_KEY, consumerToken.token);
-      client.setProperty(OpenSocialClient.Properties.CONSUMER_SECRET, consumerToken.secret);
+      client.setProperty(OpenSocialClient.Property.CONSUMER_KEY, consumerToken.token);
+      client.setProperty(OpenSocialClient.Property.CONSUMER_SECRET, consumerToken.secret);
     }
 
     return client;

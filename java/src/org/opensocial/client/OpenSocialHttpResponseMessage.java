@@ -32,15 +32,12 @@ import java.io.IOException;
 class OpenSocialHttpResponseMessage extends HttpResponseMessage {
 
   protected int status;
-  protected String body;
-  protected OpenSocialUrl url;
 
   protected OpenSocialHttpResponseMessage(String method, OpenSocialUrl url,
       InputStream responseStream, int status) throws IOException {
-    super(method, null);
+    super(method, url.toURL());
 
-    this.url = url;
-    this.body = getResponseString(responseStream);
+    this.body = responseStream;
     this.status = status;
   }
 
@@ -59,36 +56,25 @@ class OpenSocialHttpResponseMessage extends HttpResponseMessage {
   }
 
   /**
-   * Returns the buffered response from the server as a String.
+   * Transforms response output contained in the InputStream object returned by
+   * the connection into a string representation which can later be parsed into
+   * a more meaningful object, e.g. OpenSocialPerson.
    *
-   * @return Server response
+   * @return Response body as a String
+   * @throws IOException if the InputStream is not retrievable or accessible
    */
-  public String getBodyString() {
-    return this.body;
-  }
-
-  /**
-   * After executing the request, transforms response output contained in the
-   * connection's InputStream object into a string representation which can
-   * later be parsed into a more meaningful object, e.g. OpenSocialPerson.
-   *
-   * @return Data in InputStream as a String
-   * @throws IOException if the open connection's input stream is not
-   *         retrievable or accessible
-   */
-  private String getResponseString(InputStream responseStream) throws
-      IOException {
-    if (responseStream != null) {
+  public String getBodyString() throws IOException {
+    if (body != null) {
       StringBuilder sb = new StringBuilder();
       BufferedReader reader = new BufferedReader(
-          new InputStreamReader(responseStream));
+          new InputStreamReader(body));
 
       String line = null;
       while ((line = reader.readLine()) != null) {
         sb.append(line);
       }
 
-      responseStream.close();
+      body.close();
 
       return sb.toString();
     }
