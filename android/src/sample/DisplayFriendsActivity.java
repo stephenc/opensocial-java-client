@@ -46,6 +46,7 @@ public class DisplayFriendsActivity extends Activity {
   private static Map<OpenSocialProvider, Token> SUPPORTED_PROVIDERS
       = new HashMap<OpenSocialProvider, Token>();
   public OpenSocialActivity util;
+  public OpenSocialClient client;
 
   static {
     // Setup all the OpenSocial containers you want to integrate with
@@ -58,12 +59,16 @@ public class DisplayFriendsActivity extends Activity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    util = new OpenSocialActivity(this, SUPPORTED_PROVIDERS, ANDROID_SCHEME);
     setupClient();
   }
 
   private void setupClient() {
-    util = new OpenSocialActivity(this, SUPPORTED_PROVIDERS, ANDROID_SCHEME);
-    OpenSocialClient client = util.getOpenSocialClient();
+    // If the user fetches friends twice without clearing auth then we don't need to
+    // recreate our oauth client
+    if (client == null) {
+      client = util.getOpenSocialClient();
+    }
 
     // If the client is null the OpenSocialChooserActivity will be started
     if (client != null) {
@@ -114,6 +119,7 @@ public class DisplayFriendsActivity extends Activity {
     clearAuthButton.setOnClickListener(new View.OnClickListener() {
       public void onClick(View view) {
         util.clearSavedAuthentication();
+        client = null;
       }
     });
 
