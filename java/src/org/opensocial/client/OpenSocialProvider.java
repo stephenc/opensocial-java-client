@@ -36,6 +36,12 @@ public enum OpenSocialProvider {
       "http://www-opensocial-sandbox.googleusercontent.com/api/rpc",
       "Google", BodySigningMethod.SIGN_BODY_HASH, true),
 
+  HI5("https://api.hi5.com/oauth/requestToken",
+      "https://login.hi5.com/oauth/authorize",
+      "https://api.hi5.com/oauth/accessToken",
+      "http://api.hi5.com/social/rest", "http://api.hi5.com/social/rpc", "hi5",
+      BodySigningMethod.SIGN_BODY_HASH, true),
+
   MYSPACE("http://api.myspace.com/request_token",
       "http://api.myspace.com/authorize",
       "http://api.myspace.com/access_token",
@@ -60,7 +66,24 @@ public enum OpenSocialProvider {
       "http://www.plaxo.com/oauth/authorize",
       "http://www.plaxo.com/oauth/activate",
       "http://www.plaxo.com/pdata/contacts", null, "Plaxo",
-      BodySigningMethod.SIGN_BODY_HASH, false);
+      BodySigningMethod.SIGN_BODY_HASH, false),
+
+  /**
+   * Note: The SHINDIG provider uses a local OAuth provider. To get this local
+   * OAuth provider running on port 9090, do the following:
+   * 1) Download and launch example service provider from oauth.net:
+   *    a) svn co http://oauth.googlecode.com/svn/code/java java
+   *    b) cd java/example/oauth-provider
+   *    c) mvn jetty:run-war
+   * 2) If your OAuth provider is not running on port 9090 or your Shindig
+   *    instance is not running on port 8080, edit the port numbers below.
+   */
+  SHINDIG("http://localhost:9090/oauth-provider/request_token",
+      "http://localhost:9090/oauth-provider/authorize",
+      "http://localhost:9090/oauth-provider/access_token",
+      "http://localhost:8080/social/rest/",
+      "http://localhost:8080/social/rpc/", "localhost",
+      BodySigningMethod.SIGN_BODY_HASH, true);
 
   static {
     GOOGLE.requestTokenParams = new HashMap<String, String>();
