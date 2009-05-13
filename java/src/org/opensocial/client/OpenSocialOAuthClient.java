@@ -59,8 +59,6 @@ public class OpenSocialOAuthClient {
    */
   public static void signRequest(OpenSocialHttpMessage request, OpenSocialClient
       client) throws OpenSocialRequestException, IOException {
-    String token = client.getProperty(
-        OpenSocialClient.Property.TOKEN);
     String debug = client.getProperty(
         OpenSocialClient.Property.DEBUG);
     String viewerId = client.getProperty(
@@ -69,6 +67,11 @@ public class OpenSocialOAuthClient {
         OpenSocialClient.Property.CONSUMER_KEY);
     String consumerSecret = client.getProperty(
         OpenSocialClient.Property.CONSUMER_SECRET);
+
+    String token = client.getProperty(
+        OpenSocialClient.Property.TOKEN);
+    String tokenName = client.getProperty(
+        OpenSocialClient.Property.TOKEN_NAME);
 
     String accessToken = client.getProperty(
         OpenSocialClient.Property.ACCESS_TOKEN);
@@ -83,8 +86,13 @@ public class OpenSocialOAuthClient {
     if (viewerId != null) {
       requestUrl.addQueryStringParameter("xoauth_requestor_id", viewerId);
     }
+
+    if (tokenName == null) {
+      tokenName = "st";
+    }
+
     if (token != null) {
-      requestUrl.addQueryStringParameter("st", token);
+      requestUrl.addQueryStringParameter(tokenName, token);
     }
 
     String requestBody = request.getBodyString();

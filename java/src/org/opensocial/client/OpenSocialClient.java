@@ -43,7 +43,7 @@ public class OpenSocialClient {
   /** Enumeration of OpenSocialClient properties that can be set by app */
   public static enum Property {
     CONSUMER_KEY, CONSUMER_SECRET, REST_BASE_URI, RPC_ENDPOINT, VIEWER_ID,
-    DOMAIN, ACCESS_TOKEN_SECRET, ACCESS_TOKEN, TOKEN, CONTENT_TYPE,
+    DOMAIN, ACCESS_TOKEN_SECRET, ACCESS_TOKEN, TOKEN_NAME, TOKEN, CONTENT_TYPE,
     SIGN_BODY_HASH, DEBUG
   }
 
