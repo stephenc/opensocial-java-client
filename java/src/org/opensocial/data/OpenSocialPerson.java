@@ -86,4 +86,17 @@ public class OpenSocialPerson extends OpenSocialObject {
     return name.toString();
   }
 
+  /**
+   * Retrieves the thumbnailUrl associated with the instance. 
+   * Returns an empty string if no thumbnailUrl has been set.
+   */
+  public String getThumbnailUrl() {
+    OpenSocialField thumbnailUrlField = this.getField("thumbnailUrl");
+
+    if (thumbnailUrlField != null && !thumbnailUrlField.isComplex()) {
+      return thumbnailUrlField.getStringValue();
+    }
+
+    return "";  
+  } 
 }
