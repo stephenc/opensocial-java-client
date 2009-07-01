@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainlayout"
+	android:orientation="vertical" android:layout_height="wrap_content"
+	android:layout_width="300px" android:gravity="bottom">
+
+	<TableLayout android:id="@+id/scoreTable"
+		android:layout_width="wrap_content" android:layout_height="wrap_content"></TableLayout>
+	<!--
+
+
+		<Button android:layout_width="0dip"
+		android:layout_height="wrap_content" android:layout_weight="50"
+		android:textAppearance="?android:attr/textAppearanceSmall"
+		android:id="@+id/dismiss" android:text="@string/dismiss" />
+	-->
+	    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="0dip"
+        android:layout_weight="100"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:paddingLeft="10dip"
+        android:paddingTop="15px"
+        android:paddingBottom="22px"
+        android:text="Your Friends' Scores"/>
+
+	<Gallery xmlns:android="http://schemas.android.com/apk/res/android"
+		android:id="@+id/gallery" android:layout_width="fill_parent"
+		android:layout_height="wrap_content" />
+		
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <Button android:id="@+id/newGame"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="50"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/new_game"/>
+
+        <Button android:id="@+id/quit"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="50"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="@string/quit"/>
+    </LinearLayout>
+
+
+
+
+</LinearLayout>
