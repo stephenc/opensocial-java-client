@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,14 +33,18 @@ import java.util.Set;
  * method.
  *
  * @author apijason@google.com (Jason Cooper)
+ * @author jle.edwards@gmail.com (Jesse Edwards)
  */
 public class OpenSocialBatch {
 
   private List<OpenSocialRequest> requests;
+  private Map<String, OpenSocialHttpResponseMessage> responses;
   private OpenSocialHttpClient httpClient;
+  private OpenSocialClient client;
 
   public OpenSocialBatch() {
     this.requests = new ArrayList<OpenSocialRequest>();
+    this.responses = new HashMap<String, OpenSocialHttpResponseMessage>();
     this.httpClient = new OpenSocialHttpClient();
   }
 
@@ -56,6 +61,20 @@ public class OpenSocialBatch {
     this.requests.add(request);
   }
 
+  public OpenSocialHttpResponseMessage getResponse(String id) {
+    if(this.responses.containsKey(id)){
+      return responses.get(id);
+    }
+    return null;
+  }
+
+  public Set<String> getResponseQueue() {
+     return responses.keySet();
+  }
+
+  private void addResponse(OpenSocialHttpResponseMessage value, String id) {
+      this.responses.put(id, value);
+  }
   /**
    * Calls one of two private methods which submit the queued requests to the
    * container given the properties of the OpenSocialClient object passed in.
@@ -66,41 +85,35 @@ public class OpenSocialBatch {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  public OpenSocialResponse send(OpenSocialClient client) throws
-      OpenSocialRequestException, IOException {
-
+  public OpenSocialResponse send(OpenSocialClient client) 
+      throws OpenSocialRequestException, IOException {
+    // Prevent the need to pass client to submitREST & submitRPC
+    this.client = client;
+    OpenSocialResponse response = new OpenSocialResponse();
+    
     if (this.requests.size() == 0) {
-      throw new OpenSocialRequestException(
-          "One or more requests must be added before sending batch");
+        throw new OpenSocialRequestException("One or more requests must be " +
+          "added before sending batch");
     }
 
-    String rpcEndpoint =
-      client.getProperty(OpenSocialClient.Property.RPC_ENDPOINT);
-    String restBaseUri =
-      client.getProperty(OpenSocialClient.Property.REST_BASE_URI);
-
-    String urlRegEx = "([A-Za-z][A-Za-z0-9+.-]{1,120}:[A-Za-z0-9/]" +
-        "(([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]{2}){1,333}" + 
-        "(#([a-zA-Z0-9][a-zA-Z0-9$_.+!*,;/?:@&~=%-]{0,1000}))?)";
-
-    if (rpcEndpoint == null && restBaseUri == null) {
+    if(client.getProvider().rpcEndpoint != null) {
+      response = submitRpc();
+    }else if(client.getProvider().restEndpoint != null) {
+      for (OpenSocialRequest r : this.requests) {
+        // Pre Request
+        client.getProvider().preRequest(r);
+        // Make Request
+        String restResponse = submitRest(r);
+        // Post Request
+        client.getProvider().postRequest(r, restResponse);
+        // Add to response queue
+        response.addItem(r.getId(), restResponse);
+      }
+    }else {
       throw new OpenSocialRequestException(
           "REST base URI or RPC endpoint required");
-    } else if (rpcEndpoint == null) {
-      if (!restBaseUri.matches(urlRegEx)) {
-        throw new OpenSocialRequestException(
-            "REST base URI must be a valid URL");
-      }
-
-      return this.submitRest(client);
-    } else {
-      if (!rpcEndpoint.matches(urlRegEx)) {
-        throw new OpenSocialRequestException(
-            "RPC endpoint must be a valid URL");
-      }
-
-      return this.submitRpc(client);
     }
+    return response;
   }
 
   /**
@@ -113,24 +126,22 @@ public class OpenSocialBatch {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  private OpenSocialResponse submitRpc(OpenSocialClient client) throws
-      OpenSocialRequestException, IOException {
-
-    String rpcEndpoint =
-      client.getProperty(OpenSocialClient.Property.RPC_ENDPOINT);
-    String contentType =
-      client.getProperty(OpenSocialClient.Property.CONTENT_TYPE);
+  private OpenSocialResponse submitRpc() 
+    throws OpenSocialRequestException, IOException {
+    
+    String rpcEndpoint = client.getProvider().rpcEndpoint;
+    String contentType = client.getProvider().contentType;
 
     JSONArray requestArray = new JSONArray();
     for (OpenSocialRequest r : this.requests) {
       try {
         requestArray.put(new JSONObject(r.toJson()));
       } catch (org.json.JSONException e) {
-        throw new OpenSocialRequestException(
-            "Invalid JSON object string " + r.toJson());
+        throw new OpenSocialRequestException("Invalid JSON object string " 
+            + r.toJson());
       }
     }
-
+    
     OpenSocialUrl requestUrl = new OpenSocialUrl(rpcEndpoint);
 
     OpenSocialHttpMessage request = new OpenSocialHttpMessage("POST",
@@ -143,6 +154,7 @@ public class OpenSocialBatch {
     String responseString = response.getBodyString();
 
     String debug = client.getProperty(OpenSocialClient.Property.DEBUG);
+    
     if (debug != null && !debug.equals("")) {
       System.out.println("Request URL:\n" + request.getUrl().toString());
       System.out.println("Request body:\n" + request.getBodyString());
@@ -151,7 +163,7 @@ public class OpenSocialBatch {
 
     return OpenSocialJsonParser.getResponse(responseString);
   }
-
+  
   /**
    * Retrieves the first request in the queue and builds the full REST URI
    * given the properties of this request before creating a new HTTP request,
@@ -162,42 +174,49 @@ public class OpenSocialBatch {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  private OpenSocialResponse submitRest(OpenSocialClient client) throws
-      OpenSocialRequestException, IOException {
-
-    String restBaseUri =
-      client.getProperty(OpenSocialClient.Property.REST_BASE_URI);
-    String contentType =
-      client.getProperty(OpenSocialClient.Property.CONTENT_TYPE);
-
-    OpenSocialRequest r = this.requests.get(0);
-
-    OpenSocialUrl requestUrl = new OpenSocialUrl(restBaseUri);
-    requestUrl.addPathComponent(r.getRestPathComponent());
-
-    if (r.hasParameter("userId")) {
-      requestUrl.addPathComponent((String) r.popParameter("userId"));
-    }
-    if (r.hasParameter("groupId")) {
-      requestUrl.addPathComponent((String) r.popParameter("groupId"));
-    }
-    if (r.hasParameter("appId")) {
-      requestUrl.addPathComponent((String) r.popParameter("appId"));
-    }
-
+  private String submitRest(OpenSocialRequest r) 
+    throws OpenSocialRequestException, IOException {
+    //TODO: content-type should be determined by what we are dealing with 
+    // in the request. Not the client
+    String contentType = client.getProperty(
+        OpenSocialClient.Property.CONTENT_TYPE);
     String requestBody = null;
-    if (r.hasParameter("data")) {
-      requestBody = (String) r.popParameter("data");
-    } else if (r.hasParameter("activity")) {
-      requestBody = (String) r.popParameter("activity");
-    }
-
-    Set<Map.Entry<String, OpenSocialRequestParameter>> parameters =
+    OpenSocialUrl requestUrl = _createUrlForRequest(r);
+    
+    // Get parameters that remain ater we applied the template.
+    Set<Map.Entry<String, OpenSocialRequestParameter>> parameters = 
       r.getParameters();
-    for (Map.Entry<String, OpenSocialRequestParameter> entry : parameters) {
-      requestUrl.addQueryStringParameter(entry.getKey(),
-          entry.getValue().getValuesString());
+    
+    String exemptKey;
+    
+    if(requestUrl.getPostAliases().containsKey(r.getRestPathComponent())) {
+      exemptKey = requestUrl.getPostAliases().get(r.getRestPathComponent());
+    }else{
+      exemptKey = "";
     }
+    
+    // If we are uploading. We need to get the contentType of what we are 
+    //uploading. As with the PHP library. Pull this from the parameters.
+    if(r.hasParameter("contentType")){
+      contentType = r.popParameter("contentType");
+    }
+    
+    // Loop through each parameter 
+    for (Map.Entry<String, OpenSocialRequestParameter> entry : parameters) {
+    	//If it is a postBody variable add it to postBody, 
+      // else add to querystring
+    	if(exemptKey.equals(entry.getKey())) {
+    		requestBody = (String) entry.getValue().getValuesString();
+    	}else {
+    		requestUrl.addQueryStringParameter(entry.getKey(), 
+    		    entry.getValue().getValuesString());
+    	}
+    }
+    
+    // This is done after looping through hasmap due to issues with
+    // removing items form a hasmap while looping through it.
+    if(r.hasParameter(exemptKey))
+      r.popParameter(exemptKey);
 
     OpenSocialHttpMessage request = new OpenSocialHttpMessage(
         r.getRestMethod(), requestUrl, requestBody);
@@ -206,6 +225,9 @@ public class OpenSocialBatch {
     OpenSocialOAuthClient.signRequest(request, client);
 
     OpenSocialHttpResponseMessage response = httpClient.execute(request);
+    
+    addResponse(response, r.getId());
+    
     String responseString = response.getBodyString();
 
     String debug = client.getProperty(OpenSocialClient.Property.DEBUG);
@@ -215,6 +237,27 @@ public class OpenSocialBatch {
       System.out.println("Container response:\n" + responseString);
     }
 
-    return OpenSocialJsonParser.getResponse(responseString, r.getId());
+    return responseString;
+  }
+  
+  private OpenSocialUrl _createUrlForRequest(OpenSocialRequest r) {
+    String service = r.getRestPathComponent();
+    OpenSocialUrl requestUrl = new OpenSocialUrl(
+        client.getProvider().restEndpoint, service);
+    String[] urlParts = requestUrl.getUrlTemplate(service).split("/");
+  
+    // Construct URL based on template
+    for(int i=0; i<urlParts.length; i++) {
+      String p = urlParts[i];
+
+      if(p.startsWith("{") &&  p.endsWith("}")) {
+        String tag = p.substring(1, p.length()-1);
+        if(r.hasParameter(tag)) {
+          requestUrl.addPathComponent(r.popParameter(tag));
+        }
+      }
+    }
+  
+    return requestUrl;
   }
 }

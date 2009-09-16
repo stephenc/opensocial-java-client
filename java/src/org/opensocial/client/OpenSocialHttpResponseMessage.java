@@ -22,23 +22,43 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * A small implementation of an HttpResponseMessage that does not require
  * org.apache.http.client as a dependency.
  *
  * @author api.dwh@google.com (Dan Holevoet)
  * @author apijason@google.com (Jason Cooper)
+ * @author jle.edwards@gmail.com (Jesse Edwards)
  */
-class OpenSocialHttpResponseMessage extends HttpResponseMessage {
+public class OpenSocialHttpResponseMessage extends HttpResponseMessage {
 
+  protected String responseBody = null;
   protected int status;
+  protected JSONObject data;
 
-  protected OpenSocialHttpResponseMessage(String method, OpenSocialUrl url,
+  public OpenSocialHttpResponseMessage(String method, OpenSocialUrl url,
       InputStream responseStream, int status) throws IOException {
     super(method, url.toURL());
 
-    this.body = responseStream;
+    _setResponseBody(responseStream);
+
+    try {
+      data = new JSONObject(responseBody);
+    } catch(JSONException e) {
+      e.printStackTrace();
+    }
+
     this.status = status;
+  }
+
+  public OpenSocialHttpResponseMessage(String method, OpenSocialUrl url, 
+      int status) throws IOException {
+    super(method, url.toURL());
+    this.status = status;
+    data = new JSONObject();
   }
 
   /**
@@ -56,25 +76,29 @@ class OpenSocialHttpResponseMessage extends HttpResponseMessage {
    * the connection into a string representation which can later be parsed into
    * a more meaningful object, e.g. OpenSocialPerson.
    *
-   * @return Response body as a String
-   * @throws IOException if the InputStream is not retrievable or accessible
    */
-  public String getBodyString() throws IOException {
-    if (body != null) {
-      StringBuilder sb = new StringBuilder();
-      BufferedReader reader = new BufferedReader(
-          new InputStreamReader(body));
-
-      String line = null;
-      while ((line = reader.readLine()) != null) {
-        sb.append(line);
+  private void _setResponseBody(InputStream in) {
+    try{
+      if (in != null) {
+        StringBuilder sb = new StringBuilder();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        String line = null;
+        while ((line = reader.readLine()) != null) {
+          sb.append(line);
+        }
+        in.close();
+        this.responseBody = sb.toString();
       }
-
-      body.close();
-
-      return sb.toString();
+    }catch(IOException e){
+      this.responseBody = null;
     }
+  }
 
-    return null;
+  public JSONObject getResponseData() {
+    return data;
+  }
+
+  public String getBodyString() {
+      return responseBody;
   }
 }

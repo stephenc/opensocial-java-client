@@ -15,8 +15,8 @@
 
 
 import org.opensocial.client.OpenSocialClient;
-import org.opensocial.client.OpenSocialProvider;
 import org.opensocial.data.OpenSocialAppData;
+import org.opensocial.providers.OrkutSandboxProvider;
 
 import java.util.Random;
 
@@ -28,7 +28,7 @@ public class UpdateFetchAppData {
     // Create a new OpenSocialClient instance configured to hit orkut endpoints;
     // other pre-configured providers include MYSPACE, GOOGLE, and PLAXO
     OpenSocialClient c =
-      new OpenSocialClient(OpenSocialProvider.valueOf("ORKUT_SANDBOX"));
+      new OpenSocialClient(new OrkutSandboxProvider());
     c.setProperty(OpenSocialClient.Property.DEBUG, "true");
 
     if (args.length > 0 && args[0].equalsIgnoreCase("REST")) {

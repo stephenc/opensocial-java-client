@@ -16,10 +16,10 @@
 
 import org.opensocial.client.OpenSocialBatch;
 import org.opensocial.client.OpenSocialClient;
-import org.opensocial.client.OpenSocialProvider;
 import org.opensocial.client.OpenSocialResponse;
 import org.opensocial.data.OpenSocialField;
 import org.opensocial.data.OpenSocialPerson;
+import org.opensocial.providers.OrkutSandboxProvider;
 
 import java.util.Collection;
 
@@ -29,7 +29,7 @@ public class BatchRequests {
     // Create a new OpenSocialClient instance configured to hit orkut endpoints;
     // other pre-configured providers include MYSPACE, GOOGLE, and PLAXO
     OpenSocialClient c =
-      new OpenSocialClient(OpenSocialProvider.valueOf("ORKUT_SANDBOX"));
+      new OpenSocialClient(new OrkutSandboxProvider());
     c.setProperty(OpenSocialClient.Property.DEBUG, "true");
 
     // Credentials provided here are associated with the gadget located at

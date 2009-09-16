@@ -57,8 +57,9 @@ public class OpenSocialOAuthClient {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  public static void signRequest(OpenSocialHttpMessage request, OpenSocialClient
-      client) throws OpenSocialRequestException, IOException {
+  public static void signRequest(OpenSocialHttpMessage request, 
+      OpenSocialClient client)
+      throws OpenSocialRequestException, IOException {
     String debug = client.getProperty(
         OpenSocialClient.Property.DEBUG);
     String viewerId = client.getProperty(
@@ -111,7 +112,7 @@ public class OpenSocialOAuthClient {
         accessor.accessToken = accessToken;
         accessor.tokenSecret = accessTokenSecret;
       }
-
+      
       if (requestBody != null) {
         if (signBodyHash.equals("true")) {
           try {
@@ -120,18 +121,18 @@ public class OpenSocialOAuthClient {
             byte[] hash = md.digest(requestBody.getBytes("UTF-8"));
             byte[] encodedHash = new Base64().encode(hash);
 
-            message.addParameter("oauth_body_hash",
+            message.addParameter("oauth_body_hash", 
                 new String(encodedHash, "UTF-8"));
           } catch (java.security.NoSuchAlgorithmException e) {
             // Ignore exception
           } catch (java.io.UnsupportedEncodingException e) {
             // Ignore exception
           }
-        } else {
-          message.addParameter(requestBody, "");
+        } else if(request.getHeader(OpenSocialHttpMessage.CONTENT_TYPE)
+            .equals("application/x-www-form-urlencoded")){
+            message.addParameter(requestBody, "");
         }
       }
-
       try {
         message.addRequiredParameters(accessor);
       } catch (OAuthException e) {
@@ -142,7 +143,7 @@ public class OpenSocialOAuthClient {
             "Malformed request URL " + message.URL + " could not be signed");
       }
 
-      if (debug != null) {
+      if (debug.equals("true")) {
         try {
           System.out.println("Signature base string:\n" +
               net.oauth.signature.OAuthSignatureMethod.getBaseString(message));

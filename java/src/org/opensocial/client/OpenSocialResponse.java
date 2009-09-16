@@ -22,6 +22,7 @@ import org.opensocial.data.OpenSocialPerson;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * An object which represents the response from an OpenSocial container after
@@ -38,7 +39,7 @@ public class OpenSocialResponse {
   private Map<String, String> items;
 
   public OpenSocialResponse() {
-    this.items = new HashMap<String, String>();
+    items = new HashMap<String, String>();
   }
 
   /**
@@ -50,7 +51,7 @@ public class OpenSocialResponse {
    */
   public OpenSocialPerson getItemAsPerson(String id) throws
       OpenSocialRequestException {
-    String item = this.items.get(id);
+    String item = items.get(id);
     return OpenSocialJsonParser.parseAsPerson(item);
   }
 
@@ -63,7 +64,7 @@ public class OpenSocialResponse {
    */
   public List<OpenSocialPerson> getItemAsPersonCollection(String id) throws
       OpenSocialRequestException {
-    String item = this.items.get(id);
+    String item = items.get(id);
 
     return OpenSocialJsonParser.parseAsPersonCollection(item);
   }
@@ -77,7 +78,7 @@ public class OpenSocialResponse {
    */
   public OpenSocialAppData getItemAsAppData(String id) throws
       OpenSocialRequestException {
-    String item = this.items.get(id);
+    String item = items.get(id);
 
     return OpenSocialJsonParser.parseAsAppData(item);
   }
@@ -91,7 +92,7 @@ public class OpenSocialResponse {
    */
   public List<OpenSocialActivity> getItemAsActivityCollection(String id)
       throws OpenSocialRequestException {
-    String item = this.items.get(id);
+    String item = items.get(id);
 
     return OpenSocialJsonParser.parseAsActivityCollection(item);
   }
@@ -104,6 +105,14 @@ public class OpenSocialResponse {
    * @param  objectString JSON object string to associate with the passed ID
    */
   public void addItem(String id, String objectString) {
-    this.items.put(id, objectString);
+    items.put(id, objectString);
+  }
+  
+  public Set<String> getResponseIds() {
+      return items.keySet();
+  }
+  
+  public String getResponseItem(String id) {
+     return items.get(id);
   }
 }

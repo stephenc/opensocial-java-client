@@ -37,13 +37,57 @@ class OpenSocialUrl {
   private String base;
   private List<String> components;
   private Map<String, String> queryStringParameters;
+  private Map<String, String> urlTemplates;
+  private Map<String, String> postAliases;
 
   public OpenSocialUrl(String base) {
     this.base = base;
-    this.components = new Vector<String>();
-    this.queryStringParameters = new HashMap<String, String>();
+    _initUrl();
   }
 
+  public OpenSocialUrl(String base, String method) {
+    this.base = base;
+    _initUrl();
+    addPathComponent(method);
+  }
+
+	private void _initUrl() {
+	  components = new Vector<String>();
+		queryStringParameters = new HashMap<String, String>();
+		postAliases = new HashMap<String, String>();
+		
+		// URL Templates
+		urlTemplates = new HashMap<String, String>();
+		urlTemplates.put("people", "people/{userId}/{groupId}/{personId}");
+		urlTemplates.put("activities", 
+		    "activities/{userId}/{groupId}/{appId}/{activityId}");
+		urlTemplates.put("appdata", "appdata/{userId}/{groupId}/{appId}");
+		urlTemplates.put("messages", "messages/{userId}/outbox/{msgId}");
+		urlTemplates.put("albums", "albums/{userId}/{groupId}/{albumId}");
+		urlTemplates.put("mediaItems", 
+		    "mediaItems/{userId}/{groupId}/{albumId}/{mediaItemId}");
+		urlTemplates.put("statusmood", "statusmood/{userId}/{groupId}");
+		urlTemplates.put("notifications", "notifications/{userId}/{groupId}");
+		  
+		// Pos Aliases
+		postAliases.put("activities", "activity");
+		postAliases.put("albums", "album");
+		postAliases.put("appdata", "appData");
+		postAliases.put("mediaItems", "mediaItem");
+		postAliases.put("messages", "message");
+		postAliases.put("notifications", "notification");
+		postAliases.put("people", "person");
+		postAliases.put("statusmood", "statusMood");
+	}
+
+  public Map<String, String> getPostAliases() {
+	  return this.postAliases;
+  }
+  
+  public String getUrlTemplate(String service) {
+	  return this.urlTemplates.get(service);
+  }
+  
   /**
    * Adds passed String to the path component queue.
    * 

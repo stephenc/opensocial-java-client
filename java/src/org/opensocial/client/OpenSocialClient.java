@@ -16,9 +16,18 @@
 package org.opensocial.client;
 
 import org.json.JSONObject;
+
+// Models
 import org.opensocial.data.OpenSocialActivity;
 import org.opensocial.data.OpenSocialAppData;
 import org.opensocial.data.OpenSocialPerson;
+import org.opensocial.data.MySpaceNotification;
+import org.opensocial.providers.OpenSocialProvider;
+
+// Services - will update this once we finalize where this include should
+// live and how it should be handled.
+import org.opensocial.services.*;
+import org.opensocial.services.myspace.NotificationsService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,6 +46,7 @@ import java.util.Map;
  * requesting bulk data from containers exposing an RPC endpoint.
  *
  * @author apijason@google.com (Jason Cooper)
+ * @author jle.edwards@gmail.com (Jesse Edwards)
  */
 public class OpenSocialClient {
 
@@ -53,17 +63,55 @@ public class OpenSocialClient {
   /** Constant used to set the request's group target to the individual. */
   public static final String SELF = "@self";
 
-  /** Constant used to set the request's group target to the user's friends. */
+  /** Constant used to set the request's group target to the user's friends.*/
   public static final String FRIENDS = "@friends";
 
-  /** Constant used to set the request's application target to the current 
-   *  app. */
+  /** Constant used to set the request's application target to current app.*/
   public static final String APP = "@app";
 
+  private OpenSocialProvider provider;
+  
   private final Map<Property, String> properties;
+  
+  private MediaItemsService mediaItems = null;
+  private AlbumsService albums = null;
+  private NotificationsService notifications = null;
+  /**
+   * Lazy load getter for mediaItems
+   * 
+   * @return OpenSocialMediaItems
+   */
+  public MediaItemsService getMediaItemsService() {
+    if(mediaItems == null) {
+      mediaItems = new MediaItemsService();
+    }
+    return mediaItems;
+  }
+  /**
+   * Lazy load getter for albums
+   * 
+   * @return OpenSocialAlbums
+   */
+  public AlbumsService getAlbumsService() {
+    if(albums == null) {
+      albums = new AlbumsService();
+    }
+    return albums;
+  }
+  /**
+   * Lazy load getter for notifications
+   * 
+   * @return OpenSocialnotifications
+   */
+  public NotificationsService getNotificationsService() {
+    if(notifications == null) {
+      notifications = new NotificationsService();
+    }
+    return notifications;
+  }
 
   public OpenSocialClient() {
-    this("");
+      this("");
   }
 
   public OpenSocialClient(String domain) {
@@ -75,13 +123,22 @@ public class OpenSocialClient {
   }
 
   public OpenSocialClient(OpenSocialProvider provider) {
+    this.provider = provider;
     properties = new HashMap<Property, String>();
-
     setProperty(Property.DOMAIN, provider.providerName);
     setProperty(Property.CONTENT_TYPE, provider.contentType);
     setProperty(Property.SIGN_BODY_HASH, String.valueOf(provider.signBodyHash));
     setProperty(Property.REST_BASE_URI, provider.restEndpoint);
     setProperty(Property.RPC_ENDPOINT, provider.rpcEndpoint);
+  }
+
+  /**
+   * Gets the curret provider
+   * 
+   * @return OpenSocialProvider
+   */
+  public OpenSocialProvider getProvider() {
+    return this.provider;
   }
 
   /**
@@ -253,21 +310,21 @@ public class OpenSocialClient {
   }
 
   /**
-   * Sends a request to delete the data associated with the passed App Data key
-   * for the current user for the current application.
+   * Sends a request to delete the data associated with the passed 
+   * App Data key for the current user for the current application.
    *
    * @param key
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  public void removePersonAppData(String key) throws OpenSocialRequestException,
-      IOException {
+  public void removePersonAppData(String key) 
+      throws OpenSocialRequestException, IOException {
     removePersonAppData(ME, key);
   }
 
   /**
-   * Sends a request to delete the data associated with the passed App Data keys
-   * for the current user for the current application.
+   * Sends a request to delete the data associated with the passed 
+   * App Data keys for the current user for the current application.
    *
    * @param  keys
    * @throws OpenSocialRequestException
@@ -341,8 +398,8 @@ public class OpenSocialClient {
   }
 
   /**
-   * Method to fetch the activities for the specified user or group of users for
-   * the specified application.
+   * Method to fetch the activities for the specified user or group 
+   * of users for the specified application.
    *
    * @param userId
    * @param groupId
@@ -367,8 +424,8 @@ public class OpenSocialClient {
   }
 
   /**
-   * Creates an activity for the current user for the current application with
-   * the passed title and body.
+   * Creates an activity for the current user for the current 
+   * application with the passed title and body.
    *
    * @param  title
    * @param  body
@@ -381,8 +438,8 @@ public class OpenSocialClient {
   }
 
   /**
-   * Creates an activity for the specified user and application with the passed
-   * title and body.
+   * Creates an activity for the specified user and application 
+   * with the passed title and body.
    *
    * @param userId
    * @param appId
@@ -391,8 +448,8 @@ public class OpenSocialClient {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  public void createActivity(String userId, String appId, String title, String
-      body) throws OpenSocialRequestException, IOException {
+  public void createActivity(String userId, String appId, String title,
+      String body) throws OpenSocialRequestException, IOException {
     if (userId == null || userId.equals("")) {
       throw new OpenSocialRequestException("Invalid request parameters");
     }
@@ -456,8 +513,8 @@ public class OpenSocialClient {
    *         response that the container returns
    * @throws IOException
    */
-  private OpenSocialResponse fetchAppData(String userId, String groupId, String
-      appId) throws OpenSocialRequestException, IOException {
+  private OpenSocialResponse fetchAppData(String userId, String groupId, 
+      String appId) throws OpenSocialRequestException, IOException {
     if (userId == null || userId.equals("") || groupId == null ||
         groupId.equals("") || appId == null || appId.equals("")) {
       throw new OpenSocialRequestException("Invalid request parameters");
@@ -470,8 +527,9 @@ public class OpenSocialClient {
     return batch.send(this);
   }
 
-  private OpenSocialResponse updateAppData(String userId,
-      Map<String, String> data) throws OpenSocialRequestException, IOException {
+  private OpenSocialResponse updateAppData(String userId, 
+      Map<String, String> data) 
+      throws OpenSocialRequestException, IOException {
     OpenSocialRequest r =
       OpenSocialClient.newUpdatePersonAppDataRequest(userId,data);
     OpenSocialBatch batch = new OpenSocialBatch();
@@ -589,8 +647,8 @@ public class OpenSocialClient {
   }
 
   /**
-   * Creates and returns an OpenSocialRequest to remove App Data associated with
-   * the passed list of keys for the current application.
+   * Creates and returns an OpenSocialRequest to remove App Data 
+   * associated with the passed list of keys for the current application.
    *
    * @param userId
    * @param fieldsList
@@ -621,7 +679,8 @@ public class OpenSocialClient {
    */
   public static OpenSocialRequest newFetchActivitiesRequest(String userId,
       String groupId, String appId) {
-    OpenSocialRequest r = new OpenSocialRequest("activities", "activities.get");
+    OpenSocialRequest r = new OpenSocialRequest("activities", 
+        "activities.get");
     r.addParameter(OpenSocialRequest.USER_PARAMETER, userId);
     r.addParameter(OpenSocialRequest.GROUP_PARAMETER, groupId);
 

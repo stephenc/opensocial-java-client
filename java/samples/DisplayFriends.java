@@ -15,40 +15,37 @@
 
 
 import org.opensocial.client.OpenSocialClient;
-import org.opensocial.client.OpenSocialProvider;
 import org.opensocial.data.OpenSocialPerson;
+import org.opensocial.providers.MySpaceProvider;
 
 import java.util.Collection;
 
 public class DisplayFriends {
 
   public static void main(String[] args) {
-    // Create a new OpenSocialClient instance configured to hit orkut endpoints;
-    // other pre-configured providers include MYSPACE, GOOGLE, and PLAXO 
+    // Create a new OpenSocialClient
+    // other pre-configured providers include MYSPACE, GOOGLE, and PLAXO and ORKUT"
     OpenSocialClient c =
-      new OpenSocialClient(OpenSocialProvider.valueOf("ORKUT_SANDBOX"));
+      new OpenSocialClient(new MySpaceProvider());
     c.setProperty(OpenSocialClient.Property.DEBUG, "true");
-
-    if (args.length > 0 && args[0].equalsIgnoreCase("REST")) {
-      c.setProperty(OpenSocialClient.Property.RPC_ENDPOINT, null);
-    }
+    c.setProperty(OpenSocialClient.Property.RPC_ENDPOINT, null);
 
     // Credentials provided here are associated with the gadget located at
     // http://opensocial-resources.googlecode.com/svn/samples/rest_rpc/sample.xml;
     // If you install this gadget, you can substitute your own OpenSocial ID
     // for the one used below and fetch your profile data and friends
     c.setProperty(OpenSocialClient.Property.CONSUMER_SECRET,
-        "uynAeXiWTisflWX99KU1D2q5");
+        "75c76022d8db4d5a817237562e163089");
     c.setProperty(OpenSocialClient.Property.CONSUMER_KEY,
-        "orkut.com:623061448914");
+        "http://www.myspace.com/435305524");
     c.setProperty(OpenSocialClient.Property.VIEWER_ID,
-        "03067092798963641994");
+        "495184236");
 
     try {
       // Retrieve the friends of the specified user using the OpenSocialClient
       // method fetchFriends
       Collection<OpenSocialPerson> friends =
-        c.fetchFriends("03067092798963641994");
+        c.fetchFriends();
       
       System.out.println("----------");
       
