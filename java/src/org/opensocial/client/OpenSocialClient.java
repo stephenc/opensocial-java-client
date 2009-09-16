@@ -21,13 +21,13 @@ import org.json.JSONObject;
 import org.opensocial.data.OpenSocialActivity;
 import org.opensocial.data.OpenSocialAppData;
 import org.opensocial.data.OpenSocialPerson;
-import org.opensocial.data.MySpaceNotification;
 import org.opensocial.providers.OpenSocialProvider;
 
 // Services - will update this once we finalize where this include should
 // live and how it should be handled.
 import org.opensocial.services.*;
 import org.opensocial.services.myspace.NotificationsService;
+import org.opensocial.services.myspace.StatusMoodService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -76,10 +76,14 @@ public class OpenSocialClient {
   private MediaItemsService mediaItems = null;
   private AlbumsService albums = null;
   private NotificationsService notifications = null;
+  private GroupsService groups = null;
+  private StatusMoodService statusmood = null;
+  private ActivitiesService activities = null;
+  
   /**
    * Lazy load getter for mediaItems
    * 
-   * @return OpenSocialMediaItems
+   * @return MediaItemsService
    */
   public MediaItemsService getMediaItemsService() {
     if(mediaItems == null) {
@@ -90,7 +94,7 @@ public class OpenSocialClient {
   /**
    * Lazy load getter for albums
    * 
-   * @return OpenSocialAlbums
+   * @return AlbumsService
    */
   public AlbumsService getAlbumsService() {
     if(albums == null) {
@@ -101,7 +105,7 @@ public class OpenSocialClient {
   /**
    * Lazy load getter for notifications
    * 
-   * @return OpenSocialnotifications
+   * @return NotificationsService
    */
   public NotificationsService getNotificationsService() {
     if(notifications == null) {
@@ -109,7 +113,43 @@ public class OpenSocialClient {
     }
     return notifications;
   }
-
+  
+  /**
+   * Lazy load getter for groups
+   * 
+   * @return GroupsService
+   */
+  public GroupsService getGroupsService() {
+    if(groups == null) {
+      groups = new GroupsService();
+    }
+    return groups;
+  }
+  
+  /**
+   * Lazy load getter for statusmood
+   * 
+   * @return StatusMoodService
+   */
+  public StatusMoodService getStatusMoodService() {
+    if(statusmood == null) {
+      statusmood = new StatusMoodService();
+    }
+    return statusmood;
+  }
+  
+  /**
+   * Lazy load getter for activities
+   * 
+   * @return ActivitiesService
+   */
+  public ActivitiesService getActivitiesService() {
+    if(activities == null) {
+      activities = new ActivitiesService();
+    }
+    return activities;
+  }
+  
   public OpenSocialClient() {
       this("");
   }

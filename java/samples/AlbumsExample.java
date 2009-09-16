@@ -51,7 +51,7 @@ public class AlbumsExample {
 		  params.put("startIndex", "1");
 		  params.put("count", "2");
 		  params.put("fields", "@all");
-		  batch.addRequest(c.getAlbumsService().get(params), "fetchAlbums");
+		  //batch.addRequest(c.getAlbumsService().get(params), "fetchAlbums");
 		  // End Fetch Albums
 		  
 		  // Fetch Album
@@ -60,68 +60,68 @@ public class AlbumsExample {
 		  params.put("groupId", OpenSocialClient.SELF);
 		  params.put("albumId", "myspace.com.album.81886");
 		  params.put("fields", "@all");
-		  batch.addRequest(c.getAlbumsService().get(params), "fetchAlbum");
+		  //batch.addRequest(c.getAlbumsService().get(params), "fetchAlbum");
 		  // End Fetch Album
 		  
 		  // Create Album
 		  OpenSocialAlbum album = new OpenSocialAlbum();
-          album.setField("caption", "value");
-          album.setField("description", "my description goes here");
+      album.setField("caption", "value");
+      album.setField("description", "my description goes here");
+      
+      params = new HashMap<String, String>();
+      params.put("userId", "495184236");
+      params.put("groupId", OpenSocialClient.SELF);
+      params.put("album", album.toString());
+      
+      // Commented out so that each run doesn't create an album.
+      batch.addRequest(c.getAlbumsService().create(params), "createAlbum");
+      // End Create Album
           
-          params = new HashMap<String, String>();
-          params.put("userId", "495184236");
-          params.put("groupId", OpenSocialClient.SELF);
-          params.put("album", album.toString());
+      // Update Album
+      album = new OpenSocialAlbum();
+      album.setField("caption", "This is my updated caption");
+      album.setField("description", "my description goes here");
+      
+      params = new HashMap<String, String>();
+      params.put("userId", "495184236");
+      params.put("groupId", OpenSocialClient.SELF);
+      params.put("album", album.toString());
+      params.put("albumId", "myspace.com.album.81886");
+      //batch.addRequest(c.getAlbumsService().update(params), "updateAlbum");
+      // End Update Album
           
-          // Commented out so that each run doesn't create an album.
-          //batch.addRequest(c.getAlbumsService().create(params), "createAlbum");
-          // End Create Album
+      //supportedFields
+      //batch.addRequest(c.getAlbumsService().getSupportedFields(), "supportedFields");
+      
+      batch.send(c);
           
-          // Update Album
-          album = new OpenSocialAlbum();
-          album.setField("caption", "This is my updated caption");
-          album.setField("description", "my description goes here");
+      // Get a list of all response in request queue
+      Set<String> responses = batch.getResponseQueue();
+      
+      // Interate through each response
+      for(Object id : responses) {
+          OpenSocialHttpResponseMessage msg = batch.getResponse(id.toString());
+          System.out.println("\n"+id.toString()+" with response code ("+msg.getStatusCode()+")");
+          //System.out.println(msg.getBodyString());
+          System.out.println("==================================================");
           
-          params = new HashMap<String, String>();
-          params.put("userId", "495184236");
-          params.put("groupId", OpenSocialClient.SELF);
-          params.put("album", album.toString());
-          params.put("albumId", "myspace.com.album.81886");
-          //batch.addRequest(c.getAlbumsService().update(params), "updateAlbum");
-          // End Update Album
-          
-          //supportedFields
-          //batch.addRequest(c.getAlbumsService().getSupportedFields(), "supportedFields");
-          
-          batch.send(c);
-          
-          // Get a list of all response in request queue
-          Set<String> responses = batch.getResponseQueue();
-          
-          // Interate through each response
-          for(Object id : responses) {
-              OpenSocialHttpResponseMessage msg = batch.getResponse(id.toString());
-              System.out.println("\n"+id.toString()+" with response code ("+msg.getStatusCode()+")");
-              //System.out.println(msg.getBodyString());
-              System.out.println("==================================================");
-              
-              //TODO: move this logic into OpenSocialHttpResonseMessage so we can use something like
-              // response.getAlbum() or response.getAlbumCollection() or even more generic response.getCollection()
-              JSONObject obj = new JSONObject(msg.getBodyString());
-              if(obj.has("entry") ){
-                  JSONArray entry = obj.getJSONArray("entry");
-                  for(int i=0; i<entry.length(); i++) {
-                      album = new OpenSocialAlbum(entry.getJSONObject(i).getJSONObject("album").toString());
-                      System.out.println("album id: "+album.getField("id"));
-                  }
-              } else if(obj.has("album")) {
-                  album = new OpenSocialAlbum(obj.getJSONObject("album").toString());
+          //TODO: move this logic into OpenSocialHttpResonseMessage so we can use something like
+          // response.getAlbum() or response.getAlbumCollection() or even more generic response.getCollection()
+          JSONObject obj = new JSONObject(msg.getBodyString());
+          if(obj.has("entry") ){
+              JSONArray entry = obj.getJSONArray("entry");
+              for(int i=0; i<entry.length(); i++) {
+                  album = new OpenSocialAlbum(entry.getJSONObject(i).getJSONObject("album").toString());
                   System.out.println("album id: "+album.getField("id"));
-                  System.out.println("album mediaItemCount: "+album.getField("mediaItemCount"));
-              } else {
-                  System.out.println(msg.getBodyString());
               }
+          } else if(obj.has("album")) {
+              album = new OpenSocialAlbum(obj.getJSONObject("album").toString());
+              System.out.println("album id: "+album.getField("id"));
+              System.out.println("album mediaItemCount: "+album.getField("mediaItemCount"));
+          } else {
+              System.out.println(msg.getBodyString());
           }
+      }
     } catch (org.opensocial.client.OpenSocialRequestException e) {
       System.out.println("OpenSocialRequestException thrown: " + e.getMessage());
       e.printStackTrace();

@@ -66,8 +66,9 @@ class OpenSocialUrl {
 		urlTemplates.put("albums", "albums/{userId}/{groupId}/{albumId}");
 		urlTemplates.put("mediaItems", 
 		    "mediaItems/{userId}/{groupId}/{albumId}/{mediaItemId}");
-		urlTemplates.put("statusmood", "statusmood/{userId}/{groupId}");
+		urlTemplates.put("statusmood", "statusmood/{userId}/{groupId}/{moodId}");
 		urlTemplates.put("notifications", "notifications/{userId}/{groupId}");
+		urlTemplates.put("groups", "/groups/{userId}/{groupId}");
 		  
 		// Pos Aliases
 		postAliases.put("activities", "activity");

@@ -25,9 +25,9 @@ import org.json.JSONObject;
  */
 public class MySpaceNotification extends OpenSocialModel
 {
-  private JSONArray templateParameters = null;
-  private JSONArray mediaItems = new JSONArray();
-  private JSONArray recipients = new JSONArray();
+  public JSONArray templateParameters = new JSONArray();
+  public JSONArray mediaItems = new JSONArray();
+  public JSONArray recipients = null;
 
   public MySpaceNotification(){}
 
@@ -36,7 +36,13 @@ public class MySpaceNotification extends OpenSocialModel
   }
 
   public void addRecipient(String recipient) {
-    recipients.put(recipient);
+    
+    if(recipients == null) {
+      recipients = new JSONArray();
+      recipients.put(recipient);
+    }else {
+      recipients.put(recipient);
+    }
   }
 
   public void addMediaItem(OpenSocialMediaItem item) {
@@ -46,10 +52,6 @@ public class MySpaceNotification extends OpenSocialModel
   public void setTemplateParameter(String key, String value) 
       throws JSONException {
     
-    if(templateParameters == null) {
-      templateParameters = new JSONArray();
-    }
-
     JSONObject kvp = new JSONObject();
     kvp.put(key, value);
     templateParameters.put(kvp);

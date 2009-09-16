@@ -106,7 +106,7 @@ public class OpenSocialOAuthClient {
       OAuthConsumer consumer =
           new OAuthConsumer(null, consumerKey, consumerSecret, null);
       consumer.setProperty(OAuth.OAUTH_SIGNATURE_METHOD, OAuth.HMAC_SHA1);
-
+      
       OAuthAccessor accessor = new OAuthAccessor(consumer);
       if (accessToken != null) {
         accessor.accessToken = accessToken;

@@ -178,8 +178,7 @@ public class OpenSocialBatch {
     throws OpenSocialRequestException, IOException {
     //TODO: content-type should be determined by what we are dealing with 
     // in the request. Not the client
-    String contentType = client.getProperty(
-        OpenSocialClient.Property.CONTENT_TYPE);
+    String contentType = client.getProvider().contentType;
     String requestBody = null;
     OpenSocialUrl requestUrl = _createUrlForRequest(r);
     
@@ -217,7 +216,7 @@ public class OpenSocialBatch {
     // removing items form a hasmap while looping through it.
     if(r.hasParameter(exemptKey))
       r.popParameter(exemptKey);
-
+    
     OpenSocialHttpMessage request = new OpenSocialHttpMessage(
         r.getRestMethod(), requestUrl, requestBody);
     request.addHeader(OpenSocialHttpMessage.CONTENT_TYPE, contentType);
