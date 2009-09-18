@@ -21,7 +21,7 @@
 <html>
   <head>
     <title>Three-legged test</title>
-  </html>
+  </head>
   <body>
     <a href="<%= url %>">Sign in</a> to MySpace using this application!
   </body>
