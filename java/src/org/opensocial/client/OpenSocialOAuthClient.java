@@ -24,6 +24,7 @@ import net.oauth.OAuthServiceProvider;
 import net.oauth.client.OAuthClient;
 import net.oauth.http.HttpClient;
 
+import org.opensocial.providers.OpenSocialProvider;
 import org.apache.commons.codec.binary.Base64;
 
 import java.io.IOException;
