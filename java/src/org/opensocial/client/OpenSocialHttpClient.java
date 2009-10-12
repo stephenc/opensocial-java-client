@@ -115,7 +115,7 @@ class OpenSocialHttpClient implements net.oauth.http.HttpClient {
           connection.getInputStream(), connection.getResponseCode());
     } catch (IOException e) {
       return new OpenSocialHttpResponseMessage(method, url,
-          connection.getResponseCode());
+          e.getMessage(), connection.getResponseCode());
     }
   }
 

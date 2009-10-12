@@ -16,25 +16,21 @@
 
 import org.opensocial.client.OpenSocialClient;
 import org.opensocial.providers.OrkutSandboxProvider;
-import org.opensocial.client.OpenSocialRequestParameter;
 import org.opensocial.data.OpenSocialPerson;
 
 import java.util.HashMap;
-import java.util.Map;
 
 public class DisplayExtendedProfileData {
 
   public static void main(String[] args) {
-    // Create a new OpenSocialClient instance configured to hit orkut endpoints;
-    // other pre-configured providers include MYSPACE, GOOGLE, and PLAXO
-    OpenSocialClient c =
-      new OpenSocialClient(new OrkutSandboxProvider());
-    c.setProperty(OpenSocialClient.Property.DEBUG, "true");
-
-    if (args.length > 0 && args[0].equalsIgnoreCase("REST")) {
-      c.setProperty(OpenSocialClient.Property.RPC_ENDPOINT, null);
-    }
-
+    
+    // Setup Client
+    OrkutSandboxProvider provider = new OrkutSandboxProvider();
+    //provider.rpcEndpoint = null;
+    
+    OpenSocialClient c = new OpenSocialClient(provider);
+    c.setProperty(OpenSocialClient.Property.DEBUG, "false");
+    
     // Credentials provided here are associated with the gadget located at
     // http://opensocial-resources.googlecode.com/svn/samples/rest_rpc/sample.xml;
     // If you install this gadget, you can substitute your own OpenSocial ID
@@ -51,9 +47,8 @@ public class DisplayExtendedProfileData {
       // parameters you want to pass with your request; in this case, we are asking
       // orkut specifically to return the name and gender fields for the person
       // fetched below.
-      Map<String, OpenSocialRequestParameter> params =
-        new HashMap<String, OpenSocialRequestParameter>();
-      params.put("fields", new OpenSocialRequestParameter(new String[]{"gender", "name"}));
+      HashMap<String, String> params = new HashMap<String, String>();
+      params.put("fields", "gender,name");
 
       // Retrieve the profile data of the specified user using the OpenSocialClient
       // method fetchPerson; pass in the parameter set object created above
@@ -62,9 +57,10 @@ public class DisplayExtendedProfileData {
       System.out.println("----------");
 
       // Output the name, ID, and gender of the requested person
-      System.out.println("ID: " + person.getId());
-      System.out.println("Name: " + person.getDisplayName());
-      System.out.println("Gender: " + person.getField("gender").getStringValue());
+      System.out.println("ID: " + person.getField("id"));
+      System.out.println("Name: " + person.getField("name"));
+      System.out.println("Display Name: " + person.getDisplayName());
+      System.out.println("Gender: " + person.getField("gender"));
 
       System.out.println("----------");
 

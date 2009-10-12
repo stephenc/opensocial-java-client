@@ -14,8 +14,6 @@
  */
 package org.opensocial.providers;
 
-import org.opensocial.client.OpenSocialRequest;
-
 public class GoogleProvider extends OpenSocialProvider {
   public GoogleProvider() {
     super();
@@ -30,13 +28,5 @@ public class GoogleProvider extends OpenSocialProvider {
     isOpenSocial = true;
     
     requestTokenParams.put("scope", "http://sandbox.gmodules.com/api/people");
-  }
-  
-  public void preRequest(OpenSocialRequest request) {
-      // Modify request as necessary
-  }
-  
-  public void postRequest(OpenSocialRequest request, String response) {
-      
   }
 }

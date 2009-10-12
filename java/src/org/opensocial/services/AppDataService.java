@@ -15,11 +15,16 @@
 
 package org.opensocial.services;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.opensocial.client.OpenSocialHttpResponseMessage;
 import org.opensocial.client.OpenSocialRequest;
 import org.opensocial.client.OpenSocialRequestException;
+import org.opensocial.data.OpenSocialAppData;
 
 /**
  * AppDataService - service class for appdata endpoint.
@@ -35,15 +40,7 @@ public class AppDataService extends OpenSocialService {
    */
   public OpenSocialRequest getSupportedFields() 
       throws OpenSocialRequestException {
-    
-    OpenSocialRequest r = new OpenSocialRequest("appdata", 
-        "GET", "appdata.getSupportedFields");
-    
-    Map<String, String> params = new HashMap<String, String>();
-    params.put("userId", "@supportedFields");
-    
-    _addParamsToRequest(r, params);
-    return r;
+    throw new OpenSocialRequestException("This method is not supported.");
   }
   
   /**
@@ -54,7 +51,8 @@ public class AppDataService extends OpenSocialService {
    */
   public OpenSocialRequest get(Map<String, String> params) 
       throws OpenSocialRequestException {
-    
+
+    super._checkDefaultParams(params);
     OpenSocialRequest r = new OpenSocialRequest("appdata", 
         "GET", "appdata.get");
     _addParamsToRequest(r, params);
@@ -69,7 +67,8 @@ public class AppDataService extends OpenSocialService {
    */
   public OpenSocialRequest update(Map<String, String> params) 
       throws OpenSocialRequestException {
-    
+
+    super._checkDefaultParams(params);
     OpenSocialRequest r = new OpenSocialRequest("appdata", 
         "PUT", "appdata.update");
     _addParamsToRequest(r, params);
@@ -84,7 +83,8 @@ public class AppDataService extends OpenSocialService {
    */
   public OpenSocialRequest create(Map<String, String> params) 
       throws OpenSocialRequestException {
-    
+
+    super._checkDefaultParams(params);
     OpenSocialRequest r = new OpenSocialRequest("appdata", 
         "POST",  "appdata.create");
     _addParamsToRequest(r, params);
@@ -99,13 +99,47 @@ public class AppDataService extends OpenSocialService {
    */
   public OpenSocialRequest delete(Map<String, String> params) 
       throws OpenSocialRequestException {
-    throw new OpenSocialRequestException("This method is not supported.");
+
+    super._checkDefaultParams(params);
+    OpenSocialRequest r = new OpenSocialRequest("appdata", 
+        "DELETE", "appdata.get");
+    _addParamsToRequest(r, params);
+    return r;
   }
   
   /**
    * convertResponse - function used to convert response json into the expected
    * collection of objects or object.
    */
-  public void convertResponse() {
+  public void formatResponse(OpenSocialHttpResponseMessage response) {
+    super.formatResponse(response);
+
+    String data= response.getOpenSocialDataString();
+    OpenSocialAppData item = new OpenSocialAppData();
+    ArrayList<OpenSocialAppData> collection = new ArrayList<OpenSocialAppData>();
+    
+    try{
+      if(data.startsWith("{") && data.endsWith("}")) {
+        JSONObject obj = new JSONObject(data);
+        
+        if(obj.has("entry")) {
+          if(obj.getString("entry").startsWith("[") && 
+              obj.getString("entry").endsWith("]")) {
+            JSONArray entry = obj.getJSONArray("entry");
+            
+            for(int i=0; i<entry.length(); i++) {
+              item = new OpenSocialAppData(entry.getJSONObject(i).toString());
+              collection.add(item);
+            }
+          }else {
+            collection.add(new OpenSocialAppData(obj.getString("entry")));
+          }
+        }
+        response.setCollection(collection);
+      }
+    }catch(JSONException e) {
+      e.printStackTrace();
+      System.out.println(data);
+    }
   }
 }

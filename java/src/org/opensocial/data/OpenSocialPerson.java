@@ -13,29 +13,35 @@
  * limitations under the License.
  */
 
-
 package org.opensocial.data;
 
-/**
- * An object representing a person in an OpenSocial environment; extends
- * OpenSocialObject class by adding convenience methods for easily
- * accessing special fields unique to instances of this class.
- *
- * @author Jason Cooper
- */
-public class OpenSocialPerson extends OpenSocialObject {
+import org.json.JSONException;
+import org.json.JSONObject;
 
+/**
+ * Model object for Person
+ * @author Jesse Edwards
+ */
+public class OpenSocialPerson extends OpenSocialModel
+{
+  public OpenSocialPerson(){}
+  
+  public OpenSocialPerson(String json) throws JSONException {
+    super(json);
+  }
+  
   /**
    * Retrieves the OpenSocial ID associated with the instance. Returns an
    * empty string if no ID has been set.
    */
   public String getId() {
-    OpenSocialField idField = this.getField("id");
-
-    if (idField != null && !idField.isComplex()) {
-      return idField.getStringValue();
+    try{
+      if(this.has("id")) {
+        return this.getString("id");
+      }
+    }catch(JSONException e) {
+      e.printStackTrace();
     }
-
     return "";
   }
 
@@ -45,58 +51,36 @@ public class OpenSocialPerson extends OpenSocialObject {
    * set.
    */
   public String getDisplayName() {
-    OpenSocialField nicknameField = this.getField("nickname");
-    OpenSocialField nameField = this.getField("name");
-    OpenSocialField displayNameField = this.getField("displayName");
-    StringBuilder name = new StringBuilder();
-
-    if (displayNameField != null) {
-      name.append(displayNameField.getStringValue());
-    } else if (nicknameField != null) {
-      name.append(nicknameField.getStringValue());
-    } else if (nameField != null) {
-      if (nameField.isComplex()) {
-        OpenSocialObject nameObject;
-        try {
-          nameObject = nameField.getValue();
-        } catch (OpenSocialException e) {
-          // This should never happen as the nameField is guaranteed to be complex
-          // by the if statement
-          throw new IllegalStateException(e);
-        }
-
-        if (nameObject.hasField("givenName")) {
-          name.append(nameObject.getField("givenName").getStringValue());
-        }
-
-        if (nameObject.hasField("givenName") && nameObject.hasField("familyName")) {
-          name.append(" ");
-        }
-
-        if (nameObject.hasField("familyName")) {
-          name.append(nameObject.getField("familyName").getStringValue());
-        }
-      } else {
-        name.append(nameField.getStringValue());
+    try{
+      if(this.has("displayName"))
+        return this.getString("displayName");
+      else if(this.has("name")) {
+        JSONObject name = this.getJSONObject("name");
+        String displayName = "";
+        displayName+= name.has("givenName") ? name.getString("givenName") : "";
+        displayName+= name.has("familyName") ? " "+name.getString("familyName") : "";
+        
+        return displayName;
       }
-    } else {
-      name.append("Unknown Person");
+    }catch(JSONException e) {
+      e.printStackTrace();
     }
-
-    return name.toString();
+    
+    return "Unknown Person";
   }
-
+  
   /**
    * Retrieves the thumbnailUrl associated with the instance. 
    * Returns an empty string if no thumbnailUrl has been set.
    */
   public String getThumbnailUrl() {
-    OpenSocialField thumbnailUrlField = this.getField("thumbnailUrl");
-
-    if (thumbnailUrlField != null && !thumbnailUrlField.isComplex()) {
-      return thumbnailUrlField.getStringValue();
+    try{
+      if(this.has("thumbnailUrl")) {
+        return this.getString("thumbnailUrl");
+      }
+    }catch(JSONException e) {
+      e.printStackTrace();
     }
-
-    return "";  
-  } 
+    return "";
+  }
 }

@@ -24,12 +24,14 @@ public class UpdateFetchAppData {
 
   public static void main(String[] args) {
     Random generator = new Random();
-
+    
+    OrkutSandboxProvider provider = new OrkutSandboxProvider();
+    //provider.rpcEndpoint = null; // Force to use REST
+    
     // Create a new OpenSocialClient instance configured to hit orkut endpoints;
     // other pre-configured providers include MYSPACE, GOOGLE, and PLAXO
-    OpenSocialClient c =
-      new OpenSocialClient(new OrkutSandboxProvider());
-    c.setProperty(OpenSocialClient.Property.DEBUG, "true");
+    OpenSocialClient c = new OpenSocialClient(provider);
+    c.setProperty(OpenSocialClient.Property.DEBUG, "false");
 
     if (args.length > 0 && args[0].equalsIgnoreCase("REST")) {
       c.setProperty(OpenSocialClient.Property.RPC_ENDPOINT, null);
@@ -49,26 +51,21 @@ public class UpdateFetchAppData {
       // Update app data for key "key1" -- store a random number under the
       // given "key1" for the current user
       c.updatePersonAppData("key1", String.valueOf(generator.nextInt()));
-
+      
       // Retrieve all key-value pairs stored as app data for the specified user
       // including the pair added above
       OpenSocialAppData appData = c.fetchPersonAppData("03067092798963641994");
-
       System.out.println("----------");
 
       // Print all app data values associated with the user
-      for (String key : appData.getFieldNamesForUser("03067092798963641994")) {
-        System.out.println(key + ": " +
-            appData.getStringForUser("03067092798963641994", key));
+      for (String key : appData.getAppDataKeys()) {
+        System.out.println(key + ": " + appData.getField(key));
       }
-
+      
       System.out.println("----------");
 
     } catch (org.opensocial.client.OpenSocialRequestException e) {
       System.out.println("OpenSocialRequestException thrown: " + e.getMessage());
-      e.printStackTrace();
-    } catch (org.opensocial.data.OpenSocialException e) {
-      System.out.println("OpenSocialException thrown: " + e.getMessage());
       e.printStackTrace();
     } catch (java.io.IOException e) {
       System.out.println("IOException thrown: " + e.getMessage());

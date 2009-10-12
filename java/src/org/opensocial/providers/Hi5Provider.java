@@ -14,8 +14,6 @@
  */
 package org.opensocial.providers;
 
-import org.opensocial.client.OpenSocialRequest;
-
 public class Hi5Provider extends OpenSocialProvider {
   
   public Hi5Provider() {
@@ -29,13 +27,5 @@ public class Hi5Provider extends OpenSocialProvider {
     providerName = "hi5";
     signBodyHash = true;
     isOpenSocial = true;
-  }
-  
-  public void preRequest(OpenSocialRequest request) {
-      // Modify request as necessary
-  }
-  
-  public void postRequest(OpenSocialRequest request, String response) {
-      
   }
 }

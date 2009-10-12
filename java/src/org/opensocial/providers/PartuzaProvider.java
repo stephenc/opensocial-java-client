@@ -14,8 +14,6 @@
  */
 package org.opensocial.providers;
 
-import org.opensocial.client.OpenSocialRequest;
-
 public class PartuzaProvider extends OpenSocialProvider {
   
   public PartuzaProvider(){
@@ -28,13 +26,5 @@ public class PartuzaProvider extends OpenSocialProvider {
     providerName = "Partuza";
     signBodyHash = false;
     isOpenSocial = true;
-  }
-  
-  public void preRequest(OpenSocialRequest request) {
-      // Modify request as necessary
-  }
-  
-  public void postRequest(OpenSocialRequest request, String response) {
-      
   }
 }

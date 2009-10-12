@@ -14,8 +14,6 @@
  */
 package org.opensocial.providers;
 
-import org.opensocial.client.OpenSocialRequest;
-
 public class PlaxoProvider extends OpenSocialProvider 
 {
   public PlaxoProvider() {
@@ -28,13 +26,5 @@ public class PlaxoProvider extends OpenSocialProvider
     providerName = "Plaxo";
     signBodyHash = true;
     isOpenSocial = false;
-  }
-  
-  public void preRequest(OpenSocialRequest request) {
-      // Modify request as necessary
-  }
-  
-  public void postRequest(OpenSocialRequest request, String response) {
-      
   }
 }

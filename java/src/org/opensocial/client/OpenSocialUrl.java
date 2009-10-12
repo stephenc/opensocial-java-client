@@ -73,7 +73,7 @@ class OpenSocialUrl {
 		// Pos Aliases
 		postAliases.put("activities", "activity");
 		postAliases.put("albums", "album");
-		postAliases.put("appdata", "appData");
+		postAliases.put("appdata", "appdata");
 		postAliases.put("mediaItems", "mediaItem");
 		postAliases.put("messages", "message");
 		postAliases.put("notifications", "notification");

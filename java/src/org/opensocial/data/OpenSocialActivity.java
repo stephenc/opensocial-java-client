@@ -14,64 +14,37 @@
  */
 package org.opensocial.data;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Class representing the OpenSocialActivity object which is used in the REST calls
  * for fetching and creating activities
  *
- * @author vijayam
+ * @author jle.edwards@gmail.com (Jesse Edwards)
  *
  */
-public class OpenSocialActivity extends OpenSocialObject {
-
-  public String getUserId() {
-    return getStringField("userId");
+public class OpenSocialActivity extends OpenSocialModel {
+  
+  public OpenSocialActivity(){}
+  
+  public OpenSocialActivity(String json) throws JSONException {
+    super(json);
   }
-
-  public String getTitle() {
-    return getStringField("title");
-  }
-
-  public String getId() {
-    return getStringField("id");
-  }
-
-  public String getBody() {
-    return getStringField("body");
-  }
-
-  public String getBodyId() {
-    return getStringField("bodyId");
-  }
-
-  public String getUrl() {
-    return getStringField("url");
-  }
-
-  /*public Date getLastUpdatedDate() {
-      OpenSocialField field = this.getField("lastUpdated");
-
-      if (field != null ) {
-        return new Date(field.getStringValue());
+  
+  public void addTemplateParameter(String key, String value) {
+    try{
+      if(!this.has("templateParameters")) {
+        this.put("templateParameters", new JSONArray());
       }
-
-      return "";
-  }
-  */
-
-
-  /**
-   * Generic method which takes the name of the string field and returns its value
-   *
-   * @param fieldName
-   */
-  public String getStringField(String fieldName) {
-    OpenSocialField field = this.getField(fieldName);
-
-    if (field != null ) {
-      return field.getStringValue();
+      JSONArray templateParams = this.getJSONArray("templateParameters");
+      JSONObject kvp = new JSONObject();
+      kvp.put("key", key);
+      kvp.put("value", value);
+      templateParams.put(kvp);
+    } catch(JSONException e) {
+      e.printStackTrace();
     }
-
-    return "";
   }
-
 }

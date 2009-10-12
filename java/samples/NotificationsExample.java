@@ -16,7 +16,8 @@
 import org.opensocial.client.OpenSocialBatch;
 import org.opensocial.client.OpenSocialClient;
 import org.opensocial.client.OpenSocialHttpResponseMessage;
-import org.opensocial.data.OpenSocialAlbum;
+import org.opensocial.data.OpenSocialMediaItem;
+import org.opensocial.data.MySpaceNotification;
 import org.opensocial.providers.MySpaceProvider;
 
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 
-public class AlbumsExample {
+public class NotificationsExample {
 
   public static void main(String[] args) {
 	  
@@ -39,60 +40,28 @@ public class AlbumsExample {
 	  // Create Batch handler
 	  OpenSocialBatch batch = new OpenSocialBatch();
 	  Map<String, String> params = null;
-	  
+
 	  try {
-    	
-		  // Fetch Albums
-		  params = new HashMap<String, String>();
-		  params.put("userId", "@me");
-		  params.put("groupId", OpenSocialClient.SELF);
-		  params.put("startIndex", "1");
-		  params.put("count", "5");
-		  params.put("fields", "@all");
-		  batch.addRequest(c.getAlbumsService().get(params), "fetchAlbums");
-		  // End Fetch Albums
-		  
-		  // Fetch Album
-		  params = new HashMap<String, String>();
-		  params.put("userId", "@me");
-		  params.put("groupId", OpenSocialClient.SELF);
-		  params.put("albumId", "myspace.com.album.81886");
-		  params.put("fields", "@all");
-		  batch.addRequest(c.getAlbumsService().get(params), "fetchAlbum");
-		  // End Fetch Album
-		  
-		  // Create Album
-		  OpenSocialAlbum album = new OpenSocialAlbum();
-      album.setField("caption", "value");
-      album.setField("description", "my description goes here");
-      
+	    MySpaceNotification notification = new MySpaceNotification();
+
+	    // Required Items
+      notification.addRecipient("495184236");
+      notification.setTemplateParameter("content", "Hi ${recipient}, here\'s a notification from ${canvasUrl}");
+
+	    // Optional add a mediaItem to it?
+  	  OpenSocialMediaItem mediaItem = new OpenSocialMediaItem();
+  	  mediaItem.setField("uri", "http://api.myspace.com/v1/users/63129100");
+  	  notification.addMediaItem(mediaItem);
+
+  	  // Add notificaion to params object
       params = new HashMap<String, String>();
-      params.put("userId", "@me");
-      params.put("groupId", OpenSocialClient.SELF);
-      params.put("album", album.toString());
-      
-      // Commented out so that each run doesn't create an album.
-      batch.addRequest(c.getAlbumsService().create(params), "createAlbum");
-      // End Create Album
-      
-      // Update Album
-      album = new OpenSocialAlbum();
-      album.setField("caption", "This is my updated caption");
-      album.setField("description", "my description goes here");
-      
-      params = new HashMap<String, String>();
-      params.put("userId", "495184236");
-      params.put("groupId", OpenSocialClient.SELF);
-      params.put("album", album.toString());
-      params.put("albumId", "myspace.com.album.81886");
-      batch.addRequest(c.getAlbumsService().update(params), "updateAlbum");
-      // End Update Album
-          
-      //supportedFields
-      batch.addRequest(c.getAlbumsService().getSupportedFields(), "supportedFields");
-      
+      params.put("notification", notification.toString());
+
+      // Add Request
+      batch.addRequest(c.getNotificationsService().create(params), "createNotificaion");
+     
       batch.send(c);
-          
+      
       // Get a list of all response in request queue
       Set<String> responses = batch.getResponseQueue();
       
@@ -101,23 +70,14 @@ public class AlbumsExample {
           OpenSocialHttpResponseMessage resp = batch.getResponse(id.toString());
           System.out.println("\n"+id+" responded with status: "+resp.getStatusCode()+" with "+resp.getTotalResults()+" results");
           System.out.println("==============================================");
-          
           if(resp.getStatusCode() > 201) {
             System.out.println(resp.getBodyString());
           }else {
-            if(id.toString().equals("supportedFields")) {
-              List<String> supportedFields = resp.getSupportedFields();
-              
-              for(int i=0; i < supportedFields.size(); i++) {
-                System.out.println(supportedFields.get(i));
-              }
-            }else{
-              List<OpenSocialAlbum> albums = resp.getAlbumCollection();
-              
-              for(int i=0; i < albums.size(); i++) {
-                album = albums.get(i);
-                System.out.println(album.getField("id"));
-              }
+            List<MySpaceNotification> notifications = resp.getNotificationCollection();
+            
+            for(int i=0; i < notifications.size(); i++) {
+              notification = notifications.get(i);
+              System.out.println(notification.getField("id"));
             }
           }
       }

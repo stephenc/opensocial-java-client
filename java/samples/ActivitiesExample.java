@@ -16,7 +16,7 @@
 import org.opensocial.client.OpenSocialBatch;
 import org.opensocial.client.OpenSocialClient;
 import org.opensocial.client.OpenSocialHttpResponseMessage;
-import org.opensocial.data.OpenSocialAlbum;
+import org.opensocial.data.OpenSocialActivity;
 import org.opensocial.providers.MySpaceProvider;
 
 import java.util.List;
@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
 
-public class AlbumsExample {
+public class ActivitiesExample {
 
   public static void main(String[] args) {
 	  
@@ -42,57 +42,47 @@ public class AlbumsExample {
 	  
 	  try {
     	
-		  // Fetch Albums
+		  // Fetch Activities Self
 		  params = new HashMap<String, String>();
-		  params.put("userId", "@me");
+		  params.put("userId", "495184236");
 		  params.put("groupId", OpenSocialClient.SELF);
 		  params.put("startIndex", "1");
 		  params.put("count", "5");
-		  params.put("fields", "@all");
-		  batch.addRequest(c.getAlbumsService().get(params), "fetchAlbums");
-		  // End Fetch Albums
+		  batch.addRequest(c.getActivitiesService().get(params), "fetchActivitiesSelf");
+		  // End Fetch Activities Self
 		  
-		  // Fetch Album
+		  // Fetch Activities Friends
 		  params = new HashMap<String, String>();
-		  params.put("userId", "@me");
-		  params.put("groupId", OpenSocialClient.SELF);
-		  params.put("albumId", "myspace.com.album.81886");
-		  params.put("fields", "@all");
-		  batch.addRequest(c.getAlbumsService().get(params), "fetchAlbum");
-		  // End Fetch Album
+		  params.put("userId", "495184236");
+		  params.put("groupId", OpenSocialClient.FRIENDS);
+		  params.put("startIndex", "1");
+		  params.put("count", "5");
+		  batch.addRequest(c.getActivitiesService().get(params), "fetchActivitiesFriends");
+		  // End Fetch Activities Friends
 		  
-		  // Create Album
-		  OpenSocialAlbum album = new OpenSocialAlbum();
-      album.setField("caption", "value");
-      album.setField("description", "my description goes here");
-      
-      params = new HashMap<String, String>();
-      params.put("userId", "@me");
+		  // Create Activitiy
+		  OpenSocialActivity activity = new OpenSocialActivity();
+		  activity.setField("title", "osapi java test title");
+		  activity.setField("body", "osapi java test body");
+		  
+		  // MySpace specific items
+		  activity.setField("titleId", "Template_4");
+		  activity.addTemplateParameter("friend", "495184236");
+		  activity.addTemplateParameter("content", "hello there this is my template parama content");
+		  
+		  params = new HashMap<String, String>();
+      params.put("userId", OpenSocialClient.ME);
       params.put("groupId", OpenSocialClient.SELF);
-      params.put("album", album.toString());
-      
-      // Commented out so that each run doesn't create an album.
-      batch.addRequest(c.getAlbumsService().create(params), "createAlbum");
-      // End Create Album
-      
-      // Update Album
-      album = new OpenSocialAlbum();
-      album.setField("caption", "This is my updated caption");
-      album.setField("description", "my description goes here");
-      
-      params = new HashMap<String, String>();
-      params.put("userId", "495184236");
-      params.put("groupId", OpenSocialClient.SELF);
-      params.put("album", album.toString());
-      params.put("albumId", "myspace.com.album.81886");
-      batch.addRequest(c.getAlbumsService().update(params), "updateAlbum");
-      // End Update Album
-          
+      params.put("appId", OpenSocialClient.APP);
+		  params.put("activity", activity.toString());
+      batch.addRequest(c.getActivitiesService().create(params), "createActivitiy");
+      // End Create Activitiy
+
       //supportedFields
-      batch.addRequest(c.getAlbumsService().getSupportedFields(), "supportedFields");
+      batch.addRequest(c.getActivitiesService().getSupportedFields(), "supportedFields");
       
       batch.send(c);
-          
+      
       // Get a list of all response in request queue
       Set<String> responses = batch.getResponseQueue();
       
@@ -104,7 +94,7 @@ public class AlbumsExample {
           
           if(resp.getStatusCode() > 201) {
             System.out.println(resp.getBodyString());
-          }else {
+          }else{
             if(id.toString().equals("supportedFields")) {
               List<String> supportedFields = resp.getSupportedFields();
               
@@ -112,11 +102,12 @@ public class AlbumsExample {
                 System.out.println(supportedFields.get(i));
               }
             }else{
-              List<OpenSocialAlbum> albums = resp.getAlbumCollection();
+              List<OpenSocialActivity> activities = resp.getActivityCollection();
               
-              for(int i=0; i < albums.size(); i++) {
-                album = albums.get(i);
-                System.out.println(album.getField("id"));
+              for(int i=0; i < activities.size(); i++) {
+                activity = activities.get(i);
+                System.out.println(activity.getField("id"));
+                System.out.println(activity.getField("title"));
               }
             }
           }
@@ -129,4 +120,5 @@ public class AlbumsExample {
       e.printStackTrace();
     }
   }
+
 }

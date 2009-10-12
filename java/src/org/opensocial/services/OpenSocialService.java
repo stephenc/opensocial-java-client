@@ -14,8 +14,13 @@
  */
 package org.opensocial.services;
 
+import java.util.ArrayList;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.opensocial.client.OpenSocialClient;
+import org.opensocial.client.OpenSocialHttpResponseMessage;
 import org.opensocial.client.OpenSocialRequest;
 
 /**
@@ -24,6 +29,11 @@ import org.opensocial.client.OpenSocialRequest;
  * 
  */
 public class OpenSocialService {
+  
+  protected void _checkDefaultParams(Map <String, String> params) {
+    if(!params.containsKey("userId")) params.put("userId", OpenSocialClient.ME);
+    if(!params.containsKey("groupId")) params.put("groupId", OpenSocialClient.SELF);
+  }
   
   /**
    * _addParamsToRequest - adds parameters to request
@@ -35,6 +45,24 @@ public class OpenSocialService {
     
     for(String s : params.keySet()) {
       r.addParameter(s, params.get(s));
+    }
+  }
+  
+  public void formatResponse(OpenSocialHttpResponseMessage response) {
+    String data = response.getOpenSocialDataString();
+    
+    try{
+      if(data.startsWith("[") && data.endsWith("]")) {
+        JSONArray supportedFields = new JSONArray(data);
+        ArrayList<String> collection = new ArrayList<String>();
+        
+        for(int i=0; i<supportedFields.length(); i++) {
+          collection.add(supportedFields.getString(i));
+        }
+        response.setCollection(collection);
+      }
+    }catch(JSONException e) {
+      e.printStackTrace();
     }
   }
 }

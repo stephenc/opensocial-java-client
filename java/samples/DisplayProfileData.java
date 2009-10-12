@@ -15,22 +15,18 @@
 
 
 import org.opensocial.client.OpenSocialClient;
-import org.opensocial.data.OpenSocialField;
 import org.opensocial.data.OpenSocialPerson;
 import org.opensocial.providers.OrkutSandboxProvider;
 
 public class DisplayProfileData {
 
   public static void main(String[] args) {
-    // Create a new OpenSocialClient instance configured to hit orkut endpoints;
-    // other pre-configured providers include MYSPACE, GOOGLE, and PLAXO
-    OpenSocialClient c =
-      new OpenSocialClient(new OrkutSandboxProvider());
+    // Setup Client
+    OrkutSandboxProvider provider = new OrkutSandboxProvider();
+    provider.rpcEndpoint = null;
+    
+    OpenSocialClient c = new OpenSocialClient(provider);
     c.setProperty(OpenSocialClient.Property.DEBUG, "true");
-
-    if (args.length > 0 && args[0].equalsIgnoreCase("REST")) {
-      c.setProperty(OpenSocialClient.Property.RPC_ENDPOINT, null);
-    }
 
     // Credentials provided here are associated with the gadget located at
     // http://opensocial-resources.googlecode.com/svn/samples/rest_rpc/sample.xml;
@@ -51,19 +47,16 @@ public class DisplayProfileData {
       System.out.println("----------");
       
       // Output the name and ID of the requested person
-      System.out.println("Info. for " + person.getDisplayName());
-      System.out.println("ID: " + person.getId());      
+      System.out.println("Info. for " + person.getField("displayName"));
+      System.out.println("ID: " + person.getField("id"));      
       
       // Retrieve individual fields using the getField method; fields may be
       // complex (objects or arrays) or simple (Strings), which you can
       // determine by querying the object using the isComplex method.
       // The thumbnail URL should be a simple field, so we'll output
       // the value as a String
-      OpenSocialField thumbnailUrlField = person.getField("thumbnailUrl");
-      if (!thumbnailUrlField.isComplex()) {
-        System.out.println("Thumbnail URL: " +
-            thumbnailUrlField.getStringValue());        
-      }
+      
+        System.out.println("Thumbnail URL: " + person.getField("thumbnailUrl"));
 
       System.out.println("----------");
 

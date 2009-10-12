@@ -41,7 +41,7 @@ class OpenSocialHttpMessage extends HttpMessage {
     this.body = body;
     this.url = url;
   }
-
+  
   public OpenSocialUrl getUrl() {
     return url;
   }

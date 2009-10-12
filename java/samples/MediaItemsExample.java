@@ -20,15 +20,12 @@ import org.opensocial.client.OpenSocialRequestException;
 import org.opensocial.data.OpenSocialMediaItem;
 import org.opensocial.providers.MySpaceProvider;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
@@ -39,10 +36,11 @@ public class MediaItemsExample {
 	  
 	  // Setup Client
 	  OpenSocialClient c = new OpenSocialClient(new MySpaceProvider());
-	  c.setProperty(OpenSocialClient.Property.DEBUG, "true");
-      c.setProperty(OpenSocialClient.Property.RPC_ENDPOINT, null);
-      c.setProperty(OpenSocialClient.Property.CONSUMER_SECRET, "20ab52223e684594a8050a8bfd4b06693ba9c9183ee24e1987be87746b1b03f8");
-      c.setProperty(OpenSocialClient.Property.CONSUMER_KEY, "http://www.myspace.com/495182150");
+	  c.setProperty(OpenSocialClient.Property.DEBUG, "false");
+    c.setProperty(OpenSocialClient.Property.RPC_ENDPOINT, null);
+    c.setProperty(OpenSocialClient.Property.CONSUMER_SECRET, "20ab52223e684594a8050a8bfd4b06693ba9c9183ee24e1987be87746b1b03f8");
+    c.setProperty(OpenSocialClient.Property.CONSUMER_KEY, "http://www.myspace.com/495182150");
+    c.setProperty(OpenSocialClient.Property.VIEWER_ID, "495184236");
 	  
 	  // Create Batch handler
 	  OpenSocialBatch batch = new OpenSocialBatch();
@@ -50,10 +48,10 @@ public class MediaItemsExample {
 	  OpenSocialMediaItem mediaItem = new OpenSocialMediaItem();
 	  
 	  try {
-	      //updateMediaItem(batch, c);
-	      //createMediaItem(batch, c);
-	      uploadMediaItem(batch, c);
-          batch.addRequest(c.getMediaItemsService().getSupportedFields(), "supportedFields");
+      updateMediaItem(batch, c);
+      createMediaItem(batch, c);
+      //uploadMediaItem(batch, c);
+      batch.addRequest(c.getMediaItemsService().getSupportedFields(), "supportedFields");
 	      
 		  // Fetch MediaItems
 		  params = new HashMap<String, String>();
@@ -76,47 +74,39 @@ public class MediaItemsExample {
 		  batch.addRequest(c.getMediaItemsService().get(params), "fetchMediaItem");
 		  // End Fetch MediaItem
 		  
-          batch.send(c);
-          
-          // Get a list of all response in request queue
-          Set<String> responses = batch.getResponseQueue();
-          
-          // Interate through each response
-          for(Object id : responses) {
-              OpenSocialHttpResponseMessage msg = batch.getResponse(id.toString());
-              System.out.println("\n"+id.toString()+" with response code ("+msg.getStatusCode()+")");
-              //System.out.println(msg.getBodyString());
-              System.out.println("==================================================");
-              
-              //TODO: move this logic into OpenSocialHttpResonseMessage so we can use something like
-              // response.getMediaItem() or response.getMediaItemCollection() or even more generic response.getCollection()
-              JSONObject obj = new JSONObject(msg.getBodyString());
-              if(obj.has("entry") ){
-                  JSONArray entry = obj.getJSONArray("entry");
-                  for(int i=0; i<entry.length(); i++) {
-                      mediaItem = new OpenSocialMediaItem(entry.getJSONObject(i).getJSONObject("mediaItem").toString());
-                      System.out.println("MediaItem id: "+mediaItem.getField("id"));
-                      System.out.println("MediaItem url: "+mediaItem.getField("url"));
-                      System.out.println("-----------------------------------------");
-                  }
-                  
-              } else if(obj.has("mediaItem")) {
-                  mediaItem = new OpenSocialMediaItem(obj.getJSONObject("mediaItem").toString());
-                  System.out.println("MediaItem id: "+mediaItem.getField("id"));
-                  System.out.println("MediaItem mimeType: "+mediaItem.getField("mimeType"));
-                  System.out.println("MediaItem albumId: "+mediaItem.getField("albumId"));
-                  System.out.println("MediaItem url: "+mediaItem.getField("url"));
-              } else {
-                  System.out.println(msg.getBodyString());
-              }
+      batch.send(c);
+      // Get a list of all response in request queue
+      Set<String> responses = batch.getResponseQueue();
+      
+      // Interate through each response
+      for(Object id : responses) {
+        OpenSocialHttpResponseMessage resp = batch.getResponse(id.toString());
+        System.out.println("\n"+id+" responded with status: "+resp.getStatusCode()+" with "+resp.getTotalResults()+" results");
+        System.out.println("==============================================");
+        
+        if(resp.getStatusCode() > 201) {
+          System.out.println(resp.getBodyString());
+        }else {
+          if(id.toString().equals("supportedFields")) {
+            List<String> supportedFields = resp.getSupportedFields();
+            
+            for(int i=0; i < supportedFields.size(); i++) {
+              System.out.println(supportedFields.get(i));
+            }
+          }else{
+            List<OpenSocialMediaItem> mediaItems = resp.getMediaItemCollection();
+            
+            for(int i=0; i < mediaItems.size(); i++) {
+              mediaItem = mediaItems.get(i);
+              System.out.println(mediaItem.getField("id"));
+            }
           }
+        }
+      }
     } catch (OpenSocialRequestException e) {
       System.out.println("OpenSocialRequestException thrown: " + e.getMessage());
       e.printStackTrace();
     } catch (java.io.IOException e) {
-      System.out.println("IOException thrown: " + e.getMessage());
-      e.printStackTrace();
-    }catch (JSONException e){
       System.out.println("IOException thrown: " + e.getMessage());
       e.printStackTrace();
     }
@@ -179,7 +169,7 @@ public class MediaItemsExample {
       params = new HashMap<String, String>(); 
       params.put("userId", "495184236");
       params.put("groupId", OpenSocialClient.SELF);
-      params.put("albumId", "myspace.com.album.81886");
+      params.put("albumId", "myspace.com.album.706610");
       params.put("mediaItem", fileContents);
       params.put("type", "image");
       params.put("contentType", "image/jpg");

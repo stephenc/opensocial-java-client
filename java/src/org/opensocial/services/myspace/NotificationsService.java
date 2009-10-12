@@ -15,11 +15,17 @@
 
 package org.opensocial.services.myspace;
 
+import java.util.ArrayList;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.opensocial.client.OpenSocialClient;
+import org.opensocial.client.OpenSocialHttpResponseMessage;
 import org.opensocial.client.OpenSocialRequest;
 import org.opensocial.client.OpenSocialRequestException;
+import org.opensocial.data.MySpaceNotification;
 import org.opensocial.services.OpenSocialService;
 
 /**
@@ -98,6 +104,37 @@ public class NotificationsService extends OpenSocialService {
    * convertResponse - function used to convert response json into the expected
    * collection of objects or object.
    */
-  public void convertResponse() {
+  public void formatResponse(OpenSocialHttpResponseMessage response) {    
+
+    super.formatResponse(response);
+
+    String data = response.getOpenSocialDataString();
+    MySpaceNotification item = new MySpaceNotification();
+    ArrayList<MySpaceNotification> collection = new ArrayList<MySpaceNotification>();
+
+    try{
+      if(data.startsWith("{") && data.endsWith("}")) {
+        JSONObject obj = new JSONObject(data);
+        
+        if(obj.has("entry")) {
+          if(obj.getString("entry").startsWith("[") && 
+              obj.getString("entry").endsWith("]")) {
+          
+            JSONArray entry = obj.getJSONArray("entry");
+            
+            for(int i=0; i<entry.length(); i++) {
+              item = new MySpaceNotification(entry.getJSONObject(i).toString());
+              collection.add(item);
+            }
+          }else {
+            collection.add(new MySpaceNotification(obj.getString("entry")));
+          }
+        }
+        response.setCollection(collection);
+      }
+    }catch(JSONException e) {
+      e.printStackTrace();
+      System.out.println(data);
+    }
   }
 }

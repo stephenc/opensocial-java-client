@@ -14,8 +14,6 @@
  */
 package org.opensocial.providers;
 
-import org.opensocial.client.OpenSocialRequest;
-
 /**
  * Note: The SHINDIG provider uses a local OAuth provider. To get this local
  * OAuth provider running on port 9090, do the following:
@@ -39,13 +37,5 @@ public class ShindigProvider extends OpenSocialProvider {
     providerName = "localhost";
     signBodyHash = true;
     isOpenSocial = true;
-  }
-  
-  public void preRequest(OpenSocialRequest request) {
-      // Modify request as necessary
-  }
-  
-  public void postRequest(OpenSocialRequest request, String response) {
-      
   }
 }

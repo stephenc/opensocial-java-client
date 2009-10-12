@@ -15,11 +15,17 @@
 
 package org.opensocial.services;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.opensocial.client.OpenSocialHttpResponseMessage;
 import org.opensocial.client.OpenSocialRequest;
 import org.opensocial.client.OpenSocialRequestException;
+import org.opensocial.data.OpenSocialPerson;
 
 /**
  * PeopleService - service class for people endpoint.
@@ -54,7 +60,8 @@ public class PeopleService extends OpenSocialService {
    */
   public OpenSocialRequest get(Map<String, String> params) 
       throws OpenSocialRequestException {
-    
+
+    super._checkDefaultParams(params);
     OpenSocialRequest r = new OpenSocialRequest("people", 
         "GET", "people.get");
     _addParamsToRequest(r, params);
@@ -69,7 +76,8 @@ public class PeopleService extends OpenSocialService {
    */
   public OpenSocialRequest update(Map<String, String> params) 
       throws OpenSocialRequestException {
-    
+
+    super._checkDefaultParams(params);
     OpenSocialRequest r = new OpenSocialRequest("people", 
         "PUT", "people.update");
     _addParamsToRequest(r, params);
@@ -102,6 +110,37 @@ public class PeopleService extends OpenSocialService {
    * convertResponse - function used to convert response json into the expected
    * collection of objects or object.
    */
-  public void convertResponse() {
+  public void formatResponse(OpenSocialHttpResponseMessage response) {    
+
+    super.formatResponse(response);
+
+    String data = response.getOpenSocialDataString();
+    OpenSocialPerson item = new OpenSocialPerson();
+    ArrayList<OpenSocialPerson> collection = new ArrayList<OpenSocialPerson>();
+
+    try{
+      if(data.startsWith("{") && data.endsWith("}")) {
+        JSONObject obj = new JSONObject(data);
+        
+        if(obj.has("entry")) {
+          if(obj.getString("entry").startsWith("[") && 
+              obj.getString("entry").endsWith("]")) {
+          
+            JSONArray entry = obj.getJSONArray("entry");
+            
+            for(int i=0; i<entry.length(); i++) {
+              item = new OpenSocialPerson(entry.getJSONObject(i).toString());
+              collection.add(item);
+            }
+          }else {
+            collection.add(new OpenSocialPerson(obj.getString("entry")));
+          }
+        }
+        response.setCollection(collection);
+      }
+    }catch(JSONException e) {
+      e.printStackTrace();
+      System.out.println(data);
+    }
   }
 }

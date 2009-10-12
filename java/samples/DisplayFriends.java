@@ -27,17 +27,17 @@ public class DisplayFriends {
     // other pre-configured providers include MYSPACE, GOOGLE, and PLAXO and ORKUT"
     OpenSocialClient c =
       new OpenSocialClient(new MySpaceProvider());
-    c.setProperty(OpenSocialClient.Property.DEBUG, "true");
-    c.setProperty(OpenSocialClient.Property.RPC_ENDPOINT, null);
-
+    c.setProperty(OpenSocialClient.Property.DEBUG, "false");
+    
     // Credentials provided here are associated with the gadget located at
     // http://opensocial-resources.googlecode.com/svn/samples/rest_rpc/sample.xml;
     // If you install this gadget, you can substitute your own OpenSocial ID
     // for the one used below and fetch your profile data and friends
+    
     c.setProperty(OpenSocialClient.Property.CONSUMER_SECRET,
-        "75c76022d8db4d5a817237562e163089");
+        "20ab52223e684594a8050a8bfd4b06693ba9c9183ee24e1987be87746b1b03f8");
     c.setProperty(OpenSocialClient.Property.CONSUMER_KEY,
-        "http://www.myspace.com/435305524");
+        "http://www.myspace.com/495182150");
     c.setProperty(OpenSocialClient.Property.VIEWER_ID,
         "495184236");
 
@@ -56,7 +56,7 @@ public class DisplayFriends {
       // Iterate through the Collection
       for (OpenSocialPerson friend : friends) {
         // Output the name of the current friend
-        System.out.println("- " + friend.getDisplayName());
+        System.out.println("- " + friend.getField("displayName"));
       }
 
       System.out.println("----------");

@@ -16,6 +16,9 @@
 package org.opensocial.data;
 
 import static org.junit.Assert.assertTrue;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Test;
 
 /**
@@ -28,15 +31,11 @@ public class OpenSocialPersonTest {
   @Test
   public void testGetId() {
     OpenSocialPerson p = new OpenSocialPerson();
+    assertTrue(p.getField("id") == null);
+
     String id = "0000000000";
-
-    assertTrue(p.getId().equals(""));
-
-    OpenSocialField f = new OpenSocialField(false);
-    p.setField("id", f);
-    f.addValue(id);
-
-    assertTrue(p.getId().equals(id));
+    p.setField("id", id);
+    assertTrue(p.getField("id").equals(id));
   }
 
   @Test
@@ -49,27 +48,22 @@ public class OpenSocialPersonTest {
 
     assertTrue(p1.getDisplayName().equals("Unknown Person"));
 
-    OpenSocialField f1 = new OpenSocialField(false);
-    f1.addValue(displayName);
-    p1.setField("name", f1);
-
+    p1.setField("displayName", displayName);
     assertTrue(p1.getDisplayName().equals(displayName));
 
-    OpenSocialObject name = new OpenSocialObject();
-    OpenSocialField nf1 = new OpenSocialField(false);
-    OpenSocialField nf2 = new OpenSocialField(false);
-    nf1.addValue(givenName);
-    name.setField("givenName", nf1);
-
-    OpenSocialField f2 = new OpenSocialField(true);
-    p2.setField("name", f2);
-    f2.addValue(name);
-
-    assertTrue(p2.getDisplayName().equals(givenName));
-
-    nf2.addValue(familyName);
-    name.setField("familyName", nf2);
-
-    assertTrue(p2.getDisplayName().equals(displayName));
+    try{
+      JSONObject name = new JSONObject();
+      name.put("givenName", givenName);
+      
+      p2.setField("name", name);
+      System.out.println(p2.getDisplayName());
+      assertTrue(p2.getDisplayName().equals(givenName));
+  
+      name.put("familyName", familyName);
+      p2.setField("name", name);
+      assertTrue(p2.getDisplayName().equals(displayName));
+    }catch(JSONException e) {
+      e.printStackTrace();
+    }
   }
 }

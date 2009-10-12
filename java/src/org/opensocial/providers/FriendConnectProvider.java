@@ -14,8 +14,6 @@
  */
 package org.opensocial.providers;
 
-import org.opensocial.client.OpenSocialRequest;
-
 public class FriendConnectProvider extends OpenSocialProvider {
   
   public FriendConnectProvider() {
@@ -26,13 +24,5 @@ public class FriendConnectProvider extends OpenSocialProvider {
      providerName = "friendconnect";
      signBodyHash = true;
      isOpenSocial = false;
-  }
-  
-  public void preRequest(OpenSocialRequest request) {
-      // Modify request as necessary
-  }
-  
-  public void postRequest(OpenSocialRequest request, String response) {
-      
   }
 }

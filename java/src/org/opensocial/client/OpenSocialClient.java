@@ -79,6 +79,9 @@ public class OpenSocialClient {
   private GroupsService groups = null;
   private StatusMoodService statusmood = null;
   private ActivitiesService activities = null;
+  private AppDataService appData = null;
+  private PeopleService people = null;
+  private MessagesService messages = null;
   
   /**
    * Lazy load getter for mediaItems
@@ -91,6 +94,7 @@ public class OpenSocialClient {
     }
     return mediaItems;
   }
+  
   /**
    * Lazy load getter for albums
    * 
@@ -102,6 +106,7 @@ public class OpenSocialClient {
     }
     return albums;
   }
+  
   /**
    * Lazy load getter for notifications
    * 
@@ -148,6 +153,42 @@ public class OpenSocialClient {
       activities = new ActivitiesService();
     }
     return activities;
+  }
+  
+  /**
+   * Lazy load getter for appData
+   * 
+   * @return AppDataService
+   */
+  public AppDataService getAppDataService() {
+    if(appData == null) {
+      appData = new AppDataService();
+    }
+    return appData;
+  }
+  
+  /**
+   * Lazy load getter for people
+   * 
+   * @return PeopleService
+   */
+  public PeopleService getPeopleService() {
+    if(people == null) {
+      people = new PeopleService();
+    }
+    return people;
+  }
+  
+  /**
+   * Lazy load getter for messages
+   * 
+   * @return MessageService
+   */
+  public MessagesService getMessagesService() {
+    if(messages == null) {
+      messages = new MessagesService();
+    }
+    return messages;
   }
   
   public OpenSocialClient() {
@@ -216,7 +257,7 @@ public class OpenSocialClient {
   }
 
   public OpenSocialPerson fetchPerson(
-      Map<String, OpenSocialRequestParameter> parameters) throws
+      Map<String, String> parameters) throws
       OpenSocialRequestException, IOException {
     return fetchPerson(ME, parameters);
   }
@@ -234,14 +275,17 @@ public class OpenSocialClient {
    */
   public OpenSocialPerson fetchPerson(String userId) throws
       OpenSocialRequestException, IOException {
-    return fetchPerson(userId, null);
+    Map<String, String> params = new HashMap<String, String>();
+    params.put("groupId", SELF);
+    
+    return fetchPerson(userId, params);
   }
 
   public OpenSocialPerson fetchPerson(String userId,
-      Map<String, OpenSocialRequestParameter> parameters) throws
+      Map<String, String> parameters) throws
       OpenSocialRequestException, IOException {
-    OpenSocialResponse response = fetchPeople(userId, SELF, parameters);
-    return response.getItemAsPerson("people");
+    ArrayList<OpenSocialPerson> data = fetchPeople(userId, SELF, parameters);
+    return data.get(0);
   }
 
   /**
@@ -260,7 +304,7 @@ public class OpenSocialClient {
   }
 
   public List<OpenSocialPerson> fetchFriends(
-      Map<String, OpenSocialRequestParameter> parameters) throws
+      Map<String, String> parameters) throws
       OpenSocialRequestException, IOException {
     return fetchFriends(ME, parameters);
   }
@@ -278,14 +322,15 @@ public class OpenSocialClient {
    */
   public List<OpenSocialPerson> fetchFriends(String userId) throws
       OpenSocialRequestException, IOException {
-    return fetchFriends(userId, null);
+    return fetchFriends(userId, new HashMap<String, String>());
   }
 
-  public List<OpenSocialPerson> fetchFriends(String userId,
-      Map<String, OpenSocialRequestParameter> parameters) throws
+  public ArrayList<OpenSocialPerson> fetchFriends(String userId,
+      Map<String, String> parameters) throws
       OpenSocialRequestException, IOException {
-    OpenSocialResponse response = fetchPeople(userId, FRIENDS, parameters);
-    return response.getItemAsPersonCollection("people");
+    ArrayList<OpenSocialPerson> data = fetchPeople(userId, FRIENDS, parameters);
+    
+    return data;
   }
 
   /**
@@ -319,34 +364,59 @@ public class OpenSocialClient {
    */
   public OpenSocialAppData fetchPersonAppData(String userId, String appId)
       throws OpenSocialRequestException, IOException {
-    OpenSocialResponse response = fetchAppData(userId, SELF, appId);
-    return response.getItemAsAppData("appdata");
+    
+    HashMap<String, String>params = new HashMap<String, String>();
+    params.put("userId", userId);
+    params.put("groupId", SELF);
+    params.put("appId", appId);
+    
+    OpenSocialBatch batch = new OpenSocialBatch();
+    batch.addRequest(this.getAppDataService().get(params), "fetchAppData");
+    batch.send(this);
+    
+    OpenSocialHttpResponseMessage response = batch.getResponse("fetchAppData");
+    ArrayList<OpenSocialAppData>appData = response.getAppDataCollection();
+    
+    return appData.get(0);
   }
 
   public void updatePersonAppData(String key, String value) throws
       OpenSocialRequestException, IOException {
-    Map<String, String> data = new HashMap<String, String>();
-    data.put(key, value);
+
+    OpenSocialAppData data = new OpenSocialAppData();
+    data.setField(key, value);
 
     updatePersonAppData("@viewer", data);
   }
 
-  public void updatePersonAppData(Map<String, String> data) throws
+  public void updatePersonAppData(OpenSocialAppData data) throws
       OpenSocialRequestException, IOException {
     updatePersonAppData("@viewer", data);
   }
 
   public void updatePersonAppData(String userId, String key, String value)
       throws OpenSocialRequestException, IOException {
-    Map<String, String> data = new HashMap<String, String>();
-    data.put(key, value);
+    
+    OpenSocialAppData data = new OpenSocialAppData();
+    data.setField(key, value);
 
     updatePersonAppData(userId, data);
   }
 
-  public void updatePersonAppData(String userId, Map<String, String> data)
+  public void updatePersonAppData(String userId, OpenSocialAppData data)
       throws OpenSocialRequestException, IOException {
-    updateAppData(userId, data);
+    
+    OpenSocialBatch batch = new OpenSocialBatch();
+    Map<String, String> params = null;
+    
+    // Set Request Parameters
+    params = new HashMap<String, String>();
+    params.put("userId", userId);
+    params.put("groupId", OpenSocialClient.SELF);
+    params.put("appId", "@app");
+    params.put("appdata", data.toString());
+    batch.addRequest(getAppDataService().update(params), "updateAppData");
+    batch.send(this);
   }
 
   /**
@@ -521,60 +591,22 @@ public class OpenSocialClient {
    *         response that the container returns
    * @throws IOException
    */
-  private OpenSocialResponse fetchPeople(String userId, String groupId,
-      Map<String, OpenSocialRequestParameter> parameters) throws
+  private ArrayList<OpenSocialPerson> fetchPeople(String userId, String groupId,
+      Map<String, String> params) throws
       OpenSocialRequestException, IOException {
-    if (userId == null || userId.equals("") || groupId == null ||
-        groupId.equals("")) {
-      throw new OpenSocialRequestException("Invalid request parameters");
-    }
-
-    OpenSocialRequest r =
-        OpenSocialClient.newFetchPeopleRequest(userId, groupId, parameters);
+    
+    //TODO: prameter defaults
+    params.put("userId", userId);
+    params.put("groupId", groupId);
+    
     OpenSocialBatch batch = new OpenSocialBatch();
-    batch.addRequest(r, "people");
-
-    return batch.send(this);
-  }
-
-  /**
-   * Creates and submits a new request to retrieve the persistent App Data for
-   * the person or group of people selected by the arguments for the specified
-   * application and returns the response from the container as an
-   * OpenSocialResponse object.
-   *
-   * @param  userId OpenSocial ID of the request's target
-   * @param  groupId "@self" to fetch the user's App Data or "@friends" to
-   *         fetch App Data for the user's friends
-   * @param  appId The ID of the application to fetch user App Data for
-   *         or "@app" for the current application
-   * @throws OpenSocialRequestException if there are any runtime issues with
-   *         establishing a RESTful or JSON-RPC connection or parsing the
-   *         response that the container returns
-   * @throws IOException
-   */
-  private OpenSocialResponse fetchAppData(String userId, String groupId, 
-      String appId) throws OpenSocialRequestException, IOException {
-    if (userId == null || userId.equals("") || groupId == null ||
-        groupId.equals("") || appId == null || appId.equals("")) {
-      throw new OpenSocialRequestException("Invalid request parameters");
-    }
-
-    OpenSocialRequest r =
-        OpenSocialClient.newFetchPersonAppDataRequest(userId, groupId, appId);
-    OpenSocialBatch batch = new OpenSocialBatch();
-    batch.addRequest(r, "appdata");
-    return batch.send(this);
-  }
-
-  private OpenSocialResponse updateAppData(String userId, 
-      Map<String, String> data) 
-      throws OpenSocialRequestException, IOException {
-    OpenSocialRequest r =
-      OpenSocialClient.newUpdatePersonAppDataRequest(userId,data);
-    OpenSocialBatch batch = new OpenSocialBatch();
-    batch.addRequest(r, "appdata");
-    return batch.send(this);
+    
+    batch.addRequest(getPeopleService().get(params), "fetchPeople");
+    
+    batch.send(this);
+    OpenSocialHttpResponseMessage response = batch.getResponse("fetchPeople");
+    
+    return response.getPersonCollection();
   }
 
   /**

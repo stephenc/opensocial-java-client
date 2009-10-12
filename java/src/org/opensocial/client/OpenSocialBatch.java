@@ -17,6 +17,7 @@ package org.opensocial.client;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.opensocial.services.OpenSocialService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,9 +44,9 @@ public class OpenSocialBatch {
   private OpenSocialClient client;
 
   public OpenSocialBatch() {
-    this.requests = new ArrayList<OpenSocialRequest>();
-    this.responses = new HashMap<String, OpenSocialHttpResponseMessage>();
-    this.httpClient = new OpenSocialHttpClient();
+    requests = new ArrayList<OpenSocialRequest>();
+    responses = new HashMap<String, OpenSocialHttpResponseMessage>();
+    httpClient = new OpenSocialHttpClient();
   }
 
   /**
@@ -58,11 +59,11 @@ public class OpenSocialBatch {
    */
   public void addRequest(OpenSocialRequest request, String id) {
     request.setId(id);
-    this.requests.add(request);
+    requests.add(request);
   }
 
   public OpenSocialHttpResponseMessage getResponse(String id) {
-    if(this.responses.containsKey(id)){
+    if(responses.containsKey(id)){
       return responses.get(id);
     }
     return null;
@@ -73,7 +74,7 @@ public class OpenSocialBatch {
   }
 
   private void addResponse(OpenSocialHttpResponseMessage value, String id) {
-      this.responses.put(id, value);
+      responses.put(id, value);
   }
   /**
    * Calls one of two private methods which submit the queued requests to the
@@ -89,31 +90,70 @@ public class OpenSocialBatch {
       throws OpenSocialRequestException, IOException {
     // Prevent the need to pass client to submitREST & submitRPC
     this.client = client;
-    OpenSocialResponse response = new OpenSocialResponse();
+    OpenSocialHttpResponseMessage response;
     
-    if (this.requests.size() == 0) {
+    if (requests.size() == 0) {
         throw new OpenSocialRequestException("One or more requests must be " +
           "added before sending batch");
     }
 
     if(client.getProvider().rpcEndpoint != null) {
       response = submitRpc();
+      
+      try {
+        JSONArray resp = new JSONArray(response.getBodyString());
+        
+        for (OpenSocialRequest r : this.requests) {
+          OpenSocialHttpResponseMessage rsp;
+          for(int i=0; i < resp.length(); i++) {
+            JSONObject obj = resp.getJSONObject(i);
+            
+            if(obj.getString("id").equals(r.getId())) {
+              
+              // Push values into the entry node
+              obj.put("entry", obj.getJSONObject("data"));
+              obj.remove("data");
+              rsp = new OpenSocialHttpResponseMessage("", 
+                    new OpenSocialUrl(client.getProvider().rpcEndpoint), 
+                    obj.toString(), response.getStatusCode());
+              // Post Request
+              client.getProvider().postRequest(r, rsp);
+              
+              OpenSocialService formatter = _getFormatterClass(r.getRestPathComponent());
+              formatter.formatResponse(rsp);
+              addResponse(rsp, r.getId());
+              break;
+            }
+          }
+        }
+      } catch (org.json.JSONException e) {
+        //throw new OpenSocialRequestException("Invalid Response object string");
+        e.printStackTrace();
+      }
     }else if(client.getProvider().restEndpoint != null) {
       for (OpenSocialRequest r : this.requests) {
         // Pre Request
         client.getProvider().preRequest(r);
+        
         // Make Request
-        String restResponse = submitRest(r);
+        response = submitRest(r);
+        
         // Post Request
-        client.getProvider().postRequest(r, restResponse);
+        client.getProvider().postRequest(r, response);
+        // Here we need to change the response into more meaningful item with
+        // data, status, itemsPerPage, startIndex, totalResults
+        OpenSocialService formatter = _getFormatterClass(r.getRestPathComponent());
+        formatter.formatResponse(response);
+        
         // Add to response queue
-        response.addItem(r.getId(), restResponse);
+        //response.addItem(r.getId(), response);
+        addResponse(response, r.getId());
       }
     }else {
       throw new OpenSocialRequestException(
           "REST base URI or RPC endpoint required");
     }
-    return response;
+    return new OpenSocialResponse();
   }
 
   /**
@@ -126,7 +166,7 @@ public class OpenSocialBatch {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  private OpenSocialResponse submitRpc() 
+  private OpenSocialHttpResponseMessage submitRpc() 
     throws OpenSocialRequestException, IOException {
     
     String rpcEndpoint = client.getProvider().rpcEndpoint;
@@ -135,15 +175,15 @@ public class OpenSocialBatch {
     JSONArray requestArray = new JSONArray();
     for (OpenSocialRequest r : this.requests) {
       try {
+        client.getProvider().preRequest(r);
         requestArray.put(new JSONObject(r.toJson()));
       } catch (org.json.JSONException e) {
         throw new OpenSocialRequestException("Invalid JSON object string " 
             + r.toJson());
       }
     }
-    
-    OpenSocialUrl requestUrl = new OpenSocialUrl(rpcEndpoint);
 
+    OpenSocialUrl requestUrl = new OpenSocialUrl(rpcEndpoint);
     OpenSocialHttpMessage request = new OpenSocialHttpMessage("POST",
         requestUrl, requestArray.toString());
     request.addHeader(OpenSocialHttpMessage.CONTENT_TYPE, contentType);
@@ -151,17 +191,16 @@ public class OpenSocialBatch {
     OpenSocialOAuthClient.signRequest(request, client);
 
     OpenSocialHttpResponseMessage response = httpClient.execute(request);
-    String responseString = response.getBodyString();
-
+    
     String debug = client.getProperty(OpenSocialClient.Property.DEBUG);
     
-    if (debug != null && !debug.equals("")) {
+    if (debug.equals("true")) {
       System.out.println("Request URL:\n" + request.getUrl().toString());
       System.out.println("Request body:\n" + request.getBodyString());
-      System.out.println("Container response:\n" + responseString);
+      System.out.println("Container response:\n" + response.getBodyString());
     }
-
-    return OpenSocialJsonParser.getResponse(responseString);
+    
+    return response;
   }
   
   /**
@@ -174,7 +213,7 @@ public class OpenSocialBatch {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  private String submitRest(OpenSocialRequest r) 
+  private OpenSocialHttpResponseMessage submitRest(OpenSocialRequest r) 
     throws OpenSocialRequestException, IOException {
     //TODO: content-type should be determined by what we are dealing with 
     // in the request. Not the client
@@ -202,8 +241,7 @@ public class OpenSocialBatch {
     
     // Loop through each parameter 
     for (Map.Entry<String, OpenSocialRequestParameter> entry : parameters) {
-    	//If it is a postBody variable add it to postBody, 
-      // else add to querystring
+    	//If it's a postBody variable add it to postBody, else add to querystring
     	if(exemptKey.equals(entry.getKey())) {
     		requestBody = (String) entry.getValue().getValuesString();
     	}else {
@@ -213,7 +251,7 @@ public class OpenSocialBatch {
     }
     
     // This is done after looping through hasmap due to issues with
-    // removing items form a hasmap while looping through it.
+    // removing items from a hasmap while looping through it.
     if(r.hasParameter(exemptKey))
       r.popParameter(exemptKey);
     
@@ -222,21 +260,24 @@ public class OpenSocialBatch {
     request.addHeader(OpenSocialHttpMessage.CONTENT_TYPE, contentType);
 
     OpenSocialOAuthClient.signRequest(request, client);
-
     OpenSocialHttpResponseMessage response = httpClient.execute(request);
     
-    addResponse(response, r.getId());
+    return response;
+  }
+  
+  private OpenSocialService _getFormatterClass(String service) {
+    if(service.equals("activities")) return client.getActivitiesService();
+    if(service.equals("albums")) return client.getAlbumsService();
+    if(service.equals("appdata")) return client.getAppDataService();
+    if(service.equals("groups")) return client.getGroupsService();
+    if(service.equals("mediaItems")) return client.getMediaItemsService();
+    if(service.equals("messages")) return client.getMessagesService();
+    if(service.equals("notifications")) 
+       return client.getNotificationsService();
+    if(service.equals("people")) return client.getPeopleService();
+    if(service.equals("statusmood")) return client.getStatusMoodService();
     
-    String responseString = response.getBodyString();
-
-    String debug = client.getProperty(OpenSocialClient.Property.DEBUG);
-    if (debug != null && !debug.equals("")) {
-      System.out.println("Request URL:\n" + request.getUrl().toString());
-      System.out.println("Request body:\n" + request.getBodyString());
-      System.out.println("Container response:\n" + responseString);
-    }
-
-    return responseString;
+    return null;
   }
   
   private OpenSocialUrl _createUrlForRequest(OpenSocialRequest r) {

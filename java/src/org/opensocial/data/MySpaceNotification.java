@@ -25,10 +25,6 @@ import org.json.JSONObject;
  */
 public class MySpaceNotification extends OpenSocialModel
 {
-  public JSONArray templateParameters = new JSONArray();
-  public JSONArray mediaItems = new JSONArray();
-  public JSONArray recipients = null;
-
   public MySpaceNotification(){}
 
   public MySpaceNotification(String json) throws JSONException {
@@ -37,34 +33,61 @@ public class MySpaceNotification extends OpenSocialModel
 
   public void addRecipient(String recipient) {
     
-    if(recipients == null) {
-      recipients = new JSONArray();
-      recipients.put(recipient);
-    }else {
-      recipients.put(recipient);
+    try {
+      if(!this.has("recipientIds")) {
+          this.put("recipientIds", new JSONArray());
+      }
+      JSONArray recp = this.getJSONArray("recipientIds");
+      recp.put(recipient);
+      this.put("recipientIds", recp);
+    } catch (JSONException e) {
+      e.printStackTrace();
     }
   }
 
-  public void addMediaItem(OpenSocialMediaItem item) {
-    mediaItems.put(item);
-  }
-
-  public void setTemplateParameter(String key, String value) 
-      throws JSONException {
-    
-    JSONObject kvp = new JSONObject();
-    kvp.put(key, value);
-    templateParameters.put(kvp);
-  }
-
-  public String getTemplateParameter(String key) throws JSONException {
-
-    for (int i=0; i < templateParameters.length(); i++) {
-      JSONObject obj = (JSONObject)templateParameters.get(i);
-
-      if(obj.get("key").equals(key)) {
-        return obj.getString("value");
+  public void addMediaItem(OpenSocialMediaItem item) { 
+    try {
+      if(!this.has("mediaItems")) {
+          this.put("mediaItems", new JSONArray());
       }
+      JSONArray mi = this.getJSONArray("mediaItems");
+      mi.put(item);
+      this.put("mediaItems", mi);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public void setTemplateParameter(String key, String value) {
+    
+    try {
+      if(!this.has("templateParameters")) {
+          this.put("templateParameters", new JSONArray());
+      }
+      
+      JSONArray params = this.getJSONArray("templateParameters");
+      JSONObject kvp = new JSONObject();
+      kvp.put("key", key);
+      kvp.put("value", value);
+      params.put(kvp);
+      this.put("templateParameters", params);
+    } catch (JSONException e) {
+      e.printStackTrace();
+    }
+  }
+
+  public String getTemplateParameter(String key) {
+    try {
+      JSONArray params = this.getJSONArray("templateParameters");
+
+      for (int i=0; i < params.length(); i++) {
+        JSONObject obj = (JSONObject)params.get(i);
+        if(obj.get("key").equals(key)) {
+          return obj.getString("value");
+        }
+      }
+    }catch(JSONException e) {
+      e.printStackTrace();
     }
     return null;
   }

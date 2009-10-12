@@ -33,6 +33,28 @@ public class OpenSocialModel extends JSONObject {
   }
   
   /**
+   * Checks if field is a JSONString or JSONArray complex type
+   * @param String key
+   * @return boolean
+   */
+  public boolean isFieldComplex(String key) {
+    try{
+      if(this.has(key)) {
+        String str = this.getString(key);
+        
+        if((str.startsWith("{") && str.endsWith("}")) || 
+            (str.startsWith("[") && str.endsWith("]"))) {
+          return true;
+        }
+      }
+    }catch(JSONException e) {
+      e.printStackTrace();
+    }
+    
+    return false;
+  }
+  
+  /**
    * Adds a value to the current object.
    * 
    * @param String key

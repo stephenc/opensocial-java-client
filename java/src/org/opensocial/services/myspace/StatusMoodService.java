@@ -15,10 +15,16 @@
 
 package org.opensocial.services.myspace;
 
+import java.util.ArrayList;
 import java.util.Map;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.opensocial.client.OpenSocialHttpResponseMessage;
 import org.opensocial.client.OpenSocialRequest;
 import org.opensocial.client.OpenSocialRequestException;
+import org.opensocial.data.MySpaceStatusMood;
 import org.opensocial.services.OpenSocialService;
 
 /**
@@ -104,6 +110,35 @@ public class StatusMoodService extends OpenSocialService {
    * convertResponse - function used to convert response json into the expected
    * collection of objects or object.
    */
-  public void convertResponse() {
+  public void formatResponse(OpenSocialHttpResponseMessage response) {    
+
+    super.formatResponse(response);
+    
+    String data = response.getOpenSocialDataString();
+    MySpaceStatusMood item = new MySpaceStatusMood();
+    ArrayList<MySpaceStatusMood> collection = new ArrayList<MySpaceStatusMood>();
+
+    try{
+      if(data.startsWith("[") && data.endsWith("]")) {
+        JSONArray entry = new JSONArray(data);
+        
+        for(int i=0; i<entry.length(); i++) {
+          item = new MySpaceStatusMood(entry.getJSONObject(i).toString());
+          collection.add(item);
+        }
+      }else if(data.startsWith("{") && data.endsWith("}")) {
+        JSONObject obj = new JSONObject(data);
+        
+        if(obj.has("entry")) {
+          collection.add(new MySpaceStatusMood(obj.getString("entry")));
+        }else{
+          collection.add(new MySpaceStatusMood(obj.toString()));
+        }
+      }
+      response.setCollection(collection);
+    }catch(JSONException e) {
+      e.printStackTrace();
+      System.out.println(data);
+    }
   }
 }

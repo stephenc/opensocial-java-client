@@ -1,68 +1,146 @@
-/* Copyright (c) 2009 Google Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-
 package org.opensocial.data;
 
-/**
- * An object representing OpenSocial App Data; extends OpenSocialObject class
- * by adding a convenience method for getting the data value associated with a
- * particular key for a particular user.
- *
- * @author Jason Cooper
- */
-public class OpenSocialAppData extends OpenSocialObject {
+import java.util.ArrayList;
 
-  public OpenSocialAppData() {
-    super();
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+/**
+ * Model object for AppData
+ * @author Jesse Edwards
+ */
+public class OpenSocialAppData extends OpenSocialModel
+{
+  public OpenSocialAppData(){}
+
+  public OpenSocialAppData(String json) throws JSONException {
+    super(json);
   }
 
   /**
-   * Retrieves the String-based App Data value associated with the passed key
-   * for the user with the passed ID.
-   * 
-   * @param  id User ID corresponding to the user whose App Data is desired
-   * @param  key App Data key corresponding to the desired value
-   * @throws OpenSocialException
+   * setField - set a field into appData.
+   * @param String key
+   * @param String value
    */
-  public String getStringForUser(String id, String key)
-      throws OpenSocialException {
-
-    OpenSocialField f1;
-    OpenSocialField f2;
-    OpenSocialObject o;
-    String value;
-
-    f1 = this.getField(id);
-    o = f1.getValue();
-
-    f2 = o.getField(key);
-    value = f2.getStringValue();
-
-    return value;
+  public void setField(String key, String value) {
+    try {
+      if(!this.has("appData")) {
+        this.put("appData", new JSONArray());
+      }
+      JSONArray appData = this.getJSONArray("appData");
+      JSONObject kvp = new JSONObject();
+      kvp.put("key", key);
+      kvp.put("value", value);
+      appData.put(kvp);
+    }catch(JSONException e) {
+      e.printStackTrace();
+    }
   }
 
-  public String[] getFieldNamesForUser(String id)
-      throws OpenSocialException {
+  /**
+   * setField - set field into appData
+   * @override
+   * @param String key
+   * @param int value
+   */
+  public void setField(String key, int value) {
+    String str = ""+value;
+    setField(key, str);
+  }
 
-    OpenSocialField f1;
-    OpenSocialObject o;
+  /**
+   * getField - gets requested value 'key' from appData.
+   * 
+   * @param String key
+   * @return String
+   */
+  public String getField(String key) {
+    try {
+      if(this.has("appData")) {
+        JSONArray appData = this.getJSONArray("appData");
+        JSONObject kvp = new JSONObject();
+        
+        for(int i=0; i < appData.length(); i++) {
+          kvp = appData.getJSONObject(i);
+          if(kvp.getString("key").equals(key)) {
+            return kvp.getString("value");
+          }
+        }
+      }
+    }catch(JSONException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
 
-    f1 = this.getField(id);
-    o = f1.getValue();
+  /**
+   * setUserId - sets the userId the appData belongs to.
+   * @param String value
+   */
+  public void setPersonId(String value) {
+    try{
+      this.put("personId", value);
+    }catch(JSONException e) {
+      e.printStackTrace();
+    }
+  }
 
-    return o.fieldNames();
+  /**
+   * getUserId - gets the userId the appData belongs to.
+   * @return String
+   */
+  public String getPersonId() {
+    try{
+      if(this.has("personId")){
+        return this.getString("personId");
+      }
+    }catch(JSONException e) {
+      e.printStackTrace();
+    }
+    
+    return null;
+  }
+
+  public ArrayList<String> getAppDataKeys() {
+    if(this.has("appData")) {
+      try {
+        JSONArray data = this.getJSONArray("appData");
+        ArrayList<String> keys = new ArrayList<String>();
+        for(int i=0; i< data.length(); i++) {
+          keys.add(data.getJSONObject(i).getString("key"));
+        }
+        return keys;
+      } catch(JSONException e) {
+        e.printStackTrace();
+      }
+    }
+    
+    return new ArrayList<String>();
+  }
+  /**
+   * getJSONObject - returns the appData in a JSONObject format 
+   * IE({"foo":"bar"}).
+   * @return JSONObject
+   */
+  public JSONObject getJSONObject() {
+    
+    if(this.has("appData")) {
+      try{
+        JSONArray appData = this.getJSONArray("appData");
+        JSONObject data = new JSONObject();
+        JSONObject entry;
+        
+        for(int i=0; i < appData.length(); i++) {
+          entry = appData.getJSONObject(i);
+          data.put(entry.getString("key"), entry.getString("value"));
+        }
+        
+        return data;
+      }catch(JSONException e) {
+        e.printStackTrace();
+      }
+    }
+    return new JSONObject();
   }
 }
