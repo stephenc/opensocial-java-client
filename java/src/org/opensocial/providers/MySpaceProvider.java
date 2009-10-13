@@ -31,7 +31,6 @@ public class MySpaceProvider extends OpenSocialProvider {
     authorizeUrl = "http://api.myspace.com/authorize";
     accessTokenUrl = "http://api.myspace.com/access_token";
     restEndpoint = "http://opensocial.myspace.com/roa/09";
-    restEndpoint = "http://els1vdevroa0001/roa/09";
     providerName = "MySpace";
     signBodyHash = false;
     isOpenSocial = true;
