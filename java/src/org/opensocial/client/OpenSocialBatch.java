@@ -276,6 +276,7 @@ public class OpenSocialBatch {
        return client.getNotificationsService();
     if(service.equals("people")) return client.getPeopleService();
     if(service.equals("statusmood")) return client.getStatusMoodService();
+    if(service.equals("profilecomments")) return client.getProfileCommentsService();
     
     return null;
   }

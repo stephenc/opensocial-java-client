@@ -66,10 +66,12 @@ class OpenSocialUrl {
 		urlTemplates.put("albums", "albums/{userId}/{groupId}/{albumId}");
 		urlTemplates.put("mediaItems", 
 		    "mediaItems/{userId}/{groupId}/{albumId}/{mediaItemId}");
-		urlTemplates.put("statusmood", "statusmood/{userId}/{groupId}/{moodId}");
+		urlTemplates.put("statusmood", 
+		    "statusmood/{userId}/{groupId}/{friendId}/{moodId}/{history}");
 		urlTemplates.put("notifications", "notifications/{userId}/{groupId}");
 		urlTemplates.put("groups", "/groups/{userId}/{groupId}");
-		  
+		urlTemplates.put("profilecomments", "profilecomments/{userId}/{groupId}");
+		
 		// Pos Aliases
 		postAliases.put("activities", "activity");
 		postAliases.put("albums", "album");
@@ -79,6 +81,7 @@ class OpenSocialUrl {
 		postAliases.put("notifications", "notification");
 		postAliases.put("people", "person");
 		postAliases.put("statusmood", "statusMood");
+		postAliases.put("profilecomments", "profileComment");
 	}
 
   public Map<String, String> getPostAliases() {

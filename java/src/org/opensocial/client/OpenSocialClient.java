@@ -26,8 +26,8 @@ import org.opensocial.providers.OpenSocialProvider;
 // Services - will update this once we finalize where this include should
 // live and how it should be handled.
 import org.opensocial.services.*;
-import org.opensocial.services.myspace.NotificationsService;
-import org.opensocial.services.myspace.StatusMoodService;
+import org.opensocial.services.myspace.*;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -82,7 +82,7 @@ public class OpenSocialClient {
   private AppDataService appData = null;
   private PeopleService people = null;
   private MessagesService messages = null;
-  
+  private ProfileCommentsService profilecomments = null;
   /**
    * Lazy load getter for mediaItems
    * 
@@ -141,6 +141,18 @@ public class OpenSocialClient {
       statusmood = new StatusMoodService();
     }
     return statusmood;
+  }
+  
+  /**
+   * Lazy load getter for profilecomments
+   * 
+   * @return StatusMoodService
+   */
+  public ProfileCommentsService getProfileCommentsService() {
+    if(profilecomments == null) {
+      profilecomments = new ProfileCommentsService();
+    }
+    return profilecomments;
   }
   
   /**
@@ -523,14 +535,19 @@ public class OpenSocialClient {
         groupId.equals("")) {
       throw new OpenSocialRequestException("Invalid request parameters");
     }
-
-    OpenSocialRequest r = OpenSocialClient.newFetchActivitiesRequest(userId,
-        groupId, appId);
+    
+    HashMap<String,String>params = new HashMap<String,String>();
+    params.put("userId", userId);
+    params.put("groupId", groupId);
+    params.put("appId", appId);
+    
     OpenSocialBatch batch = new OpenSocialBatch();
-    batch.addRequest(r, "activities");
-
-    OpenSocialResponse response = batch.send(this);
-    return response.getItemAsActivityCollection("activities");
+    batch.addRequest(getActivitiesService().get(params), "fetchActivity");
+    batch.send(this);
+    
+    OpenSocialHttpResponseMessage response = batch.getResponse("fetchActivity");
+    
+    return response.getActivityCollection();
   }
 
   /**
@@ -618,13 +635,15 @@ public class OpenSocialClient {
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  private OpenSocialResponse removeAppData(String userId, List<String> keys)
+  private OpenSocialHttpResponseMessage removeAppData(String userId, List<String> keys)
       throws OpenSocialRequestException, IOException {
     OpenSocialRequest r =
       OpenSocialClient.newRemovePersonAppDataRequest(userId, keys);
     OpenSocialBatch batch = new OpenSocialBatch();
     batch.addRequest(r, "appdata");
-    return batch.send(this);
+    batch.send(this);
+    OpenSocialHttpResponseMessage response = batch.getResponse("appdata");
+    return response;
   }
 
   /**

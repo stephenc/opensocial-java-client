@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.opensocial.data.MySpaceComment;
 import org.opensocial.data.MySpaceNotification;
 import org.opensocial.data.MySpaceStatusMood;
 import org.opensocial.data.OpenSocialActivity;
@@ -253,6 +254,11 @@ public class OpenSocialHttpResponseMessage extends HttpResponseMessage {
   
   @SuppressWarnings("unchecked")
   public ArrayList<OpenSocialGroup> getGroupCollection() {
+    return osCollection;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public ArrayList<MySpaceComment> getCommentCollection() {
     return osCollection;
   }
 }

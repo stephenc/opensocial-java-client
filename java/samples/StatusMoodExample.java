@@ -34,6 +34,7 @@ public class StatusMoodExample {
     c.setProperty(OpenSocialClient.Property.RPC_ENDPOINT, null);
     c.setProperty(OpenSocialClient.Property.CONSUMER_SECRET, "20ab52223e684594a8050a8bfd4b06693ba9c9183ee24e1987be87746b1b03f8");
     c.setProperty(OpenSocialClient.Property.CONSUMER_KEY, "http://www.myspace.com/495182150");
+    c.setProperty(OpenSocialClient.Property.VIEWER_ID, "495184236");
     
     // Create Batch handler
     OpenSocialBatch batch = new OpenSocialBatch();
@@ -61,18 +62,35 @@ public class StatusMoodExample {
       
       // Fetch supportedMood 
       params = new HashMap<String, String>();
-      params.put("userId", "495184236");
-      params.put("groupId", "@supportedMood");
       params.put("moodId", "90");
       batch.addRequest(c.getStatusMoodService().getSupportedMoods(params), "fetchStatusMoodsSingle");
       // End Fetch StatusMood
       
       // Fetch supportedMoods 
+      batch.addRequest(c.getStatusMoodService().getSupportedMoods(), "fetchStatusMoods");
+      // End Fetch StatusMoods
+      
+      // Fetch statusMood history self
       params = new HashMap<String, String>();
       params.put("userId", "495184236");
-      params.put("groupId", "@supportedMood");
-      batch.addRequest(c.getStatusMoodService().getSupportedMoods(params), "fetchStatusMoods");
-      // End Fetch StatusMoods
+      params.put("groupId", "@self");
+      batch.addRequest(c.getStatusMoodService().getHistory(params), "fetchHistorySelf");
+      // End fetchStatusMood history self
+      
+      // Fetch statusMood history friends
+      params = new HashMap<String, String>();
+      params.put("userId", "495184236");
+      params.put("groupId", "@friends");
+      batch.addRequest(c.getStatusMoodService().getHistory(params), "fetchHistoryFriends");
+      // End fetchStatusMood friends
+      
+      // Fetch statusMood history specific friend
+      params = new HashMap<String, String>();
+      params.put("userId", "495184236");
+      params.put("groupId", "@friends");
+      params.put("friendId", "myspace.com.person.63129100");
+      batch.addRequest(c.getStatusMoodService().getHistory(params), "fetchHistoryFriend");
+      // End fetchStatusMood history specific friend
       
       batch.send(c);
       // Get a list of all response in request queue

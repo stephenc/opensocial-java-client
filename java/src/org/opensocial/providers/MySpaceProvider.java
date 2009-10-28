@@ -69,6 +69,8 @@ public class MySpaceProvider extends OpenSocialProvider {
     if(data.startsWith("{")) {
       JSONObject obj = new JSONObject(data);
       
+      
+      
       if(obj.has("entry") ){
         if(obj.getString("entry").startsWith("[")) {
           JSONArray tmp = new JSONArray();
@@ -76,9 +78,12 @@ public class MySpaceProvider extends OpenSocialProvider {
           int length = entry.length();
           
           for(int i=0; i< length; i++) {
-            tmp.put(entry.getJSONObject(i).getJSONObject(model));
+            if(entry.getJSONObject(i).has(model)) {
+              tmp.put(entry.getJSONObject(i).getJSONObject(model));
+            }else{
+              tmp.put(entry.getJSONObject(i));
+            }
           }
-          
           obj.put("entry", tmp);
           response.setOpenSocialDataString(obj.toString());
         }

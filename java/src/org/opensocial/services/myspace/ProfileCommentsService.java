@@ -16,7 +16,6 @@
 package org.opensocial.services.myspace;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -25,15 +24,15 @@ import org.json.JSONObject;
 import org.opensocial.client.OpenSocialHttpResponseMessage;
 import org.opensocial.client.OpenSocialRequest;
 import org.opensocial.client.OpenSocialRequestException;
-import org.opensocial.data.MySpaceStatusMood;
+import org.opensocial.data.MySpaceComment;
 import org.opensocial.services.OpenSocialService;
 
 /**
- * StatusMoodService - service class for statusmood endpoint.
+ * ProfileCommentsService - service class for profilecomments endpoint.
  * @author jle.edwards@gmail.com (Jesse Edwards)
  *
  */
-public class StatusMoodService extends OpenSocialService {
+public class ProfileCommentsService extends OpenSocialService {
   
   /**
    * getSupportedFields - sends request for supported fields.
@@ -46,53 +45,6 @@ public class StatusMoodService extends OpenSocialService {
   }
   
   /**
-   * getSupportedMoods - override for requesting without parameters
-   * @return OpenSocialRequest 
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest getSupportedMoods() 
-      throws OpenSocialRequestException {
-    Map<String, String> params = new HashMap<String, String>();
-    
-    return this.getSupportedMoods(params);
-  }
-  
-  /**
-   * getSupportedMoods() convience method for requesting 
-   * statusmood supported moods.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest 
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest getSupportedMoods(Map<String, String> params) 
-    throws OpenSocialRequestException {
-    
-    if(!params.containsKey("userId"))
-      params.put("userId", "@me");
-    
-    params.put("groupId", "@supportedMood");
-    
-    OpenSocialRequest r = new OpenSocialRequest("statusmood", 
-        "GET", "statusmood.getSupportedMoods");
-    _addParamsToRequest(r, params);
-    return r;
-  }
-  
-  /**
-   * getHistory() convience method for requesting statusmood history.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest 
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest getHistory(Map<String, String> params) {
-    OpenSocialRequest r = new OpenSocialRequest("statusmood", 
-        "GET", "statusmood.get");
-    params.put("history", "history");
-    _addParamsToRequest(r, params);
-    return r;
-  }
-  
-  /**
    * get - method used for fetching items in this service.
    * @param Map<String, String> params 
    * @return OpenSocialRequest
@@ -101,8 +53,13 @@ public class StatusMoodService extends OpenSocialService {
   public OpenSocialRequest get(Map<String, String> params) 
       throws OpenSocialRequestException {
     
-    OpenSocialRequest r = new OpenSocialRequest("statusmood", 
-        "GET", "statusmood.get");
+    if(!params.containsKey("groupId"))
+      params.put("groupId", "@self");
+    if(!params.containsKey("userId"))
+      params.put("groupId", "@me");
+    
+    OpenSocialRequest r = new OpenSocialRequest("profilecomments", 
+        "GET", "profilecomments.get");
     _addParamsToRequest(r, params);
     return r;
   }
@@ -115,11 +72,7 @@ public class StatusMoodService extends OpenSocialService {
    */
   public OpenSocialRequest update(Map<String, String> params) 
       throws OpenSocialRequestException {
-    
-    OpenSocialRequest r = new OpenSocialRequest("statusmood", 
-        "PUT", "statusmood.update");
-    _addParamsToRequest(r, params);
-    return r;
+    throw new OpenSocialRequestException("This method is not supported.");
   }
   
   /**
@@ -153,34 +106,29 @@ public class StatusMoodService extends OpenSocialService {
     super.formatResponse(response);
     
     String data = response.getOpenSocialDataString();
-    MySpaceStatusMood item = new MySpaceStatusMood();
-    ArrayList<MySpaceStatusMood> collection = new ArrayList<MySpaceStatusMood>();
+    MySpaceComment item = new MySpaceComment();
+    ArrayList<MySpaceComment> collection = new ArrayList<MySpaceComment>();
 
     try{
-      if(data.startsWith("[") && data.endsWith("]")) {
-        JSONArray entry = new JSONArray(data);
-        
-        for(int i=0; i<entry.length(); i++) {
-          item = new MySpaceStatusMood(entry.getJSONObject(i).toString());
-          collection.add(item);
-        }
-      }else if(data.startsWith("{") && data.endsWith("}")) {
+      if(data.startsWith("{") && data.endsWith("}")) {
         JSONObject obj = new JSONObject(data);
         
-        if(obj.has("entry") && obj.getString("entry").startsWith("{")) {
-          collection.add(new MySpaceStatusMood(obj.getString("entry")));
-        }else if(obj.has("entry") && obj.getString("entry").startsWith("[")) {
-          JSONArray entry = obj.getJSONArray("entry");
+        if(obj.has("entry")) {
+          if(obj.getString("entry").startsWith("[") && 
+              obj.getString("entry").endsWith("]")) {
           
-          for(int i=0; i<entry.length(); i++) {
-            item = new MySpaceStatusMood(entry.getJSONObject(i).toString());
-            collection.add(item);
+            JSONArray entry = obj.getJSONArray("entry");
+          
+            for(int i=0; i<entry.length(); i++) {
+              item = new MySpaceComment(entry.getJSONObject(i).toString());
+              collection.add(item);
+            }
+          }else {
+            collection.add(new MySpaceComment(obj.getString("entry")));
           }
-        } else{
-          collection.add(new MySpaceStatusMood(obj.toString()));
+          response.setCollection(collection);
         }
       }
-      response.setCollection(collection);
     }catch(JSONException e) {
       e.printStackTrace();
       System.out.println(data);
