@@ -38,6 +38,22 @@ public class MySpaceProvider extends OpenSocialProvider {
   
   public void preRequest(OpenSocialRequest request) {
     
+    if(request.getRpcMethod().equals("activities.create")){
+      this.fixMsTemplateParameters(request);
+    }
+  }
+  
+  private void fixMsTemplateParameters(OpenSocialRequest request) {
+    try{
+      JSONObject activity = new JSONObject(request.getParameter("activity"));
+      JSONArray params = activity.getJSONArray("templateParams");
+      JSONObject templateParams = new JSONObject();
+      templateParams.put("msParameters", params);
+      activity.put("templateParams", templateParams);
+      request.addParameter("activity", activity.toString());
+    }catch(JSONException e){
+      e.printStackTrace();
+    }
   }
   
   public void postRequest(OpenSocialRequest request, 

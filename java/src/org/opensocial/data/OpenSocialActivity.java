@@ -35,10 +35,10 @@ public class OpenSocialActivity extends OpenSocialModel {
   
   public void addTemplateParameter(String key, String value) {
     try{
-      if(!this.has("templateParameters")) {
-        this.put("templateParameters", new JSONArray());
+      if(!this.has("templateParams")) {
+        this.put("templateParams", new JSONArray());
       }
-      JSONArray templateParams = this.getJSONArray("templateParameters");
+      JSONArray templateParams = this.getJSONArray("templateParams");
       JSONObject kvp = new JSONObject();
       kvp.put("key", key);
       kvp.put("value", value);

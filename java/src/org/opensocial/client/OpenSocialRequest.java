@@ -122,7 +122,10 @@ public class OpenSocialRequest {
   public String getRestPathComponent() {
     return restPathComponent;
   }
-
+  
+  public String getRpcMethod() {
+    return rpcMethod;
+  }
   public String getRestMethod() {
     return restMethod;
   }

@@ -48,7 +48,7 @@ public class ActivitiesExample {
 		  params.put("groupId", OpenSocialClient.SELF);
 		  params.put("startIndex", "1");
 		  params.put("count", "5");
-		  batch.addRequest(c.getActivitiesService().get(params), "fetchActivitiesSelf");
+		  //batch.addRequest(c.getActivitiesService().get(params), "fetchActivitiesSelf");
 		  // End Fetch Activities Self
 		  
 		  // Fetch Activities Friends
@@ -57,17 +57,15 @@ public class ActivitiesExample {
 		  params.put("groupId", OpenSocialClient.FRIENDS);
 		  params.put("startIndex", "1");
 		  params.put("count", "5");
-		  batch.addRequest(c.getActivitiesService().get(params), "fetchActivitiesFriends");
+		  //batch.addRequest(c.getActivitiesService().get(params), "fetchActivitiesFriends");
 		  // End Fetch Activities Friends
 		  
 		  // Create Activitiy
 		  OpenSocialActivity activity = new OpenSocialActivity();
-		  activity.setField("title", "osapi java test title");
-		  activity.setField("body", "osapi java test body");
 		  
 		  // MySpace specific items
-		  activity.setField("titleId", "Template_4");
-		  activity.addTemplateParameter("friend", "495184236");
+		  activity.setField("titleId", "Template_1");
+		  activity.addTemplateParameter("service", "Java SDK");
 		  activity.addTemplateParameter("content", "hello there this is my template parama content");
 		  
 		  params = new HashMap<String, String>();
@@ -79,7 +77,7 @@ public class ActivitiesExample {
       // End Create Activitiy
 
       //supportedFields
-      batch.addRequest(c.getActivitiesService().getSupportedFields(), "supportedFields");
+      //batch.addRequest(c.getActivitiesService().getSupportedFields(), "supportedFields");
       
       batch.send(c);
       
