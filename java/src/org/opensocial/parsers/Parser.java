@@ -3,7 +3,7 @@ package org.opensocial.parsers;
 import java.util.Map;
 
 import org.opensocial.Response;
-import org.opensocial.data.Model;
+import org.opensocial.models.Model;
 
 public interface Parser {
 

@@ -1,7 +1,7 @@
 package org.opensocial;
 
-import org.opensocial.data.Model;
 import org.opensocial.http.HttpResponseMessage;
+import org.opensocial.models.Model;
 import org.opensocial.parsers.JsonParser;
 import org.opensocial.parsers.Parser;
 
@@ -70,16 +70,16 @@ public class Response {
     return isFiltered;
   }
 
-  public List<Model> getEntries() {
-    return entries;
+  public <T extends Model> List<T> getEntries() {
+    return (List<T>) entries;
   }
 
-  public Model getEntry() {
+  public <T extends Model> T getEntry() {
     if (entries == null || entries.size() == 0) {
       return null;
     }
 
-    return entries.get(0);
+    return (T) entries.get(0);
   }
 
   public void setStartIndex(Object startIndex) {

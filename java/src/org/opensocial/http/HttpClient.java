@@ -34,8 +34,12 @@ public class HttpClient implements net.oauth.http.HttpClient {
       return new HttpResponseMessage(message.method, message.url,
           connection.getResponseCode(), connection.getInputStream());
     } catch (IOException e) {
-      return new HttpResponseMessage(message.method, message.url,
-          connection.getResponseCode());
+      if (connection != null) {
+        return new HttpResponseMessage(message.method, message.url,
+            connection.getResponseCode());
+      } else {
+        throw e;
+      }
     }
   }
 

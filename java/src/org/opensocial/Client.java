@@ -2,7 +2,6 @@ package org.opensocial;
 
 import net.oauth.http.HttpMessage;
 
-import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.opensocial.auth.AuthScheme;
@@ -11,6 +10,8 @@ import org.opensocial.http.HttpResponseMessage;
 import org.opensocial.providers.Provider;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,8 +20,6 @@ public class Client {
   private Provider provider;
   private AuthScheme authScheme;
   private HttpClient httpClient;
-
-  private static final Logger logger = Logger.getLogger("org.opensocial");
 
   public Client(Provider provider, AuthScheme authScheme) {
     this.provider = provider;
@@ -80,33 +79,15 @@ public class Client {
     Map<String, String> requestHeaders = new HashMap<String, String>();
     requestHeaders.put(HttpMessage.CONTENT_TYPE, provider.getContentType());
 
-    JSONArray requestArray = new JSONArray();
-    for (Map.Entry<String, Request> requestEntry : requests.entrySet()) {
-      JSONObject request = new JSONObject();
-      request.put("id", requestEntry.getKey());
-      request.put("method", requestEntry.getValue().getRpcMethod());
-
-      JSONObject requestParams = new JSONObject();
-      if (requestEntry.getValue().getGuid() != null) {
-        requestParams.put("userId", requestEntry.getValue().getGuid());
-      }
-      if (requestEntry.getValue().getSelector() != null) {
-        requestParams.put("groupId", requestEntry.getValue().getSelector());
-      }
-
-      request.put("params", requestParams);
-      requestArray.add(request);
-    }
-
     HttpMessage message = authScheme.getHttpMessage(provider, "POST",
-        buildRpcUrl(), requestHeaders, requestArray.toJSONString());
+        buildRpcUrl(), requestHeaders, buildRpcPayload(requests));
 
     HttpResponseMessage responseMessage = httpClient.execute(message);
 
-    logger.debug("Request URL: " + responseMessage.getUrl().toExternalForm());
-    logger.debug("Request body: " + requestArray.toJSONString());
-    logger.debug("Status code: " + responseMessage.getStatusCode());
-    logger.debug("Response: " + responseMessage.getResponse());
+    System.out.println("Request URL: " + responseMessage.getUrl().toString());
+    System.out.println("Request body: " + buildRpcPayload(requests));
+    System.out.println("Status code: " + responseMessage.getStatusCode());
+    System.out.println("Response: " + responseMessage.getResponse());
 
     Map<String, Response> responses = Response.parseRpcResponse(requests,
         responseMessage, provider.getVersion());
@@ -120,18 +101,62 @@ public class Client {
     requestHeaders.put(HttpMessage.CONTENT_TYPE, provider.getContentType());
 
     HttpMessage message = authScheme.getHttpMessage(provider,
-        request.getRestMethod(), buildRestUrl(request), requestHeaders, null);
+        request.getRestMethod(), buildRestUrl(request), requestHeaders,
+        buildRestPayload(request));
 
     HttpResponseMessage responseMessage = httpClient.execute(message);
 
-    logger.debug("Request URL: " + responseMessage.getUrl().toString());
-    logger.debug("Status code: " + responseMessage.getStatusCode());
-    logger.debug("Response: " + responseMessage.getResponse());
+    System.out.println("Request method: " + responseMessage.getMethod());
+    System.out.println("Request URL: " + responseMessage.getUrl().toString());
+    System.out.println("Request body: " + buildRestPayload(request));
+    System.out.println("Status code: " + responseMessage.getStatusCode());
+    System.out.println("Response: " + responseMessage.getResponse());
 
     Response response = Response.parseRestResponse(request, responseMessage,
         provider.getVersion());
 
     return response;
+  }
+
+  private String buildRpcUrl() {
+    StringBuilder builder = new StringBuilder(provider.getRpcEndpoint());
+
+    // Remove trailing forward slash
+    if (builder.charAt(builder.length() - 1) == '/') {
+      builder.deleteCharAt(builder.length() - 1);
+    }
+
+    return builder.toString();
+  }
+
+  private String buildRpcPayload(Map<String, Request> requests) {
+    JSONArray requestArray = new JSONArray();
+    for (Map.Entry<String, Request> requestEntry : requests.entrySet()) {
+      JSONObject request = new JSONObject();
+      request.put("id", requestEntry.getKey());
+      request.put("method", requestEntry.getValue().getRpcMethod());
+
+      JSONObject requestParams = new JSONObject();
+      if (requestEntry.getValue().getGuid() != null) {
+        requestParams.put("userId", requestEntry.getValue().getGuid());
+      }
+      if (requestEntry.getValue().getSelector() != null) {
+        requestParams.put("groupId", requestEntry.getValue().getSelector());
+      }
+      if (requestEntry.getValue().getAppId() != null) {
+        requestParams.put("appId", requestEntry.getValue().getAppId());
+      }
+
+      for (Map.Entry<String, Object> parameter :
+          requestEntry.getValue().getRpcPayloadParameters().entrySet()) {
+        requestParams.put(parameter.getKey(), parameter.getValue());
+      }
+
+      request.put("params", requestParams);
+      requestArray.add(request);
+    }
+
+    return requestArray.toJSONString();
   }
 
   private String buildRestUrl(Request request) {
@@ -148,6 +173,9 @@ public class Client {
         } else if (tag.equals("selector") && request.getSelector() != null) {
           builder.append(request.getSelector());
           builder.append("/");
+        } else if (tag.equals("appid") && request.getAppId() != null) {
+          builder.append(request.getAppId());
+          builder.append("/");
         }
       } else {
         builder.append(component);
@@ -158,17 +186,44 @@ public class Client {
     // Remove trailing forward slash
     builder.deleteCharAt(builder.length() - 1);
 
-    return builder.toString();
-  }
+    // Append query string parameters
+    Map<String, String> parameters = request.getRestQueryStringParameters();
+    if (parameters != null && parameters.size() > 0) {
+      boolean runOnce = false;
 
-  private String buildRpcUrl() {
-    StringBuilder builder = new StringBuilder(provider.getRpcEndpoint());
+      for (Map.Entry<String, String> parameter: parameters.entrySet()) {
+        if (!runOnce) {
+          builder.append("?");
+          runOnce = true;
+        } else {
+          builder.append("&");
+        }
 
-    // Remove trailing forward slash
-    if (builder.charAt(builder.length() - 1) == '/') {
-      builder.deleteCharAt(builder.length() - 1);
+        try {
+          builder.append(URLEncoder.encode(parameter.getKey(), "UTF-8"));
+          builder.append("=");
+          builder.append(URLEncoder.encode(parameter.getValue(), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+          // Ignore
+        }
+      }
     }
 
     return builder.toString();
+  }
+
+  private String buildRestPayload(Request request) {
+    Map<String, Object> parameters = request.getRestPayloadParameters();
+
+    if (parameters == null || parameters.size() == 0) {
+      return null;
+    }
+
+    JSONObject payload = new JSONObject();
+    for (Map.Entry<String, Object> parameter : parameters.entrySet()) {
+      payload.put(parameter.getKey(), parameter.getValue());
+    }
+
+    return payload.toJSONString();
   }
 }

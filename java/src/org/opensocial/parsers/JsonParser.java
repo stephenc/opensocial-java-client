@@ -6,7 +6,7 @@ import org.json.simple.parser.ContainerFactory;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.opensocial.Response;
-import org.opensocial.data.Model;
+import org.opensocial.models.Model;
 
 import java.util.HashMap;
 import java.util.List;
@@ -157,6 +157,8 @@ public class JsonParser implements Parser {
             Map currentEntry = (Map) ((List) entry).get(i);
             if (currentEntry.containsKey("person")) {
               response.getEntries().add((Model) currentEntry.get("person"));
+            } else if (currentEntry.containsKey("activity")) {
+              response.getEntries().add((Model) currentEntry.get("activity"));
             }
           }
         }

@@ -1,9 +1,11 @@
 package org.opensocial.http;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 public class HttpResponseMessage extends net.oauth.http.HttpResponseMessage {
@@ -38,6 +40,22 @@ public class HttpResponseMessage extends net.oauth.http.HttpResponseMessage {
 
   public URL getUrl() {
     return url;
+  }
+
+  /**
+   * OAuth needs the response as InputStream.
+   */
+  @Override
+  protected InputStream openBody() {
+    if (response != null) {
+      try {
+        return new ByteArrayInputStream(response.getBytes("UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+        // Ignore
+      }
+    }
+
+    return null;
   }
 
   private void setResponse(InputStream in) {

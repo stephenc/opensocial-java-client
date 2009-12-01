@@ -1,0 +1,101 @@
+<project name="OpenSocial Client Library" default="compile" basedir=".">
+
+  <property name="app.name" value="opensocial"/>
+
+  <!-- Paths for source code and compiled files -->
+  <property name="src.home" value="${basedir}/src"/>
+  <property name="test.home" value="${basedir}/test"/>
+  <property name="build.home" value="${basedir}/bin"/>
+
+  <!-- Path for sample application source and binaries -->
+  <property name="demos-src.home" value="${basedir}/demos"/>
+  <property name="demos-bin.home" value="${demos-src.home}/bin"/>
+
+  <!-- Path for dependent libraries -->
+  <property name="lib.home" value="${basedir}/lib"/>
+
+  <!-- Path for Javadoc-generated files -->
+  <property name="docs.home" value="${basedir}/docs"/>
+
+  <!-- Path for packaged distribution files -->
+  <property name="dist.home" value="${basedir}/dist"/>
+
+  <path id="compile-src.classpath">
+    <fileset dir="${lib.home}">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <path id="compile-demos.classpath">
+    <fileset dir="${lib.home}">
+      <include name="*.jar"/>
+    </fileset>
+    <fileset dir="${dist.home}">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <path id="test.classpath">
+    <pathelement location="${src.home}"/>
+    <pathelement location="${test.home}"/>
+    <fileset dir="${lib.home}">
+      <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <target name="compile" description="Compile Java sources">
+    <mkdir dir="${build.home}"/>
+    <javac destdir="${build.home}" debug="true" debuglevel="lines,vars,source">
+      <classpath refid="compile-src.classpath"/>
+      <src path="${src.home}"/>
+      <src path="${test.home}"/>
+    </javac>
+  </target>
+
+  <target name="compile-samples" depends="dist" description="Compile sample applications">
+    <mkdir dir="${demos-bin.home}"/>
+    <javac destdir="${demos-bin.home}" debug="true" debuglevel="lines,vars,source">
+      <classpath refid="compile-demos.classpath"/>
+      <src path="${demos-src.home}"/>
+    </javac>
+  </target>
+
+  <target name="dist" depends="compile,javadoc" description="Create packaged distribution files">
+    <mkdir dir="${dist.home}"/>
+    <jar jarfile="${dist.home}/${app.name}.jar">
+      <fileset dir="${src.home}" />
+      <fileset dir="${build.home}"/>
+    </jar>
+  </target>
+
+  <target name="javadoc" depends="compile" description="Create Javadoc-generated files">
+    <delete>
+      <fileset dir="${docs.home}"/>
+    </delete>
+    <javadoc sourcepath="${src.home}" destdir="${docs.home}" packagenames="*">
+      <classpath refid="compile-src.classpath"/>
+    </javadoc>
+  </target>
+
+  <target name="test" depends="compile" description="Run JUnit test suites">
+    <junit printsummary="false" haltonfailure="true">
+      <formatter type="brief" usefile="false" />
+      <batchtest>
+        <fileset dir="${build.home}" includes="**/*Test.class" />
+      </batchtest>
+      <classpath>
+        <fileset dir="${lib.home}">
+          <include name="*.jar"/>
+        </fileset>
+      </classpath>
+      <classpath location="${build.home}"/>
+    </junit>
+  </target>
+
+  <target name="clean">
+    <delete dir="${demos-bin.home}"/>
+    <delete dir="${build.home}"/>
+    <delete dir="${dist.home}"/>
+  </target>
+
+</project>
