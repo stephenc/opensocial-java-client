@@ -15,7 +15,7 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 
-public abstract class OAuthScheme {
+abstract class OAuthScheme {
 
   protected String consumerKey;
   protected String consumerSecret;

@@ -1,0 +1,50 @@
+OpenSocial Android client library -- friendlist demo
+
+friendlist is a simple sample application designed to introduce the OpenSocial
+client library for Android. It includes a single Activity which first prompts
+the user to choose one from a list of OpenSocial providers, then uses three-
+legged OAuth to authenticate the user and fetch all friends from the selected
+provider. The list of friends is rendered directly in the Android application
+using the included View. The user can tap a name to see all information
+available for that friend.
+
+This is an Android application, and you will need to download the Android SDK
+in order to build and run it:
+
+1. If you haven't already, download the latest Android SDK from
+   http://developer.android.com/sdk/index.html and unzip it.
+2. Open build.properties and update the sdk-location property to point to the
+   location of your downloaded SDK.
+3. OPTIONAL: If necessary, open default.properties and update the SDK target
+   from the default level.
+4. To run the application in the Android emulator, first launch the emulator
+   (see http://developer.android.com/guide/developing/tools/emulator.html if
+   you're new to Android), then open a new command line window, navigate to
+   the friendlist directory, and execute 'ant install' -- you should see
+   "OpenSocial Friend List" in the set of applications. From here, you can
+   invoke 'ant reinstall' to reinstall the application or 'ant uninstall' to
+   remove it from the application set.
+
+
+- File contents:
+
+. AndroidManifest.xml:
+  Standard AndroidManifest which declares FriendListActivity and
+  OpenSocialChooserActivity and requests INTERNET permission.
+
+. build.properties:
+  Properties file for ant.
+
+. build.xml:
+  Build file for ant.
+
+. default.properties:
+  Specifies Android target level.
+
+. src/org/opensocial/android/demos/friendlist/FriendListActivity.java:
+  Subclass of OpenSocialActivity; displays a list of OpenSocial providers to
+  select from, then fetches the user's friends once the user is authenticated
+  to the selected provider.
+
+. src/org/opensocial/android/demos/friendlist/FriendListView.java:
+  Subclass of View; displays the user's friends.

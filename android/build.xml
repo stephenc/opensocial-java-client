@@ -1,0 +1,67 @@
+<project name="OpenSocial Client Library for Android" default="compile" basedir=".">
+
+  <property name="app.name" value="opensocial-android"/>
+
+  <!-- Paths for source code and compiled files -->
+  <property name="src.home" value="${basedir}/src"/>
+  <property name="build.home" value="${basedir}/bin"/>
+
+  <!-- Path for dependent libraries -->
+  <property name="lib.home" value="${basedir}/lib"/>
+
+  <!-- Path for packaged distribution files -->
+  <property name="dist.home" value="${basedir}/dist"/>
+
+  <!-- The build.properties file can be created by you and is never touched
+       by the 'android' tool. This is the place to change some of the default property values
+       used by the Ant rules.
+       Here are some properties you may want to change:
+
+       application-package
+           the name of your application package as defined in the manifest. Used by the
+           'uninstall' rule.
+       source-folder
+           the name of the source folder. Default is 'src'.
+       out-folder
+           the name of the output folder. Default is 'bin'.
+
+       Properties related to the SDK location or the project target should be updated
+       using the 'android' tool with the 'update' action.
+
+       This file is an integral part of the build system for your application and
+       should be checked in in Version Control Systems.
+
+       -->
+  <property file="build.properties"/>
+
+  <path id="compile-src.classpath">
+    <fileset dir="${lib.home}">
+      <include name="*.jar"/>
+    </fileset>
+    <fileset dir="${sdk-location}/platforms/android-${release-target}">
+      <include name="android.jar"/>
+    </fileset>
+  </path>
+
+  <target name="compile" description="Compile Java sources">
+    <mkdir dir="${build.home}"/>
+    <javac destdir="${build.home}" debug="true" debuglevel="lines,vars,source">
+      <classpath refid="compile-src.classpath"/>
+      <src path="${src.home}"/>
+    </javac>
+  </target>
+
+  <target name="dist" depends="compile" description="Create packaged distribution files">
+    <mkdir dir="${dist.home}"/>
+    <jar jarfile="${dist.home}/${app.name}.jar">
+      <fileset dir="${src.home}" />
+      <fileset dir="${build.home}"/>
+    </jar>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build.home}"/>
+    <delete dir="${dist.home}"/>
+  </target>
+
+</project>
