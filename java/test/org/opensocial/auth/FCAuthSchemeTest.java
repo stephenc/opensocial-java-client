@@ -12,20 +12,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package org.opensocial.auth;
+
+import static org.junit.Assert.assertEquals;
 
 import net.oauth.http.HttpMessage;
 
+import org.junit.Test;
 import org.opensocial.RequestException;
-import org.opensocial.providers.Provider;
+import org.opensocial.providers.OrkutProvider;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
-public interface AuthScheme {
+public class FCAuthSchemeTest {
 
-  public HttpMessage getHttpMessage(Provider provider, String method,
-      String url, Map<String, String> headers, String body) throws
-      RequestException, IOException;
+  private static final String TOKEN = "TOKEN";
+
+  @Test
+  public void getHttpMessage() throws RequestException,
+      IOException {
+    final String url = "http://example.org/test";
+    final Map<String, String> headers = new HashMap<String, String>();
+
+    FCAuthScheme authScheme = new FCAuthScheme(TOKEN);
+
+    HttpMessage message = authScheme.getHttpMessage(new OrkutProvider(), "GET",
+        url, headers, null);
+    assertEquals(url + "?fcauth=" + TOKEN, message.url.toString());
+  }
 }

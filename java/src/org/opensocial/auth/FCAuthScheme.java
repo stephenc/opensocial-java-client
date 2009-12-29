@@ -12,20 +12,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+
 package org.opensocial.auth;
 
-import net.oauth.http.HttpMessage;
+public class FCAuthScheme extends SecurityTokenScheme {
 
-import org.opensocial.RequestException;
-import org.opensocial.providers.Provider;
-
-import java.io.IOException;
-import java.util.Map;
-
-public interface AuthScheme {
-
-  public HttpMessage getHttpMessage(Provider provider, String method,
-      String url, Map<String, String> headers, String body) throws
-      RequestException, IOException;
+  public FCAuthScheme(String token) {
+    super("fcauth", token);
+  }
 }
