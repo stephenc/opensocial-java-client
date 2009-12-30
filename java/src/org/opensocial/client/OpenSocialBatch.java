@@ -82,11 +82,10 @@ public class OpenSocialBatch {
    *
    * @param  client OpenSocialClient object with REST_BASE_URI or RPC_ENDPOINT
    *                properties set
-   * @return Object encapsulating the data requested from the container
    * @throws OpenSocialRequestException
    * @throws IOException
    */
-  public OpenSocialResponse send(OpenSocialClient client) 
+  public void send(OpenSocialClient client) 
       throws OpenSocialRequestException, IOException {
     // Prevent the need to pass client to submitREST & submitRPC
     this.client = client;
@@ -153,7 +152,6 @@ public class OpenSocialBatch {
       throw new OpenSocialRequestException(
           "REST base URI or RPC endpoint required");
     }
-    return new OpenSocialResponse();
   }
 
   /**
