@@ -16,25 +16,16 @@
 package org.opensocial.services;
 
 import org.opensocial.Request;
-import org.opensocial.models.Person;
+import org.opensocial.models.Group;
 
-public class PeopleService extends Service {
+public class GroupService extends Service {
 
-  private static final String restTemplate = "people/{guid}/{selector}/{pid}";
+  private static final String restTemplate = "groups/{guid}";
 
   public static Request retrieve() {
-    return retrieve(ME);
-  }
-
-  public static Request retrieve(String guid) {
-    return retrieve(guid, SELF);
-  }
-
-  public static Request retrieve(String guid, String selector) {
-    Request request = new Request(restTemplate, "people.get", "GET");
-    request.setModelClass(Person.class);
-    request.setSelector(selector);
-    request.setGuid(guid);
+    Request request = new Request(restTemplate, "groups.get", "GET");
+    request.setModelClass(Group.class);
+    request.setGuid(ME);
 
     return request;
   }

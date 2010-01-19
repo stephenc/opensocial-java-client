@@ -29,7 +29,7 @@ public class PeopleServiceTest {
 
     testCommonAttributes(request);
     testCommonRetrieveAttributes(request);
-    assertTrue(request.getGuid().equals(Service.VIEWER));
+    assertTrue(request.getGuid().equals(Service.ME));
     assertTrue(request.getSelector().equals(Service.SELF));
     
   }
@@ -47,11 +47,11 @@ public class PeopleServiceTest {
 
   @Test
   public void retrieveWithTwoArguments() {
-    Request request = PeopleService.retrieve(Service.VIEWER, Service.FRIENDS);
+    Request request = PeopleService.retrieve(Service.ME, Service.FRIENDS);
 
     testCommonAttributes(request);
     testCommonRetrieveAttributes(request);
-    assertTrue(request.getGuid().equals(Service.VIEWER));
+    assertTrue(request.getGuid().equals(Service.ME));
     assertTrue(request.getSelector().equals(Service.FRIENDS));
   }
 

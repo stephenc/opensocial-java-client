@@ -113,7 +113,12 @@ public class Client {
   private Response submitRestRequest(Request request) throws RequestException,
       IOException{
     Map<String, String> requestHeaders = new HashMap<String, String>();
-    requestHeaders.put(HttpMessage.CONTENT_TYPE, provider.getContentType());
+    if (request.getCustomContentType() != null) {
+      requestHeaders.put(HttpMessage.CONTENT_TYPE,
+          request.getCustomContentType());
+    } else {
+      requestHeaders.put(HttpMessage.CONTENT_TYPE, provider.getContentType());
+    }
 
     HttpMessage message = authScheme.getHttpMessage(provider,
         request.getRestMethod(), buildRestUrl(request), requestHeaders,
@@ -152,14 +157,17 @@ public class Client {
       request.put("method", requestEntry.getValue().getRpcMethod());
 
       JSONObject requestParams = new JSONObject();
+      if (requestEntry.getValue().getAppId() != null) {
+        requestParams.put("appId", requestEntry.getValue().getAppId());
+      }
       if (requestEntry.getValue().getGuid() != null) {
         requestParams.put("userId", requestEntry.getValue().getGuid());
       }
+      if (requestEntry.getValue().getGroupId() != null) {
+        requestParams.put("groupId", requestEntry.getValue().getGroupId());
+      }
       if (requestEntry.getValue().getSelector() != null) {
         requestParams.put("groupId", requestEntry.getValue().getSelector());
-      }
-      if (requestEntry.getValue().getAppId() != null) {
-        requestParams.put("appId", requestEntry.getValue().getAppId());
       }
 
       for (Map.Entry<String, Object> parameter :
@@ -182,15 +190,32 @@ public class Client {
       if (component.startsWith("{") && component.endsWith("}")) {
         String tag = component.substring(1, component.length()-1);
 
-        if (tag.equals("guid") && request.getGuid() != null) {
+        if (tag.equals("appid") && request.getAppId() != null) {
+          builder.append(request.getAppId());
+          builder.append("/");
+        } else if (tag.equals("guid") && request.getGuid() != null) {
           builder.append(request.getGuid());
+          builder.append("/");
+        } else if (tag.equals("moodId") && request.getMoodId() != null) {
+          builder.append(request.getMoodId());
+          builder.append("/");
+        } else if (tag.equals("itemId") && request.getItemId() != null) {
+          builder.append(request.getItemId());
+          builder.append("/");
+        } else if (tag.equals("albumId") && request.getAlbumId() != null) {
+          builder.append(request.getAlbumId());
+          builder.append("/");
+        } else if (tag.equals("groupId") && request.getGroupId() != null) {
+          builder.append(request.getGroupId());
           builder.append("/");
         } else if (tag.equals("selector") && request.getSelector() != null) {
           builder.append(request.getSelector());
           builder.append("/");
-        } else if (tag.equals("appid") && request.getAppId() != null) {
-          builder.append(request.getAppId());
+        } else if (tag.equals("friendId") && request.getFriendId() != null) {
+          builder.append(request.getFriendId());
           builder.append("/");
+        } else if (tag.equals("history") && request.getHistory()) {
+          builder.append("history/");
         }
       } else {
         builder.append(component);
@@ -228,6 +253,10 @@ public class Client {
   }
 
   private String buildRestPayload(Request request) {
+    if (request.getRawPayload() != null) {
+      return request.getRawPayload();
+    }
+
     Map<String, Object> parameters = request.getRestPayloadParameters();
 
     if (parameters == null || parameters.size() == 0) {

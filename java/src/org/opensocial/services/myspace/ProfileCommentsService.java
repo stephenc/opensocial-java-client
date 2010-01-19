@@ -13,28 +13,22 @@
  * limitations under the License.
  */
 
-package org.opensocial.services;
+package org.opensocial.services.myspace;
 
 import org.opensocial.Request;
-import org.opensocial.models.Person;
+import org.opensocial.models.myspace.Comment;
+import org.opensocial.services.Service;
 
-public class PeopleService extends Service {
+public class ProfileCommentsService extends Service {
 
-  private static final String restTemplate = "people/{guid}/{selector}/{pid}";
+  private static final String restTemplate =
+    "profilecomments/{guid}/{groupId}";
 
   public static Request retrieve() {
-    return retrieve(ME);
-  }
-
-  public static Request retrieve(String guid) {
-    return retrieve(guid, SELF);
-  }
-
-  public static Request retrieve(String guid, String selector) {
-    Request request = new Request(restTemplate, "people.get", "GET");
-    request.setModelClass(Person.class);
-    request.setSelector(selector);
-    request.setGuid(guid);
+    Request request = new Request(restTemplate, null, "GET");
+    request.setModelClass(Comment.class);
+    request.setGroupId(SELF);
+    request.setGuid(ME);
 
     return request;
   }

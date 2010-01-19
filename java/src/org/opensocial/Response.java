@@ -30,6 +30,7 @@ public class Response {
   private Long startIndex;
   private Long totalResults;
   private Long itemsPerPage;
+  private String statusLink;
   private Boolean isFiltered;
   private List<Model> entries;
 
@@ -81,6 +82,10 @@ public class Response {
     return itemsPerPage;
   }
 
+  public String getStatusLink() {
+    return statusLink;
+  }
+
   public boolean isFiltered() {
     return isFiltered;
   }
@@ -107,6 +112,10 @@ public class Response {
 
   public void setItemsPerPage(Object itemsPerPage) {
     this.itemsPerPage = getLongValue(itemsPerPage);
+  }
+
+  public void setStatusLink(Object statusLink) {
+    this.statusLink = (String) statusLink;
   }
 
   public void setIsFiltered(Object isFiltered) {

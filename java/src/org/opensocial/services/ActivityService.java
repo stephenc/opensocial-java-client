@@ -28,9 +28,9 @@ public class ActivityService extends Service {
 
   public static Request create(Activity activity) {
     Request request = new Request(restTemplate, "activities.create", "POST");
-    request.setSelector(ActivityService.SELF);
-    request.setGuid(ActivityService.VIEWER);
-    request.setAppId(ActivityService.APP);
+    request.setSelector(SELF);
+    request.setAppId(APP);
+    request.setGuid(ME);
 
     // Add RPC payload parameters
     Map activityParameter = new HashMap();
@@ -50,8 +50,8 @@ public class ActivityService extends Service {
   public static Request retrieve() {
     Request request = new Request(restTemplate, "activities.get", "GET");
     request.setModelClass(Activity.class);
-    request.setSelector(ActivityService.SELF);
-    request.setGuid(ActivityService.VIEWER);
+    request.setSelector(SELF);
+    request.setGuid(ME);
 
     return request;
   }

@@ -80,8 +80,8 @@ abstract class OAuthScheme {
         } catch (java.io.UnsupportedEncodingException e) {
           // Ignore exception
         }
-      } else if (message.getHeader(HttpMessage.CONTENT_TYPE)
-          .equals("application/x-www-form-urlencoded")){
+      } else if (message.getHeader(HttpMessage.CONTENT_TYPE).equals(
+          "application/x-www-form-urlencoded")){
         message.addParameter(body, "");
       }
     }

@@ -13,13 +13,33 @@
  * limitations under the License.
  */
 
-package org.opensocial.services;
+package org.opensocial.models.myspace;
 
-public class Service {
+import java.util.Map;
 
-  protected static final String ME = "@me";
-  protected static final String APP = "@app";
-  protected static final String SELF = "@self";
-  protected static final String VIEWER = "@viewer";
-  protected static final String FRIENDS = "@friends";
+import org.opensocial.models.Model;
+
+public class Comment extends Model {
+
+  public String getId() {
+    return getFieldAsString("commentId");
+  }
+
+  public String getBody() {
+    return getFieldAsString("body");
+  }
+
+  public String getAuthorId() {
+    Map author = getFieldAsMap("author");
+
+    if (author == null || !author.containsKey("id")) {
+      return null;
+    }
+
+    return (String) author.get("id");
+  }
+
+  public String getPostedDate() {
+    return getFieldAsString("postedDate");
+  }
 }

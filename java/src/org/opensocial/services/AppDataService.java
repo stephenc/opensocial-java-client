@@ -31,9 +31,9 @@ public class AppDataService extends Service {
   public static Request retrieve() {
     Request request = new Request(restTemplate, "appdata.get", "GET");
     request.setModelClass(AppData.class);
-    request.setSelector(Service.SELF);
-    request.setGuid(Service.VIEWER);
-    request.setAppId(Service.APP);
+    request.setSelector(SELF);
+    request.setAppId(APP);
+    request.setGuid(ME);
 
     return request;
   }
@@ -47,9 +47,9 @@ public class AppDataService extends Service {
 
   public static Request update(Map<String, String> data) {
     Request request = new Request(restTemplate, "appdata.update", "PUT");
-    request.setSelector(AppDataService.SELF);
-    request.setGuid("@viewer");
-    request.setAppId(AppDataService.APP);
+    request.setSelector(SELF);
+    request.setAppId(APP);
+    request.setGuid(VIEWER);
 
     // Add RPC payload parameters
     List<String> fields = new ArrayList<String>(data.size());
@@ -94,9 +94,9 @@ public class AppDataService extends Service {
 
   public static Request delete(List<String> keys) {
     Request request = new Request(restTemplate, "appdata.delete", "DELETE");
-    request.setSelector(Service.SELF);
-    request.setGuid(Service.VIEWER);
-    request.setAppId(Service.APP);
+    request.setSelector(SELF);
+    request.setAppId(APP);
+    request.setGuid(ME);
 
     // Add RPC parameters
     request.addRpcPayloadParameter("fields", keys);

@@ -13,13 +13,15 @@
  * limitations under the License.
  */
 
-package org.opensocial.services;
+package org.opensocial.models;
 
-public class Service {
+public class Group extends Model {
 
-  protected static final String ME = "@me";
-  protected static final String APP = "@app";
-  protected static final String SELF = "@self";
-  protected static final String VIEWER = "@viewer";
-  protected static final String FRIENDS = "@friends";
+  public String getId() {
+    return getFieldAsString("id");
+  }
+
+  public String getTitle() {
+    return getFieldAsString("title");
+  }
 }

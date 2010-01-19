@@ -83,8 +83,7 @@ public class PeopleTest {
     try {
       Client client = new Client(new OrkutProvider(useRest),
           new OAuth2LeggedScheme(ORKUT_KEY, ORKUT_SECRET, ORKUT_ID));
-      Request request = PeopleService.retrieve(PeopleService.VIEWER,
-          PeopleService.FRIENDS);
+      Request request = PeopleService.retrieve("@me", "@friends");
       Response response = client.send(request);
 
       Person self = response.getEntry();

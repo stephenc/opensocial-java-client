@@ -52,14 +52,6 @@
     </javac>
   </target>
 
-  <target name="compile-samples" depends="dist" description="Compile sample applications">
-    <mkdir dir="${demos-bin.home}"/>
-    <javac destdir="${demos-bin.home}" debug="true" debuglevel="lines,vars,source">
-      <classpath refid="compile-demos.classpath"/>
-      <src path="${demos-src.home}"/>
-    </javac>
-  </target>
-
   <target name="dist" depends="compile,javadoc" description="Create packaged distribution files">
     <mkdir dir="${dist.home}"/>
     <jar jarfile="${dist.home}/${app.name}.jar">

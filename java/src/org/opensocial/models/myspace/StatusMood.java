@@ -13,13 +13,29 @@
  * limitations under the License.
  */
 
-package org.opensocial.services;
+package org.opensocial.models.myspace;
 
-public class Service {
+import org.opensocial.models.Model;
 
-  protected static final String ME = "@me";
-  protected static final String APP = "@app";
-  protected static final String SELF = "@self";
-  protected static final String VIEWER = "@viewer";
-  protected static final String FRIENDS = "@friends";
+public class StatusMood extends Model {
+
+  public String getStatus() {
+    return getFieldAsString("status");
+  }
+
+  public String getMoodId() {
+    return getFieldAsString("moodId");
+  }
+
+  public String getMoodName() {
+    return getFieldAsString("moodName");
+  }
+
+  public void setStatus(String status) {
+    put("status", status);
+  }
+
+  public void setMoodId(long moodId) {
+    put("moodId", moodId);
+  }
 }

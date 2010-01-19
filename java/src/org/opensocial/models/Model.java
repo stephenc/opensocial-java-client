@@ -15,6 +15,8 @@
 
 package org.opensocial.models;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,7 +56,26 @@ public class Model extends JSONObject {
   }
 
   public String getFieldAsString(String fieldName) {
-    return (String) get(fieldName);
+    try {
+      return (String) get(fieldName);
+    } catch (ClassCastException e) {
+      return "" + get(fieldName);
+    }
+  }
+
+  protected String getTemplateParameter(String key) {
+    if (containsKey("templateParameters")) {
+      List<Map<String, String>> templateParameters =
+        getFieldAsList("templateParameters");
+
+      for (Map<String, String> parameter : templateParameters) {
+        if (parameter.get("key").equals(key)) {
+          return parameter.get("value");
+        }
+      }
+    }
+
+    return null;
   }
 
   public boolean isFieldMultikeyed(String fieldName) {
@@ -74,5 +95,35 @@ public class Model extends JSONObject {
     }
 
     return false;
+  }
+
+  protected void addToListField(String fieldName, Object item) {
+    List<Object> listField = null;
+
+    if (containsKey(fieldName)) {
+      listField = getFieldAsList(fieldName);
+    } else {
+      listField = new ArrayList<Object>();
+    }
+
+    listField.add(item);
+    put(fieldName, listField);
+  }
+
+  protected void addTemplateParameter(String key, String value) {
+    List<Map<String, String>> templateParameters = null;
+
+    if (containsKey("templateParameters")) {
+      templateParameters = getFieldAsList("templateParameters");
+    } else {
+      templateParameters = new ArrayList<Map<String, String>>();
+    }
+
+    Map<String, String> templateParameter = new HashMap<String, String>();
+    templateParameter.put("key", key);
+    templateParameter.put("value", value);
+
+    templateParameters.add(templateParameter);
+    put("templateParameters", templateParameters);
   }
 }

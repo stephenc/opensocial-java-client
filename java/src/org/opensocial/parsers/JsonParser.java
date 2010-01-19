@@ -148,38 +148,67 @@ public class JsonParser implements Parser {
     JSONParser parser = new JSONParser();
     ContainerFactory containerFactory = getContainerFactory(modelClass);
 
-    try {
-      Map rootObject = (Map) parser.parse(json, containerFactory);
+    if (json.startsWith("{")) {
+      try {
+        Map rootObject = (Map) parser.parse(json, containerFactory);
 
-      if (rootObject.containsKey("startIndex")) {
-        response.setTotalResults(rootObject.get("startIndex"));
-      }
-      if (rootObject.containsKey("totalResults")) {
-        response.setTotalResults(rootObject.get("totalResults"));
-      }
-      if (rootObject.containsKey("itemsPerPage")) {
-        response.setItemsPerPage(rootObject.get("itemsPerPage"));
-      }
-      if (rootObject.containsKey("isFiltered")) {
-        response.setIsFiltered(rootObject.get("isFiltered"));
-      }
-      if (rootObject.containsKey("person")) {
-        response.getEntries().add((Model) rootObject.get("person"));
-      } else if (rootObject.containsKey("entry")) {
-        Object entry = rootObject.get("entry");
-        if (entry.getClass().equals(JSONArray.class)) {
-          for (int i = 0; i < ((List) entry).size(); i++) {
-            Map currentEntry = (Map) ((List) entry).get(i);
-            if (currentEntry.containsKey("person")) {
-              response.getEntries().add((Model) currentEntry.get("person"));
-            } else if (currentEntry.containsKey("activity")) {
-              response.getEntries().add((Model) currentEntry.get("activity"));
+        if (rootObject.containsKey("startIndex")) {
+          response.setTotalResults(rootObject.get("startIndex"));
+        }
+        if (rootObject.containsKey("totalResults")) {
+          response.setTotalResults(rootObject.get("totalResults"));
+        }
+        if (rootObject.containsKey("itemsPerPage")) {
+          response.setItemsPerPage(rootObject.get("itemsPerPage"));
+        }
+        if (rootObject.containsKey("statusLink")) {
+          response.setStatusLink(rootObject.get("statusLink"));
+        }
+        if (rootObject.containsKey("isFiltered")) {
+          response.setIsFiltered(rootObject.get("isFiltered"));
+        }
+        if (rootObject.containsKey("person")) {
+          response.getEntries().add((Model) rootObject.get("person"));
+        } else if (rootObject.containsKey("entry")) {
+          Object entry = rootObject.get("entry");
+          if (entry.getClass().equals(JSONArray.class)) {
+            for (int i = 0; i < ((List) entry).size(); i++) {
+              Map currentEntry = (Map) ((List) entry).get(i);
+              if (currentEntry.containsKey("person")) {
+                response.getEntries().add((Model) currentEntry.get("person"));
+              } else if (currentEntry.containsKey("activity")) {
+                response.getEntries().add(
+                    (Model) currentEntry.get("activity"));
+              } else if (currentEntry.containsKey("album")) {
+                response.getEntries().add((Model) currentEntry.get("album"));
+              } else if (currentEntry.containsKey("mediaItem")) {
+                response.getEntries().add(
+                    (Model) currentEntry.get("mediaItem"));
+              }
+              else {
+                response.getEntries().add((Model) currentEntry);
+              }
             }
           }
+        } else if (rootObject.containsKey("album")) {
+          response.getEntries().add((Model) rootObject.get("album"));
+        } else if (rootObject.containsKey("mediaItem")) {
+          response.getEntries().add((Model) rootObject.get("mediaItem"));
+        } else {
+          response.getEntries().add((Model) rootObject);
         }
+      } catch (ParseException e) {
+        return null;
       }
-    } catch (ParseException e) {
-      return null;
+    } else if (json.startsWith("[")) {
+      try {
+        List<Map> rootArray = (List<Map>) parser.parse(json, containerFactory);
+        for (Map responseObject : rootArray) {
+          response.getEntries().add((Model) responseObject);
+        }
+      } catch (ParseException e) {
+        return null;
+      }
     }
 
     return response;
