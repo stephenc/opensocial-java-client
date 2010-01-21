@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="AndroidApplication" default="help">
+<project name="Friend List Android demo" default="help">
+    <property name="opensocial-android.dir" location="../.." />
+
+    <!-- Generate opensocial-android.jar, copy it and its dependent libraries to libs, then clean -->
+    <ant antfile="${opensocial-android.dir}/build.xml" inheritAll="false" target="dist" />
+    <copy todir="libs" flatten="true">
+      <fileset dir="${opensocial-android.dir}/lib">
+        <include name="**/*.jar" />
+      </fileset>
+      <fileset dir="${opensocial-android.dir}/dist">
+        <include name="**/*.jar" />
+      </fileset>
+    </copy>
+    <ant antfile="${opensocial-android.dir}/build.xml" inheritAll="false" target="clean" />
 
     <!-- The local.properties file is created and updated by the 'android' tool.
          It contain the path to the SDK. It should *NOT* be checked in in Version

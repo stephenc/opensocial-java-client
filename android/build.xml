@@ -1,4 +1,5 @@
 <project name="OpenSocial Client Library for Android" default="compile" basedir=".">
+  <property name="opensocial-java.dir" location="../java" />
 
   <property name="app.name" value="opensocial-android"/>
 
@@ -43,7 +44,25 @@
     </fileset>
   </path>
 
-  <target name="compile" description="Compile Java sources">
+  <target name="copyjars" description="Copies OpenSocial JARs to lib">
+    <!-- Copy all dependent JARs in java/lib to lib -->
+    <copy todir="${lib.home}" flatten="true">
+      <fileset dir="${opensocial-java.dir}/lib">
+        <include name="**/*.jar" />
+      </fileset>
+    </copy>
+
+    <!-- Generate opensocial.jar, copy it to lib, then clean the java project -->
+    <ant antfile="${opensocial-java.dir}/build.xml" inheritAll="false" target="dist" />
+    <copy todir="${lib.home}" flatten="true">
+      <fileset dir="${opensocial-java.dir}/dist">
+        <include name="**/*.jar" />
+      </fileset>
+    </copy>
+    <ant antfile="${opensocial-java.dir}/build.xml" inheritAll="false" target="clean" />
+  </target>
+
+  <target name="compile" description="Compile Java sources" depends="copyjars">
     <mkdir dir="${build.home}"/>
     <javac destdir="${build.home}" debug="true" debuglevel="lines,vars,source">
       <classpath refid="compile-src.classpath"/>

@@ -193,10 +193,6 @@ public class Request {
     restPayloadParameters.put(key, value);
   }
 
-  public void setRestPayloadParameters(Map<String, Object> parameters) {
-    restPayloadParameters = parameters;
-  }
-
   public <T extends Model> void setRestPayloadParameters(T modelObject) {
     restPayloadParameters = modelObject;
   }
