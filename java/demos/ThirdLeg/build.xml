@@ -1,5 +1,6 @@
 <project>
   <property name="sdk.dir" location="" />
+  <property name="opensocial-java.dir" location="../.." />
 
   <import file="${sdk.dir}/config/user/ant-macros.xml" />
 
@@ -14,7 +15,7 @@
   </path>
 
   <target name="copyjars"
-      description="Copies the App Engine JARs to the WAR.">
+      description="Copies App Engine and OpenSocial JARs to the WAR.">
     <copy
         todir="war/WEB-INF/lib"
         flatten="true">
@@ -22,6 +23,22 @@
         <include name="**/*.jar" />
       </fileset>
     </copy>
+
+    <!-- Copy all dependent JARs in java/lib to war/WEB-INF/lib -->
+    <copy todir="war/WEB-INF/lib" flatten="true">
+      <fileset dir="${opensocial-java.dir}/lib">
+        <include name="**/*.jar" />
+      </fileset>
+    </copy>
+
+    <!-- Generate opensocial.jar, copy it to war/WEB-INF/lib, then clean the java project -->
+    <ant antfile="${opensocial-java.dir}/build.xml" inheritAll="false" target="dist" />
+    <copy todir="war/WEB-INF/lib" flatten="true">
+      <fileset dir="${opensocial-java.dir}/dist">
+        <include name="**/*.jar" />
+      </fileset>
+    </copy>
+    <ant antfile="${opensocial-java.dir}/build.xml" inheritAll="false" target="clean" />
   </target>
 
   <target name="compile" depends="copyjars"
