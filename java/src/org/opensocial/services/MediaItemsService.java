@@ -24,7 +24,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class MediaItemService extends Service {
+public class MediaItemsService extends Service {
 
   private static final String restTemplate =
     "mediaitems/{guid}/{groupId}/{albumId}/{itemId}";

@@ -25,11 +25,11 @@ import org.opensocial.Response;
 import org.opensocial.auth.OAuth2LeggedScheme;
 import org.opensocial.models.Album;
 import org.opensocial.providers.MySpaceProvider;
-import org.opensocial.services.AlbumService;
+import org.opensocial.services.AlbumsService;
 
 import java.util.List;
 
-public class AlbumTest {
+public class AlbumsTest {
 
   private static final String MYSPACE_KEY = "http://www.myspace.com/495182150";
   private static final String MYSPACE_SECRET =
@@ -41,7 +41,7 @@ public class AlbumTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = AlbumService.retrieve();
+      Request request = AlbumsService.retrieve();
       Response response = client.send(request);
 
       List<Album> albums = response.getEntries();
@@ -57,7 +57,7 @@ public class AlbumTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = AlbumService.retrieve("myspace.com.album.81886");
+      Request request = AlbumsService.retrieve("myspace.com.album.81886");
       Response response = client.send(request);
 
       Album album = response.getEntry();
@@ -80,7 +80,7 @@ public class AlbumTest {
       album.setCaption("value");
       album.setDescription("my description goes here");
 
-      Request request = AlbumService.create(album);
+      Request request = AlbumsService.create(album);
       Response response = client.send(request);
 
       assertTrue(response.getStatusLink() != null);
@@ -99,7 +99,7 @@ public class AlbumTest {
       album.setCaption("This is my updated caption");
       album.setDescription("my description goes here");
 
-      Request request = AlbumService.update("myspace.com.album.81886", album);
+      Request request = AlbumsService.update("myspace.com.album.81886", album);
       Response response = client.send(request);
 
       assertTrue(response.getStatusLink() != null);

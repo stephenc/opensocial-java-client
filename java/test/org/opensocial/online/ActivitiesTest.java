@@ -25,12 +25,12 @@ import org.opensocial.Response;
 import org.opensocial.auth.OAuth2LeggedScheme;
 import org.opensocial.models.Activity;
 import org.opensocial.providers.MySpaceProvider;
-import org.opensocial.services.ActivityService;
+import org.opensocial.services.ActivitiesService;
 
 import java.util.Date;
 import java.util.List;
 
-public class ActivityTest {
+public class ActivitiesTest {
 
   private static final String MYSPACE_KEY = "http://www.myspace.com/495182150";
   private static final String MYSPACE_SECRET =
@@ -48,7 +48,7 @@ public class ActivityTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = ActivityService.create(activity);
+      Request request = ActivitiesService.create(activity);
       client.send(request);
     } catch (Exception e) {
       fail("Exception occurred while processing request");
@@ -60,7 +60,7 @@ public class ActivityTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = ActivityService.retrieve();
+      Request request = ActivitiesService.retrieve();
       Response response = client.send(request);
 
       List<Activity> activities = response.getEntries();

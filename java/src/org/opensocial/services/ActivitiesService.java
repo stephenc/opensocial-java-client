@@ -21,7 +21,7 @@ import java.util.Map;
 import org.opensocial.Request;
 import org.opensocial.models.Activity;
 
-public class ActivityService extends Service {
+public class ActivitiesService extends Service {
 
   private static final String restTemplate =
     "activities/{guid}/{selector}/{appid}/{activityid}";

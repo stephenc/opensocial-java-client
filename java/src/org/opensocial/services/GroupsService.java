@@ -18,7 +18,7 @@ package org.opensocial.services;
 import org.opensocial.Request;
 import org.opensocial.models.Group;
 
-public class GroupService extends Service {
+public class GroupsService extends Service {
 
   private static final String restTemplate = "groups/{guid}";
 

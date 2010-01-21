@@ -25,12 +25,12 @@ import org.opensocial.Response;
 import org.opensocial.auth.OAuth2LeggedScheme;
 import org.opensocial.models.MediaItem;
 import org.opensocial.providers.MySpaceProvider;
-import org.opensocial.services.MediaItemService;
+import org.opensocial.services.MediaItemsService;
 
 import java.io.File;
 import java.util.List;
 
-public class MediaItemTest {
+public class MediaItemsTest {
 
   private static final String MYSPACE_KEY = "http://www.myspace.com/495182150";
   private static final String MYSPACE_SECRET =
@@ -42,7 +42,7 @@ public class MediaItemTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = MediaItemService.retrieve("myspace.com.album.81886");
+      Request request = MediaItemsService.retrieve("myspace.com.album.81886");
       Response response = client.send(request);
 
       List<MediaItem> mediaItems = response.getEntries();
@@ -58,7 +58,7 @@ public class MediaItemTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = MediaItemService.retrieve(
+      Request request = MediaItemsService.retrieve(
           "myspace.com.mediaItem.image.646364", "myspace.com.album.81886");
       Response response = client.send(request);
 
@@ -85,7 +85,7 @@ public class MediaItemTest {
       mediaItem.setTitle("value");
       mediaItem.setDescription("my description goes here");
 
-      Request request = MediaItemService.create(mediaItem,
+      Request request = MediaItemsService.create(mediaItem,
           "myspace.com.album.81886");
       Response response = client.send(request);
 
@@ -105,7 +105,7 @@ public class MediaItemTest {
       mediaItem.setTitle("This is my updated caption");
       mediaItem.setDescription("my description goes here");
 
-      Request request = MediaItemService.update(
+      Request request = MediaItemsService.update(
           "myspace.com.mediaItem.image.646364", "myspace.com.album.81886",
           mediaItem);
       Response response = client.send(request);

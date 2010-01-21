@@ -25,11 +25,11 @@ import org.opensocial.Response;
 import org.opensocial.auth.OAuth2LeggedScheme;
 import org.opensocial.models.myspace.StatusMood;
 import org.opensocial.providers.MySpaceProvider;
-import org.opensocial.services.myspace.StatusMoodService;
+import org.opensocial.services.myspace.StatusMoodsService;
 
 import java.util.List;
 
-public class StatusMoodTest {
+public class StatusMoodsTest {
 
   private static final String MYSPACE_KEY = "http://www.myspace.com/495182150";
   private static final String MYSPACE_SECRET =
@@ -42,7 +42,7 @@ public class StatusMoodTest {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
-      Request request = StatusMoodService.retrieve(MYSPACE_ID);
+      Request request = StatusMoodsService.retrieve(MYSPACE_ID);
       Response response = client.send(request);
 
       StatusMood statusMood = response.getEntry();
@@ -59,7 +59,7 @@ public class StatusMoodTest {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
-      Request request = StatusMoodService.retrieveMood(90);
+      Request request = StatusMoodsService.retrieveMood(90);
       Response response = client.send(request);
 
       StatusMood mood = response.getEntry();
@@ -76,7 +76,7 @@ public class StatusMoodTest {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
-      Request request = StatusMoodService.retrieveSupportedMoods();
+      Request request = StatusMoodsService.retrieveSupportedMoods();
       Response response = client.send(request);
 
       List<StatusMood> moods = response.getEntries();
@@ -93,7 +93,7 @@ public class StatusMoodTest {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
-      Request request = StatusMoodService.retrieveStatusMoodHistoryForSelf();
+      Request request = StatusMoodsService.retrieveStatusMoodHistoryForSelf();
       Response response = client.send(request);
 
       List<StatusMood> statusMoods = response.getEntries();
@@ -111,7 +111,7 @@ public class StatusMoodTest {
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
       Request request =
-        StatusMoodService.retrieveStatusMoodHistoryForFriends();
+        StatusMoodsService.retrieveStatusMoodHistoryForFriends();
       Response response = client.send(request);
 
       List<StatusMood> statusMoods = response.getEntries();
@@ -128,7 +128,7 @@ public class StatusMoodTest {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
-      Request request = StatusMoodService.retrieveStatusMoodHistoryForFriend(
+      Request request = StatusMoodsService.retrieveStatusMoodHistoryForFriend(
           "myspace.com.person.63129100");
       Response response = client.send(request);
 
@@ -150,7 +150,7 @@ public class StatusMoodTest {
       statusMood.setStatus("Working on the Java SDK");
       statusMood.setMoodId(90);
 
-      Request request = StatusMoodService.update(MYSPACE_ID, statusMood);
+      Request request = StatusMoodsService.update(MYSPACE_ID, statusMood);
       Response response = client.send(request);
 
       //assertTrue(response.getStatusLink() != null);

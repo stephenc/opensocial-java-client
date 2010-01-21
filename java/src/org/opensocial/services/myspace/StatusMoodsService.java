@@ -19,7 +19,7 @@ import org.opensocial.Request;
 import org.opensocial.models.myspace.StatusMood;
 import org.opensocial.services.Service;
 
-public class StatusMoodService extends Service {
+public class StatusMoodsService extends Service {
 
   private static final String restTemplate =
     "statusmood/{guid}/{groupId}/{friendId}/{moodId}/{history}";

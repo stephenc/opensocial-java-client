@@ -18,7 +18,7 @@ package org.opensocial.services;
 import org.opensocial.Request;
 import org.opensocial.models.Album;
 
-public class AlbumService extends Service {
+public class AlbumsService extends Service {
 
   private static final String restTemplate =
     "albums/{guid}/{groupId}/{albumId}";
