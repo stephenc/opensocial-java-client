@@ -15,37 +15,82 @@
 
 package org.opensocial.services;
 
+import org.opensocial.Request;
+import org.opensocial.models.AppData;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.opensocial.Request;
-import org.opensocial.models.AppData;
-
+/**
+ * OpenSocial API class for AppData (persistent storage) requests; contains
+ * static methods for fetching, updating, and deleting AppData.
+ *
+ * @author Jason Cooper
+ */
 public class AppDataService extends Service {
 
   private static final String restTemplate =
     "appdata/{guid}/{selector}/{appid}";
 
-  public static Request retrieve() {
+  /**
+   * Returns a new Request instance which, when submitted, fetches the current
+   * viewer's persistent AppData (set of key/value strings) and makes this
+   * available as an AppData object. Equivalent to getAppData("@me").
+   *
+   * @return new Request object to fetch the current viewer's AppData
+   * @see    AppData
+   */
+  public static Request getAppData() {
+    return getAppData(ME);
+  }
+
+  /**
+   * Returns a new Request instance which, when submitted, fetches the
+   * specified user's AppData (set of key/value strings) and makes this
+   * available as an AppData object.
+   *
+   * @param  guid OpenSocial ID of user whose AppData is to be fetched
+   * @return      new Request object to fetch the specified user's AppData
+   * @see         AppData
+   */
+  public static Request getAppData(String guid) {
     Request request = new Request(restTemplate, "appdata.get", "GET");
     request.setModelClass(AppData.class);
     request.setSelector(SELF);
     request.setAppId(APP);
-    request.setGuid(ME);
+    request.setGuid(guid);
 
     return request;
   }
 
-  public static Request update(String key, String value) {
+  /**
+   * Returns a new Request instance which, when submitted, updates the current
+   * viewer's AppData by either adding the specified key if it doesn't already
+   * exist or updating the value of the key with the specified value.
+   *
+   * @param  key   AppData key to update
+   * @param  value new value to be associated with the specified key
+   * @return       new Request object to update the current viewer's AppData
+   */
+  public static Request updateAppData(String key, String value) {
     Map<String, String> data = new HashMap<String, String>();
     data.put(key, value);
 
-    return update(data);
+    return updateAppData(data);
   }
 
-  public static Request update(Map<String, String> data) {
+  /**
+   * Returns a new Request instance which, when submitted, updates the current
+   * viewer's AppData with the key/value strings in the passed Map. The keys
+   * are added if they don't already exist or, if they do exist, are updated
+   * with the associated values in the passed Map.
+   *
+   * @param  data Map of key/value pairs to be persisted in AppData
+   * @return      new Request object to update the current viewer's AppData
+   */
+  public static Request updateAppData(Map<String, String> data) {
     Request request = new Request(restTemplate, "appdata.update", "PUT");
     request.setSelector(SELF);
     request.setAppId(APP);
@@ -79,20 +124,44 @@ public class AppDataService extends Service {
     return request;
   }
 
-  public static Request delete(String key) {
-    return delete(new String[] {key});
+  /**
+   * Returns a new Request which, when submitted, deletes the specified key and
+   * its associated value in the current viewer's AppData.
+   *
+   * @param  key AppData key to delete
+   * @return     new Request object to delete a single key in the current
+   *             viewer's AppData
+   */
+  public static Request deleteAppData(String key) {
+    return deleteAppData(new String[] {key});
   }
 
-  public static Request delete(String[] keys) {
+  /**
+   * Returns a new Request which, when submitted, deletes the specified keys
+   * and their associated values in the current viewer's AppData.
+   *
+   * @param  keys array of AppData keys to delete
+   * @return      new Request object to delete one or more keys in the current
+   *              viewer's AppData
+   */
+  public static Request deleteAppData(String[] keys) {
     List<String> keyList = new ArrayList<String>(keys.length);
     for (int i = 0; i < keys.length; i++) {
       keyList.add(keys[i]);
     }
 
-    return delete(keyList);
+    return deleteAppData(keyList);
   }
 
-  public static Request delete(List<String> keys) {
+  /**
+   * Returns a new Request which, when submitted, deletes the specified keys
+   * and their associated values in the current viewer's AppData.
+   *
+   * @param  keys List of AppData keys to delete
+   * @return      new Request object to delete one or more keys in the current
+   *              viewer's AppData
+   */
+  public static Request deleteAppData(List<String> keys) {
     Request request = new Request(restTemplate, "appdata.delete", "DELETE");
     request.setSelector(SELF);
     request.setAppId(APP);

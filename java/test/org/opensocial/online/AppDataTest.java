@@ -43,7 +43,7 @@ public class AppDataTest {
     Client client = new Client(new OrkutSandboxProvider(),
         new OAuth2LeggedScheme(ORKUT_KEY, ORKUT_SECRET, ORKUT_ID));
     try {
-      Request request = AppDataService.update("java", "rocks");
+      Request request = AppDataService.updateAppData("java", "rocks");
       client.send(request);
     } catch (Exception e) {
     }
@@ -63,7 +63,7 @@ public class AppDataTest {
     try {
       Client client = new Client(new OrkutSandboxProvider(useRest),
           new OAuth2LeggedScheme(ORKUT_KEY, ORKUT_SECRET, ORKUT_ID));
-      Request request = AppDataService.retrieve();
+      Request request = AppDataService.getAppData();
       Response response = client.send(request);
 
       AppData data = response.getEntry();
@@ -91,14 +91,14 @@ public class AppDataTest {
         new OAuth2LeggedScheme(ORKUT_KEY, ORKUT_SECRET, ORKUT_ID));
 
     try {
-      Request request = AppDataService.update("key", randomValue);
+      Request request = AppDataService.updateAppData("key", randomValue);
       client.send(request);
     } catch (Exception e) {
       fail("Exception occurred while processing update request");
     }
 
     try {
-      Request request = AppDataService.retrieve();
+      Request request = AppDataService.getAppData();
       Response response = client.send(request);
 
       AppData data = response.getEntry();
@@ -108,14 +108,14 @@ public class AppDataTest {
     }
 
     try {
-      Request request = AppDataService.delete("key");
+      Request request = AppDataService.deleteAppData("key");
       client.send(request);
     } catch (Exception e) {
       fail("Exception occurred while processing delete request");
     }
 
     try {
-      Request request = AppDataService.retrieve();
+      Request request = AppDataService.getAppData();
       Response response = client.send(request);
 
       AppData data = response.getEntry();
@@ -150,14 +150,14 @@ public class AppDataTest {
       data.put("key1", randomValue1);
       data.put("key2", randomValue2);
 
-      Request request = AppDataService.update(data);
+      Request request = AppDataService.updateAppData(data);
       client.send(request);
     } catch (Exception e) {
       fail("Exception occurred while processing update request");
     }
 
     try {
-      Request request = AppDataService.retrieve();
+      Request request = AppDataService.getAppData();
       Response response = client.send(request);
 
       AppData data = response.getEntry();
@@ -168,14 +168,15 @@ public class AppDataTest {
     }
 
     try {
-      Request request = AppDataService.delete(new String[] {"key1", "key2"});
+      Request request = AppDataService.deleteAppData(
+          new String[] {"key1", "key2"});
       client.send(request);
     } catch (Exception e) {
       fail("Exception occurred while processing delete request");
     }
 
     try {
-      Request request = AppDataService.retrieve();
+      Request request = AppDataService.getAppData();
       Response response = client.send(request);
 
       AppData data = response.getEntry();
