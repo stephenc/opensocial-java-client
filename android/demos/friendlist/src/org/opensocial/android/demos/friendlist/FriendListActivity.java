@@ -70,7 +70,8 @@ public class FriendListActivity extends OpenSocialActivity {
   private void showContacts(Client client) {
     List<Person> friends = null;
     try {
-      Request request = PeopleService.retrieve("@me", "@all");
+      //Request request = PeopleService.retrieve("@me", "@all");
+      Request request = PeopleService.getViewerFriends();
       friends = client.send(request).getEntries();
     } catch (RequestException e) {
       Log.i("DisplayFriendActivity", "Couldn't fetch friends from the " +

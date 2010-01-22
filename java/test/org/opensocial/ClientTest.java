@@ -45,7 +45,7 @@ public class ClientTest {
     Client client = new Client(new Provider(), new OAuth2LeggedScheme(
         CONSUMER_KEY, CONSUMER_SECRET, VIEWER_ID));
 
-    Request request = PeopleService.retrieve();
+    Request request = PeopleService.getViewer();
     client.send(request);
   }
 }

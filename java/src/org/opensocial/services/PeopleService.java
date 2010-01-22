@@ -18,19 +18,69 @@ package org.opensocial.services;
 import org.opensocial.Request;
 import org.opensocial.models.Person;
 
+/**
+ * OpenSocial API class for people requests; contains static methods for
+ * fetching profile information.
+ *
+ * @author Jason Cooper
+ */
 public class PeopleService extends Service {
 
   private static final String restTemplate = "people/{guid}/{selector}/{pid}";
 
-  public static Request retrieve() {
-    return retrieve(ME);
+  /**
+   * Returns a new Request instance which, when submitted, fetches the current
+   * viewer's profile information and makes this data available as a Person
+   * object. Equivalent to calling getPerson("@me").
+   *
+   * @return new Request object to fetch the current viewer's profile data
+   * @see    Person
+   */
+  public static Request getViewer() {
+    return getPerson(ME);
   }
 
-  public static Request retrieve(String guid) {
-    return retrieve(guid, SELF);
+  /**
+   * Returns a new Request instance which, when submitted, fetches the profile
+   * information of the current viewer's friends and makes this data available
+   * as a List of Person objects. Equivalent to calling getFriends("@me").
+   *
+   * @return new Request object to fetch the current viewer's friends' profile
+   *         data
+   * @see    Person
+   */
+  public static Request getViewerFriends() {
+    return getFriends(ME);
   }
 
-  public static Request retrieve(String guid, String selector) {
+  /**
+   * Returns a new Request instance which, when submitted, fetches the profile
+   * information of the user with the specified ID and makes this data
+   * available as a Person object.
+   *
+   * @param  guid OpenSocial ID of the user to fetch
+   * @return      new Request object to fetch the specified user's profile data
+   * @see         Person
+   */
+  public static Request getPerson(String guid) {
+    return get(guid, SELF);
+  }
+
+  /**
+   * Returns a new Request instance which, when submitted, fetches the profile
+   * information of the specified user's friends and makes this data available
+   * as a List of Person objects.
+   *
+   * @param  guid OpenSocial ID of the user whose friends are to be fetched
+   * @return      new Request object to fetch the specified user's friends'
+   *              profile data
+   * @see         Person
+   */
+  public static Request getFriends(String guid) {
+    return get(guid, FRIENDS);
+  }
+
+  private static Request get(String guid, String selector) {
     Request request = new Request(restTemplate, "people.get", "GET");
     request.setModelClass(Person.class);
     request.setSelector(selector);

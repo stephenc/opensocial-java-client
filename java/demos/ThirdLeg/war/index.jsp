@@ -29,8 +29,8 @@
     Client client = new Client(new GoogleProvider(), authScheme);
     try {
       Map<String, Request> requests = new HashMap<String, Request>();
-      requests.put("friends", PeopleService.retrieve("@me", "@friends"));
-      requests.put("viewer", PeopleService.retrieve());
+      requests.put("friends", PeopleService.getViewerFriends());
+      requests.put("viewer", PeopleService.getViewer());
 
       Map<String, Response> responses = client.send(requests);
       friends = responses.get("friends").getEntries();

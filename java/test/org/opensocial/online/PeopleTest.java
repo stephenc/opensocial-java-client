@@ -58,7 +58,7 @@ public class PeopleTest {
     try {
       Client client = new Client(new OrkutProvider(useRest),
           new OAuth2LeggedScheme(ORKUT_KEY, ORKUT_SECRET, ORKUT_ID));
-      Request request = PeopleService.retrieve();
+      Request request = PeopleService.getViewer();
       Response response = client.send(request);
 
       Person self = response.getEntry();
@@ -83,7 +83,7 @@ public class PeopleTest {
     try {
       Client client = new Client(new OrkutProvider(useRest),
           new OAuth2LeggedScheme(ORKUT_KEY, ORKUT_SECRET, ORKUT_ID));
-      Request request = PeopleService.retrieve("@me", "@friends");
+      Request request = PeopleService.getViewerFriends();
       Response response = client.send(request);
 
       Person self = response.getEntry();
@@ -99,7 +99,7 @@ public class PeopleTest {
     try {
       Client client = new Client(new GoogleProvider(),
           new OAuth2LeggedScheme(GOOGLE_KEY, GOOGLE_SECRET, GOOGLE_ID));
-      Request request = PeopleService.retrieve();
+      Request request = PeopleService.getViewer();
       Response response = client.send(request);
 
       Person self = response.getEntry();
@@ -115,7 +115,7 @@ public class PeopleTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = PeopleService.retrieve();
+      Request request = PeopleService.getViewer();
       Response response = client.send(request);
 
       Person self = response.getEntry();
