@@ -36,20 +36,21 @@ public class AppDataService extends Service {
 
   /**
    * Returns a new Request instance which, when submitted, fetches the current
-   * viewer's persistent AppData (set of key/value strings) and makes this
-   * available as an AppData object. Equivalent to getAppData("@me").
+   * viewer's persistent AppData (set of key/value strings) associated with the
+   * current application and makes this available as an AppData object.
+   * Equivalent to getAppData("@me").
    *
    * @return new Request object to fetch the current viewer's AppData
    * @see    AppData
    */
-  public static Request getAppData() {
+  public static Request getViewerAppData() {
     return getAppData(ME);
   }
 
   /**
    * Returns a new Request instance which, when submitted, fetches the
-   * specified user's AppData (set of key/value strings) and makes this
-   * available as an AppData object.
+   * specified user's AppData (set of key/value strings) associated with the
+   * current application and makes this available as an AppData object.
    *
    * @param  guid OpenSocial ID of user whose AppData is to be fetched
    * @return      new Request object to fetch the specified user's AppData
@@ -66,9 +67,30 @@ public class AppDataService extends Service {
   }
 
   /**
+   * Returns a new Request instance which, when submitted, fetches the AppData
+   * (set of key/value strings) associated with the current application for the
+   * specified user's friends and makes this available as an AppData object.
+   * Pass "@me" to fetch AppData for all friends of the current viewer.
+   *
+   * @param  guid OpenSocial ID of user whose friends' AppData is to be fetched
+   * @return      new Request object to fetch the AppData for the specified
+   *              user's friends
+   * @see         AppData
+   */
+  public static Request getFriendsAppData(String guid) {
+    Request request = new Request(restTemplate, "appdata.get", "GET");
+    request.setModelClass(AppData.class);
+    request.setSelector(FRIENDS);
+    request.setAppId(APP);
+    request.setGuid(guid);
+
+    return request;
+  }
+
+  /**
    * Returns a new Request instance which, when submitted, updates the current
    * viewer's AppData by either adding the specified key if it doesn't already
-   * exist or updating the value of the key with the specified value.
+   * exist or updating the associated value if it does exist.
    *
    * @param  key   AppData key to update
    * @param  value new value to be associated with the specified key
@@ -83,9 +105,9 @@ public class AppDataService extends Service {
 
   /**
    * Returns a new Request instance which, when submitted, updates the current
-   * viewer's AppData with the key/value strings in the passed Map. The keys
-   * are added if they don't already exist or, if they do exist, are updated
-   * with the associated values in the passed Map.
+   * viewer's AppData with the key/value strings in the passed Map. If the keys
+   * don't already exist, they are added; otherwise, the associated values are
+   * replaced with those in the passed Map.
    *
    * @param  data Map of key/value pairs to be persisted in AppData
    * @return      new Request object to update the current viewer's AppData
