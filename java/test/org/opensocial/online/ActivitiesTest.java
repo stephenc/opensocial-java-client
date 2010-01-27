@@ -48,7 +48,7 @@ public class ActivitiesTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = ActivitiesService.create(activity);
+      Request request = ActivitiesService.createActivity(activity);
       client.send(request);
     } catch (Exception e) {
       fail("Exception occurred while processing request");
@@ -60,7 +60,7 @@ public class ActivitiesTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = ActivitiesService.retrieve();
+      Request request = ActivitiesService.getViewerActivities();
       Response response = client.send(request);
 
       List<Activity> activities = response.getEntries();
