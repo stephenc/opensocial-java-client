@@ -18,14 +18,41 @@ package org.opensocial.services;
 import org.opensocial.Request;
 import org.opensocial.models.Group;
 
+/**
+ * OpenSocial API class for group requests; contains static methods for
+ * fetching groups used to tag or categorize people and their relationships.
+ *
+ * @author Jason Cooper
+ */
 public class GroupsService extends Service {
 
   private static final String restTemplate = "groups/{guid}";
 
-  public static Request retrieve() {
+  /**
+   * Returns a new Request instance which, when submitted, fetches the current
+   * viewer's groups and makes this data available as a List of Group objects.
+   * Equivalent to getGroups("@me").
+   *
+   * @return new Request object to fetch the current viewer's groups
+   * @see    Group
+   */
+  public static Request getViewerGroups() {
+    return getGroups(ME);
+  }
+
+  /**
+   * Returns a new Request instance which, when submitted, fetches the
+   * specified user's groups and makes this data available as a List of Group
+   * objects.
+   *
+   * @param  guid OpenSocial ID of user whose groups are to be fetched
+   * @return      new Request object to fetch the specified user's groups
+   * @see         Group
+   */
+  public static Request getGroups(String guid) {
     Request request = new Request(restTemplate, "groups.get", "GET");
     request.setModelClass(Group.class);
-    request.setGuid(ME);
+    request.setGuid(guid);
 
     return request;
   }

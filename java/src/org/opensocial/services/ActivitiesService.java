@@ -42,7 +42,7 @@ public class ActivitiesService extends Service {
    * @see    Activity
    */
   public static Request getViewerActivities() {
-    return getActivities("@me");
+    return getActivities(ME);
   }
 
   /**
