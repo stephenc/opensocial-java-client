@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.opensocial.Client;
 import org.opensocial.Request;
+import org.opensocial.RequestException;
 import org.opensocial.Response;
 import org.opensocial.auth.OAuth2LeggedScheme;
 import org.opensocial.models.MediaItem;
@@ -28,6 +29,7 @@ import org.opensocial.providers.MySpaceProvider;
 import org.opensocial.services.MediaItemsService;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 public class MediaItemsTest {
@@ -42,7 +44,8 @@ public class MediaItemsTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = MediaItemsService.retrieve("myspace.com.album.81886");
+      Request request = MediaItemsService.getMediaItems(
+          "myspace.com.album.81886");
       Response response = client.send(request);
 
       List<MediaItem> mediaItems = response.getEntries();
@@ -58,7 +61,7 @@ public class MediaItemsTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = MediaItemsService.retrieve(
+      Request request = MediaItemsService.getMediaItem(
           "myspace.com.mediaItem.image.646364", "myspace.com.album.81886");
       Response response = client.send(request);
 
@@ -68,7 +71,7 @@ public class MediaItemsTest {
           "myspace.com.mediaItem.image.646364"));
       assertTrue(mediaItem.getUrl() != null);
       assertTrue(mediaItem.getType() != null);
-      assertTrue(mediaItem.getTitle() != null);
+      //assertTrue(mediaItem.getTitle() != null);
       assertTrue(mediaItem.getThumbnailUrl() != null);
     } catch (Exception e) {
       fail("Exception occurred while processing request");
@@ -82,17 +85,32 @@ public class MediaItemsTest {
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
       MediaItem mediaItem = new MediaItem();
-      mediaItem.setTitle("value");
-      mediaItem.setDescription("my description goes here");
+      mediaItem.setUrl("http://www.google.com/intl/en_ALL/images/logo.gif");
+      mediaItem.setAlbumId("myspace.com.album.81886");
+      mediaItem.setType("IMAGE");
+      mediaItem.setMimeType("image/gif");
 
-      Request request = MediaItemsService.create(mediaItem,
-          "myspace.com.album.81886");
+      Request request = MediaItemsService.createMediaItem(mediaItem);
       Response response = client.send(request);
 
       assertTrue(response.getStatusLink() != null);
     } catch (Exception e) {
       fail("Exception occurred while processing request");
     }
+  }
+
+  @Test(expected=RequestException.class)
+  public void createMediaItemWithoutAlbumId() throws RequestException,
+      IOException {
+    Client client = new Client(new MySpaceProvider(),
+        new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
+
+    MediaItem mediaItem = new MediaItem();
+    mediaItem.setUrl("http://www.google.com/intl/en_ALL/images/logo.gif");
+    mediaItem.setType("IMAGE");
+    mediaItem.setMimeType("image/gif");
+
+    Request request = MediaItemsService.createMediaItem(mediaItem);
   }
 
   @Test
@@ -102,18 +120,48 @@ public class MediaItemsTest {
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
       MediaItem mediaItem = new MediaItem();
-      mediaItem.setTitle("This is my updated caption");
-      mediaItem.setDescription("my description goes here");
+      mediaItem.setId("myspace.com.mediaItem.image.646364");
+      mediaItem.setAlbumId("myspace.com.album.81886");
+      mediaItem.setUrl("http://www.google.com/intl/en_ALL/images/logo.gif");
+      mediaItem.setType("IMAGE");
+      mediaItem.setMimeType("image/gif");
 
-      Request request = MediaItemsService.update(
-          "myspace.com.mediaItem.image.646364", "myspace.com.album.81886",
-          mediaItem);
+      Request request = MediaItemsService.updateMediaItem(mediaItem);
       Response response = client.send(request);
 
       assertTrue(response.getStatusLink() != null);
     } catch (Exception e) {
       fail("Exception occurred while processing request");
     }
+  }
+
+  @Test(expected=RequestException.class)
+  public void updateMediaItemWithoutId() throws RequestException, IOException {
+    Client client = new Client(new MySpaceProvider(),
+        new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
+
+    MediaItem mediaItem = new MediaItem();
+    mediaItem.setAlbumId("myspace.com.album.81886");
+    mediaItem.setUrl("http://www.google.com/intl/en_ALL/images/logo.gif");
+    mediaItem.setType("IMAGE");
+    mediaItem.setMimeType("image/gif");
+
+    Request request = MediaItemsService.updateMediaItem(mediaItem);
+  }
+
+  @Test(expected=RequestException.class)
+  public void updateMediaItemWithoutAlbumId() throws RequestException,
+      IOException {
+    Client client = new Client(new MySpaceProvider(),
+        new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
+
+    MediaItem mediaItem = new MediaItem();
+    mediaItem.setId("myspace.com.mediaItem.image.646364");
+    mediaItem.setUrl("http://www.google.com/intl/en_ALL/images/logo.gif");
+    mediaItem.setType("IMAGE");
+    mediaItem.setMimeType("image/gif");
+
+    Request request = MediaItemsService.updateMediaItem(mediaItem);
   }
 
   /*@Test

@@ -121,8 +121,5 @@ public class AlbumsTest {
     album.setDescription("my description goes here");
 
     Request request = AlbumsService.updateAlbum(album);
-    Response response = client.send(request);
-
-    assertTrue(response.getStatusLink() != null);
   }
 }

@@ -16,20 +16,32 @@
 package org.opensocial.services;
 
 import org.opensocial.Request;
+import org.opensocial.RequestException;
 import org.opensocial.models.MediaItem;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
+/**
+ * OpenSocial API class for media item requests; contains static methods for
+ * fetching, creating, updating and deleting media items (video, image, or
+ * sound files).
+ *
+ * @author Jason Cooper
+ */
 public class MediaItemsService extends Service {
 
   private static final String restTemplate =
     "mediaitems/{guid}/{groupId}/{albumId}/{itemId}";
 
-  public static Request retrieve(String albumId) {
+  /**
+   * Returns a new Request instance which, when submitted, fetches the current
+   * viewer's media items from the specified album and makes this data
+   * available as a List of MediaItem objects.
+   *
+   * @param  albumId ID of album whose media item contents are to fetched
+   * @return         new Request object to fetch the current viewer's media
+   *                 items
+   * @see            MediaItem
+   */
+  public static Request getMediaItems(String albumId) {
     Request request = new Request(restTemplate, "mediaItems.get", "GET");
     request.setModelClass(MediaItem.class);
     request.setAlbumId(albumId);
@@ -39,16 +51,44 @@ public class MediaItemsService extends Service {
     return request;
   }
 
-  public static Request retrieve(String itemId, String albumId) {
-    Request request = retrieve(albumId);
+  /**
+   * Returns a new Request instance which, when submitted, fetches the
+   * specified media item from the specified album and makes this data
+   * available as a MediaItem object.
+   *
+   * @param  itemId  ID of media item to fetch
+   * @param  albumId ID of album containing media item to fetch
+   * @return         new Request object to fetch the specified media item
+   * @see            MediaItem
+   */
+  public static Request getMediaItem(String itemId, String albumId) {
+    Request request = getMediaItems(albumId);
     request.setItemId(itemId);
 
     return request;
   }
 
-  public static Request create(MediaItem item, String albumId) {
+  /**
+   * Returns a new Request instance which, when submitted, creates a new
+   * media item in the specified viewer album.
+   *
+   * @param  item  MediaItem object specifying the media item parameters to
+   *               pass into the request; album_id must be set and other
+   *               properties, e.g. type and url, can also be set
+   * @return       new Request object to create a new media item
+   *
+   * @throws RequestException if the passed MediaItem object does not have an
+   *                          album_id property set
+   */
+  public static Request createMediaItem(MediaItem item) throws
+      RequestException {
+    if (item.getAlbumId() == null || item.getAlbumId().equals("")) {
+      throw new RequestException("Passed MediaItem object does not have " +
+          "album_id property set");
+    }
+
     Request request = new Request(restTemplate, "mediaItems.create", "POST");
-    request.setAlbumId(albumId);
+    request.setAlbumId(item.getAlbumId());
     request.setGroupId(SELF);
     request.setGuid(ME);
 
@@ -58,8 +98,8 @@ public class MediaItemsService extends Service {
     return request;
   }
 
-  public static Request upload(MediaItem item, File content, String albumId)
-      throws IOException {
+  /*public static Request uploadMediaItem(MediaItem item, File content, String
+        albumId) throws IOException {
     byte[] buffer = new byte[1024];
     InputStream in = new FileInputStream(content);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -91,12 +131,35 @@ public class MediaItemsService extends Service {
     }
 
     return request;
-  }
+  }*/
 
-  public static Request update(String itemId, String albumId, MediaItem item) {
+  /**
+   * Returns a new Request instance which, when submitted, updates an existing
+   * media item contained within the specified viewer album.
+   *
+   * @param  item MediaItem object specifying the media item parameters to pass
+   *              into the request; id and album_id must be set in order to
+   *              specify which media item to update and values associated
+   *              with any other property, e.g. type and url, are updated
+   * @return      new Request object to update an existing media item
+   *
+   * @throws RequestException if the passed MediaItem object does not have both
+   *                          id and album_id properties set
+   */
+  public static Request updateMediaItem(MediaItem item) throws
+      RequestException {
+    if (item.getId() == null || item.getId().equals("")) {
+      throw new RequestException("Passed MediaItem object does not have id " +
+          "property set");
+    }
+    if (item.getAlbumId() == null || item.getAlbumId().equals("")) {
+      throw new RequestException("Passed MediaItem object does not have " +
+          "album_id property set");
+    }
+
     Request request = new Request(restTemplate, "mediaItems.update", "PUT");
-    request.setAlbumId(albumId);
-    request.setItemId(itemId);
+    request.setAlbumId(item.getAlbumId());
+    request.setItemId(item.getId());
     request.setGroupId(SELF);
     request.setGuid(ME);
 
@@ -106,7 +169,15 @@ public class MediaItemsService extends Service {
     return request;
   }
 
-  public static Request delete(String itemId, String albumId) {
+  /**
+   * Returns a new Request instance which, when submitted, deletes an existing
+   * media item from the specified viewer album.
+   *
+   * @param  itemId  ID of media item to delete
+   * @param  albumId ID of album containing media item to delete
+   * @return         new Request object to delete an existing media item
+   */
+  public static Request deleteMediaItem(String itemId, String albumId) {
     Request request = new Request(restTemplate, "mediaItems.delete", "DELETE");
     request.setAlbumId(albumId);
     request.setItemId(itemId);

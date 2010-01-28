@@ -42,7 +42,7 @@ public class NotificationsTest {
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
       MediaItem mediaItem = new MediaItem();
-      mediaItem.setUri("http://api.myspace.com/v1/users/63129100");
+      mediaItem.setUrl("http://api.myspace.com/v1/users/63129100");
 
       Notification notification = new Notification();
       notification.setContent("Hi ${recipient}, here's a notification from " +

@@ -17,51 +17,62 @@ package org.opensocial.models;
 
 public class MediaItem extends Model {
 
+  private static final String ID = "id";
+  private static final String URL = "url";
+  private static final String TYPE = "type";
+  private static final String ALBUM_ID = "album_id";
+  private static final String MIME_TYPE = "mime_type";
+  private static final String THUMBNAIL_URL = "thumbnail_url";
+
   public String getId() {
-    return getFieldAsString("id");
+    return getFieldAsString(ID);
   }
 
-  public String getTitle() {
-    return getFieldAsString("title");
-  }
-
-  public String getType() {
-    return getFieldAsString("type");
-  }
-
-  public String getMimeType() {
-    return getFieldAsString("mime_type");
-  }
-
-  public String getContentType() {
-    return getFieldAsString("contentType");
-  }
-
-  public String getThumbnailUrl() {
-    return getFieldAsString("thumbnailUrl");
+  public String getAlbumId() {
+    return getFieldAsString(ALBUM_ID);
   }
 
   public String getUrl() {
-    return getFieldAsString("url");
+    return getFieldAsString(URL);
   }
 
-  public void setTitle(String title) {
-    put("title", title);
+  public String getThumbnailUrl() {
+    if (getFieldAsString("thumbnailUrl") != null) {
+      return getFieldAsString("thumbnailUrl");
+    }
+
+    return getFieldAsString(THUMBNAIL_URL);
+  }
+
+  public String getType() {
+    return getFieldAsString(TYPE);
+  }
+
+  public String getMimeType() {
+    return getFieldAsString(MIME_TYPE);
+  }
+
+  public void setId(String id) {
+    put(ID, id);
+  }
+
+  public void setAlbumId(String albumId) {
+    put(ALBUM_ID, albumId);
+  }
+
+  public void setUrl(String url) {
+    put(URL, url);
+  }
+
+  public void setThumbnailUrl(String thumbnailUrl) {
+    put(THUMBNAIL_URL, thumbnailUrl);
   }
 
   public void setType(String type) {
-    put("type", type);
+    put(TYPE, type);
   }
 
-  public void setContentType(String contentType) {
-    put("contentType", contentType);
-  }
-
-  public void setDescription(String description) {
-    put("description", description);
-  }
-
-  public void setUri(String uri) {
-    put("uri", uri);
+  public void setMimeType(String mimeType) {
+    put(MIME_TYPE, mimeType);
   }
 }

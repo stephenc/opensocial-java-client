@@ -86,9 +86,9 @@ public class AlbumsService extends Service {
    * album in the current viewer's library.
    *
    * @param  album Album object specifying the album parameters to pass into
-   *               the request; id must be set in order to indicate which album
-   *               is to be updated and values associated with any other
-   *               property, e.g. caption and description, are updated
+   *               the request; id must be set in order to specify which album
+   *               to update and values associated with any other property,
+   *               e.g. caption and description, are updated
    * @return       new Request object to update an existing album
    *
    * @throws RequestException if the passed Album object does not have an id
