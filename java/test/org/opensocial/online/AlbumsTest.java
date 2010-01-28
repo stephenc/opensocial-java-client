@@ -21,12 +21,14 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.opensocial.Client;
 import org.opensocial.Request;
+import org.opensocial.RequestException;
 import org.opensocial.Response;
 import org.opensocial.auth.OAuth2LeggedScheme;
 import org.opensocial.models.Album;
 import org.opensocial.providers.MySpaceProvider;
 import org.opensocial.services.AlbumsService;
 
+import java.io.IOException;
 import java.util.List;
 
 public class AlbumsTest {
@@ -41,7 +43,7 @@ public class AlbumsTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = AlbumsService.retrieve();
+      Request request = AlbumsService.getAlbums();
       Response response = client.send(request);
 
       List<Album> albums = response.getEntries();
@@ -57,7 +59,7 @@ public class AlbumsTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = AlbumsService.retrieve("myspace.com.album.81886");
+      Request request = AlbumsService.getAlbum("myspace.com.album.81886");
       Response response = client.send(request);
 
       Album album = response.getEntry();
@@ -80,7 +82,7 @@ public class AlbumsTest {
       album.setCaption("value");
       album.setDescription("my description goes here");
 
-      Request request = AlbumsService.create(album);
+      Request request = AlbumsService.createAlbum(album);
       Response response = client.send(request);
 
       assertTrue(response.getStatusLink() != null);
@@ -96,15 +98,31 @@ public class AlbumsTest {
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
       Album album = new Album();
+      album.setId("myspace.com.album.81886");
       album.setCaption("This is my updated caption");
       album.setDescription("my description goes here");
 
-      Request request = AlbumsService.update("myspace.com.album.81886", album);
+      Request request = AlbumsService.updateAlbum(album);
       Response response = client.send(request);
 
       assertTrue(response.getStatusLink() != null);
     } catch (Exception e) {
       fail("Exception occurred while processing request");
     }
+  }
+
+  @Test(expected=RequestException.class)
+  public void updateAlbumWithoutId() throws RequestException, IOException {
+    Client client = new Client(new MySpaceProvider(),
+        new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
+
+    Album album = new Album();
+    album.setCaption("This is my updated caption");
+    album.setDescription("my description goes here");
+
+    Request request = AlbumsService.updateAlbum(album);
+    Response response = client.send(request);
+
+    assertTrue(response.getStatusLink() != null);
   }
 }

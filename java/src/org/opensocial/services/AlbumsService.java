@@ -16,14 +16,29 @@
 package org.opensocial.services;
 
 import org.opensocial.Request;
+import org.opensocial.RequestException;
 import org.opensocial.models.Album;
 
+/**
+ * OpenSocial API class for album requests; contains static methods for
+ * fetching, creating, updating and deleting albums (collections of media
+ * items).
+ *
+ * @author Jason Cooper
+ */
 public class AlbumsService extends Service {
 
   private static final String restTemplate =
     "albums/{guid}/{groupId}/{albumId}";
 
-  public static Request retrieve() {
+  /**
+   * Returns a new Request instance which, when submitted, fetches the current
+   * viewer's albums and makes this data available as a List of Album objects.
+   *
+   * @return new Request object to fetch the current viewer's albums
+   * @see    Album
+   */
+  public static Request getAlbums() {
     Request request = new Request(restTemplate, "albums.get", "GET");
     request.setModelClass(Album.class);
     request.setGroupId(SELF);
@@ -32,17 +47,30 @@ public class AlbumsService extends Service {
     return request;
   }
 
-  public static Request retrieve(String albumId) {
-    Request request = new Request(restTemplate, "albums.get", "GET");
-    request.setModelClass(Album.class);
+  /**
+   * Returns a new Request instance which, when submitted, fetches the
+   * specified album and makes this data available as an Album object.
+   *
+   * @param  albumId ID of album to fetch
+   * @return         new Request object to fetch the specified album
+   * @see            Album
+   */
+  public static Request getAlbum(String albumId) {
+    Request request = getAlbums();
     request.setAlbumId(albumId);
-    request.setGroupId(SELF);
-    request.setGuid(ME);
 
     return request;
   }
 
-  public static Request create(Album album) {
+  /**
+   * Returns a new Request instance which, when submitted, creates a new
+   * album in the current viewer's library.
+   *
+   * @param  album Album object specifying the album parameters to pass into
+   *               the request; typically, caption and description are set
+   * @return       new Request object to create a new album
+   */
+  public static Request createAlbum(Album album) {
     Request request = new Request(restTemplate, "albums.create", "POST");
     request.setGroupId(SELF);
     request.setGuid(ME);
@@ -53,9 +81,27 @@ public class AlbumsService extends Service {
     return request;
   }
 
-  public static Request update(String albumId, Album album) {
+  /**
+   * Returns a new Request instance which, when submitted, updates an existing
+   * album in the current viewer's library.
+   *
+   * @param  album Album object specifying the album parameters to pass into
+   *               the request; id must be set in order to indicate which album
+   *               is to be updated and values associated with any other
+   *               property, e.g. caption and description, are updated
+   * @return       new Request object to update an existing album
+   *
+   * @throws RequestException if the passed Album object does not have an id
+   *                          property set
+   */
+  public static Request updateAlbum(Album album) throws RequestException {
+    if (album.getId() == null || album.getId().equals("")) {
+      throw new RequestException("Passed Album object does not have ID " +
+          "property set");
+    }
+
     Request request = new Request(restTemplate, "albums.update", "PUT");
-    request.setAlbumId(albumId);
+    request.setAlbumId(album.getId());
     request.setGroupId(SELF);
     request.setGuid(ME);
 
@@ -65,7 +111,14 @@ public class AlbumsService extends Service {
     return request;
   }
 
-  public static Request delete(String albumId) {
+  /**
+   * Returns a new Request instance which, when submitted, deletes an existing
+   * album from the current viewer's library.
+   *
+   * @param  albumId ID of album to delete
+   * @return         new Request object to delete an existing album
+   */
+  public static Request deleteAlbum(String albumId) {
     Request request = new Request(restTemplate, "albums.delete", "DELETE");
     request.setAlbumId(albumId);
     request.setGroupId(SELF);

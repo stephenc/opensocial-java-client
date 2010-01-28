@@ -37,6 +37,10 @@ public class Album extends Model {
     return getFieldAsString("thumbnailUrl");
   }
 
+  public void setId(String id) {
+    put("id", id);
+  }
+
   public void setCaption(String caption) {
     put("caption", caption);
   }
