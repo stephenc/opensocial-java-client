@@ -21,8 +21,8 @@ import org.opensocial.services.Service;
 
 /**
  * OpenSocial API class for MySpace status and mood requests; contains static
- * methods for fetching, creating, and updating MySpace statuses, moods, and
- * mood history.
+ * methods for fetching and updating MySpace statuses and for fetching
+ * supported moods and mood history.
  *
  * @author Jason Cooper
  */
