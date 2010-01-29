@@ -39,7 +39,7 @@ public class ProfileCommentsTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = ProfileCommentsService.retrieve();
+      Request request = ProfileCommentsService.getComments();
       Response response = client.send(request);
 
       Comment comment = response.getEntry();

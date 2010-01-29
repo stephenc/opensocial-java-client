@@ -19,29 +19,35 @@ import org.opensocial.Request;
 import org.opensocial.models.myspace.Notification;
 import org.opensocial.services.Service;
 
+/**
+ * OpenSocial API class for MySpace notification requests; contains static
+ * methods for creating MySpace notifications.
+ *
+ * @author Jason Cooper
+ */
 public class NotificationsService extends Service {
 
   private static final String restTemplate = "notifications/{guid}/{groupId}";
 
-  public static Request create(Notification notification) {
+  /**
+   * Returns a new Request instance which, when submitted, creates a new
+   * MySpace notification to the recipients specified in the passed object.
+   *
+   * @param  notification Notification object specifying the parameters to pass
+   *                      into the request; typically, recipient IDs are added,
+   *                      but content and media items can also be set
+   * @return              new Request object to create a new MySpace
+   *                      notification
+   * @see                 Notification
+   */
+  public static Request createNotification(Notification notification) {
     Request request = new Request(restTemplate, null, "POST");
     request.setModelClass(Notification.class);
     request.setGroupId(SELF);
     request.setGuid(ME);
 
     // Add REST payload parameters
-    if (notification.containsKey("templateParameters")) {
-      request.addRestPayloadParameter("templateParameters",
-          notification.getField("templateParameters"));
-    }
-    if (notification.getRecipients() != null) {
-      request.addRestPayloadParameter("recipientIds",
-          notification.getRecipients());
-    }
-    if (notification.getMediaItems() != null) {
-      request.addRestPayloadParameter("mediaItems",
-          notification.getMediaItems());
-    }
+    request.setRestPayloadParameters(notification);
 
     return request;
   }

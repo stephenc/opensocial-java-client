@@ -50,7 +50,7 @@ public class NotificationsTest {
       notification.addRecipient("495184236");
       notification.addMediaItem(mediaItem);
 
-      Request request = NotificationsService.create(notification);
+      Request request = NotificationsService.createNotification(notification);
       Response response = client.send(request);
 
       assertTrue(response.getStatusLink() != null);
