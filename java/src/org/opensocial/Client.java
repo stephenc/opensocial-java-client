@@ -59,8 +59,8 @@ public class Client {
    * Creates and returns a new {@link Client} associated with the passed
    * {@link Provider} and {@link AuthScheme}.
    *
-   * @param provider   {@link Provider} to associate with new {@link Client}
-   * @param authScheme {@link AuthScheme} to associate with new {@link Client}
+   * @param provider   Provider to associate with new Client
+   * @param authScheme AuthScheme to associate with new Client
    */
   public Client(Provider provider, AuthScheme authScheme) {
     this.provider = provider;
