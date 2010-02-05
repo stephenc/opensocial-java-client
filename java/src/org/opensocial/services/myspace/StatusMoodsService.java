@@ -126,11 +126,10 @@ public class StatusMoodsService extends Service {
       String friendId) {
     Request request = new Request(restTemplate, null, "GET");
     request.setModelClass(StatusMood.class);
-    request.setFriendId(friendId);
+    request.addComponent(Request.FRIEND_ID, friendId);
+    request.addComponent(Request.HISTORY, Request.HISTORY);
     request.setGroupId(groupId);
     request.setGuid(ME);
-
-    request.setHistory(true);
 
     return request;
   }
@@ -162,7 +161,7 @@ public class StatusMoodsService extends Service {
    */
   public static Request getSupportedMood(long moodId) {
     Request request = getSupportedMoods();
-    request.setMoodId("" + moodId);
+    request.addComponent(Request.MOOD_ID, "" + moodId);
 
     return request;
   }

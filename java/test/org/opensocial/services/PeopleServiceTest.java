@@ -29,8 +29,8 @@ public class PeopleServiceTest {
 
     testCommonAttributes(request);
     testCommonRetrieveAttributes(request);
-    assertTrue(request.getGuid().equals(Service.ME));
-    assertTrue(request.getSelector().equals(Service.SELF));
+    assertTrue(request.getComponent(Request.GUID).equals(Service.ME));
+    assertTrue(request.getComponent(Request.SELECTOR).equals(Service.SELF));
     
   }
 
@@ -41,8 +41,8 @@ public class PeopleServiceTest {
 
     testCommonAttributes(request);
     testCommonRetrieveAttributes(request);
-    assertTrue(request.getGuid().equals(id));
-    assertTrue(request.getSelector().equals(Service.SELF));
+    assertTrue(request.getComponent(Request.GUID).equals(id));
+    assertTrue(request.getComponent(Request.SELECTOR).equals(Service.SELF));
   }
 
   @Test
@@ -51,13 +51,14 @@ public class PeopleServiceTest {
 
     testCommonAttributes(request);
     testCommonRetrieveAttributes(request);
-    assertTrue(request.getGuid().equals(Service.ME));
-    assertTrue(request.getSelector().equals(Service.FRIENDS));
+    assertTrue(request.getComponent(Request.GUID).equals(Service.ME));
+    assertTrue(request.getComponent(Request.SELECTOR).equals(Service.FRIENDS));
   }
 
   private void testCommonAttributes(Request request) {
     assertTrue(request.getModelClass().equals(Person.class));
-    assertTrue(request.getTemplate().equals("people/{guid}/{selector}/{pid}"));
+    assertTrue(request.getRestUrlTemplate().equals(
+        "people/{guid}/{selector}/{pid}"));
   }
 
   private void testCommonRetrieveAttributes(Request request) {

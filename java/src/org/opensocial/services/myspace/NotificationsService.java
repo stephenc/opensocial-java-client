@@ -47,7 +47,7 @@ public class NotificationsService extends Service {
     request.setGuid(ME);
 
     // Add REST payload parameters
-    request.setRestPayloadParameters(notification);
+    request.addRestPayloadParameters(notification);
 
     return request;
   }

@@ -112,7 +112,7 @@ public class ActivitiesService extends Service {
     request.addRpcPayloadParameter("activity", activityParameter);
 
     // Add REST payload parameters
-    request.setRestPayloadParameters(activity);
+    request.addRestPayloadParameters(activity);
 
     return request;
   }

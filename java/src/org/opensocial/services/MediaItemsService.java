@@ -44,7 +44,7 @@ public class MediaItemsService extends Service {
   public static Request getMediaItems(String albumId) {
     Request request = new Request(restTemplate, "mediaItems.get", "GET");
     request.setModelClass(MediaItem.class);
-    request.setAlbumId(albumId);
+    request.addComponent(Request.ALBUM_ID, albumId);
     request.setGroupId(SELF);
     request.setGuid(ME);
 
@@ -63,7 +63,7 @@ public class MediaItemsService extends Service {
    */
   public static Request getMediaItem(String itemId, String albumId) {
     Request request = getMediaItems(albumId);
-    request.setItemId(itemId);
+    request.addComponent(Request.ITEM_ID, itemId);
 
     return request;
   }
@@ -88,12 +88,12 @@ public class MediaItemsService extends Service {
     }
 
     Request request = new Request(restTemplate, "mediaItems.create", "POST");
-    request.setAlbumId(item.getAlbumId());
+    request.addComponent(Request.ALBUM_ID, item.getAlbumId());
     request.setGroupId(SELF);
     request.setGuid(ME);
 
     // Add REST payload parameters
-    request.setRestPayloadParameters(item);
+    request.addRestPayloadParameters(item);
 
     return request;
   }
@@ -158,13 +158,13 @@ public class MediaItemsService extends Service {
     }
 
     Request request = new Request(restTemplate, "mediaItems.update", "PUT");
-    request.setAlbumId(item.getAlbumId());
-    request.setItemId(item.getId());
+    request.addComponent(Request.ALBUM_ID, item.getAlbumId());
+    request.addComponent(Request.ITEM_ID, item.getId());
     request.setGroupId(SELF);
     request.setGuid(ME);
 
     // Add REST payload parameters
-    request.setRestPayloadParameters(item);
+    request.addRestPayloadParameters(item);
 
     return request;
   }
@@ -179,8 +179,8 @@ public class MediaItemsService extends Service {
    */
   public static Request deleteMediaItem(String itemId, String albumId) {
     Request request = new Request(restTemplate, "mediaItems.delete", "DELETE");
-    request.setAlbumId(albumId);
-    request.setItemId(itemId);
+    request.addComponent(Request.ALBUM_ID, albumId);
+    request.addComponent(Request.ITEM_ID, itemId);
     request.setGroupId(SELF);
     request.setGuid(ME);
 

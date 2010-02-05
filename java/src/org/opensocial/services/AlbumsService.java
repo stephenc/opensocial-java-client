@@ -57,7 +57,7 @@ public class AlbumsService extends Service {
    */
   public static Request getAlbum(String albumId) {
     Request request = getAlbums();
-    request.setAlbumId(albumId);
+    request.addComponent(Request.ALBUM_ID, albumId);
 
     return request;
   }
@@ -76,7 +76,7 @@ public class AlbumsService extends Service {
     request.setGuid(ME);
 
     // Add REST payload parameters
-    request.setRestPayloadParameters(album);
+    request.addRestPayloadParameters(album);
 
     return request;
   }
@@ -101,12 +101,12 @@ public class AlbumsService extends Service {
     }
 
     Request request = new Request(restTemplate, "albums.update", "PUT");
-    request.setAlbumId(album.getId());
+    request.addComponent(Request.ALBUM_ID, album.getId());
     request.setGroupId(SELF);
     request.setGuid(ME);
 
     // Add REST payload parameters
-    request.setRestPayloadParameters(album);
+    request.addRestPayloadParameters(album);
 
     return request;
   }
@@ -120,7 +120,7 @@ public class AlbumsService extends Service {
    */
   public static Request deleteAlbum(String albumId) {
     Request request = new Request(restTemplate, "albums.delete", "DELETE");
-    request.setAlbumId(albumId);
+    request.addComponent(Request.ALBUM_ID, albumId);
     request.setGroupId(SELF);
     request.setGuid(ME);
 
