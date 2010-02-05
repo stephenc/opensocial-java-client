@@ -15,7 +15,6 @@
 
 package org.opensocial;
 
-import org.opensocial.auth.AuthScheme;
 import org.opensocial.models.Model;
 import org.opensocial.providers.Provider;
 
