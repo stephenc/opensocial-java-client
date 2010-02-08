@@ -43,7 +43,7 @@ public class OAuth2LeggedScheme extends OAuthScheme implements AuthScheme {
   }
 
   public HttpMessage getHttpMessage(Provider provider, String method,
-      String url, Map<String, String> headers, String body) throws
+      String url, Map<String, String> headers, byte[] body) throws
       RequestException, IOException {
     if (consumerKey == null || consumerSecret == null) {
       return null;
@@ -51,7 +51,7 @@ public class OAuth2LeggedScheme extends OAuthScheme implements AuthScheme {
 
     url = appendRequestorIdToQueryString(url);
     OAuthMessage message = new OAuthMessage(method, url, null,
-        stringToStream(body));
+        byteArrayToStream(body));
 
     for (Map.Entry<String, String> header : headers.entrySet()) {
       message.getHeaders().add(header);

@@ -166,23 +166,54 @@ public class MediaItemsTest {
 
   /*@Test
   public void uploadMediaItem() {
-    File f = new File("");
+    File f = new File("/Users/jasonacooper/Desktop/logo.gif");
 
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
       MediaItem mediaItem = new MediaItem();
-      mediaItem.setContentType("image/jpg");
-      mediaItem.setType("image");
+      mediaItem.setAlbumId("myspace.com.album.706610");
+      mediaItem.setType("IMAGE");
 
-      Request request = MediaItemService.upload(mediaItem, f,
-          "myspace.com.album.706610");
+      Request request = MediaItemsService.uploadMediaItem(mediaItem, f,
+          "image/gif");
       Response response = client.send(request);
 
-      //assertTrue(response.getStatusLink() != null);
+      assertTrue(response.getStatusLink() != null);
     } catch (Exception e) {
       fail("Exception occurred while processing request");
     }
+  }
+
+  @Test(expected=RequestException.class)
+  public void uploadMediaItemWithoutAlbumId() throws RequestException,
+      IOException {
+    File f = new File("/Users/jasonacooper/Desktop/logo.gif");
+
+    Client client = new Client(new MySpaceProvider(),
+        new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
+
+    MediaItem mediaItem = new MediaItem();
+    mediaItem.setType("IMAGE");
+
+    Request request = MediaItemsService.uploadMediaItem(mediaItem, f,
+      "image/gif");
+  }
+
+  @Test(expected=RequestException.class)
+  public void uploadMediaItemWithNullContentType() throws RequestException,
+      IOException {
+    File f = new File("/Users/jasonacooper/Desktop/logo.gif");
+
+    Client client = new Client(new MySpaceProvider(),
+        new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
+
+    MediaItem mediaItem = new MediaItem();
+    mediaItem.setAlbumId("myspace.com.album.706610");
+    mediaItem.setType("IMAGE");
+
+    Request request = MediaItemsService.uploadMediaItem(mediaItem, f,
+      null);
   }*/
 }

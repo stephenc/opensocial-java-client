@@ -17,11 +17,10 @@ package org.opensocial.http;
 
 import net.oauth.http.HttpMessage;
 
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.util.Map;
 
@@ -39,11 +38,16 @@ public class HttpClient implements net.oauth.http.HttpClient {
       connection = getConnection(message);
 
       if (message.getBody() != null) {
-        OutputStreamWriter out =
-          new OutputStreamWriter(connection.getOutputStream());
-        out.write(StreamToString(message.getBody()));
+        DataOutputStream out =
+          new DataOutputStream(connection.getOutputStream());
+        out.write(streamToByteArray(message.getBody()));
         out.flush();
         out.close();
+        /*OutputStreamWriter out =
+          new OutputStreamWriter(connection.getOutputStream());
+        out.write(streamToByteArray(message.getBody()));
+        out.flush();
+        out.close();*/
       }
 
       return new HttpResponseMessage(message.method, message.url,
@@ -74,14 +78,21 @@ public class HttpClient implements net.oauth.http.HttpClient {
     return connection;
   }
 
-  /**
-   * From http://www.kodejava.org/examples/266.html
-   * 
-   * @param is
-   * @return
-   */
-  private String StreamToString(InputStream stream) {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+  private byte[] streamToByteArray(InputStream stream) throws IOException {
+    byte[] buffer = new byte[1024];
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    while(true) {
+      int read = stream.read(buffer);
+      if (read <= 0) {
+        break;
+      }
+
+      out.write(buffer, 0, read);
+    }
+
+    return out.toByteArray();
+    /*BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
     StringBuilder builder = new StringBuilder();
 
     String line = null;
@@ -97,6 +108,6 @@ public class HttpClient implements net.oauth.http.HttpClient {
       }
     }
 
-    return builder.toString();
+    return builder.toString();*/
   }
 }

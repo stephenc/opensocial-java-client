@@ -19,6 +19,12 @@ import org.opensocial.Request;
 import org.opensocial.RequestException;
 import org.opensocial.models.MediaItem;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * OpenSocial API class for media item requests; contains static methods for
  * fetching, creating, updating and deleting media items (video, image, or
@@ -98,8 +104,36 @@ public class MediaItemsService extends Service {
     return request;
   }
 
-  /*public static Request uploadMediaItem(MediaItem item, File content, String
-        albumId) throws IOException {
+  /**
+   * Returns a new Request instance which, when submitted, uploads the
+   * specified file as a new media item in the specified viewer album.
+   *
+   * @param item        MediaItem object specifying the media item parameters
+   *                    to pass into the request; album_id must be set and
+   *                    other properties, e.g. type, can also be set
+   * @param content     local file to be uploaded as a new media item
+   * @param contentType MIME type of passed file, e.g. image/gif for a GIF
+   *                    image
+   * @return            new Request object to upload the specified file as a
+   *                    new media item
+   *
+   * @throws RequestException if the passed MediaItem object does not have an
+   *                          album_id property set OR if the passed content
+   *                          type string is null or empty
+   * @throws IOException      if an I/O error occurs while reading the passed
+   *                          file
+   */
+  public static Request uploadMediaItem(MediaItem item, File content,
+        String contentType) throws RequestException, IOException {
+    if (item.getAlbumId() == null || item.getAlbumId().equals("")) {
+      throw new RequestException("Passed MediaItem object does not have " +
+          "album_id property set");
+    }
+    if (contentType == null || contentType.equals("")) {
+      throw new RequestException("Passed content type string must be a " +
+          "valid MIME type");
+    }
+
     byte[] buffer = new byte[1024];
     InputStream in = new FileInputStream(content);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -113,25 +147,27 @@ public class MediaItemsService extends Service {
       out.write(buffer, 0, read);
     }
 
-    String itemContent = new String(out.toString());
+    byte[] bytes = out.toByteArray();
     out.close();
     in.close();
 
     Request request = new Request(restTemplate, "mediaItems.create", "POST");
-    request.setAlbumId(albumId);
+    request.addComponent(Request.ALBUM_ID, item.getAlbumId());
     request.setGroupId(SELF);
     request.setGuid(ME);
 
-    if (item.getContentType() != null) {
-      request.setCustomContentType(item.getContentType());
-      request.setRawPayload(itemContent);
+    if (bytes != null && contentType != null) {
+      request.setCustomPayload(bytes);
+      request.setContentType(contentType);
     }
+
+    // Add REST query string parameters
     if (item.getType() != null) {
       request.addRestQueryStringParameter("type", item.getType());
     }
 
     return request;
-  }*/
+  }
 
   /**
    * Returns a new Request instance which, when submitted, updates an existing

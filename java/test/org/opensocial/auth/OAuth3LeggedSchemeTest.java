@@ -238,7 +238,7 @@ public class OAuth3LeggedSchemeTest {
     parameters.add(new OAuth.Parameter(OAuth.OAUTH_NONCE, "987654321"));
     
     HttpMessage message = authScheme.getHttpMessage(provider, "POST", url,
-        headers, "{a:\"test\"}", parameters);
+        headers, "{a:\"test\"}".getBytes("UTF-8"), parameters);
 
     assertEquals("http://example.org/test?arg=value" +
         "&oauth_timestamp=123456789&oauth_nonce=987654321" +

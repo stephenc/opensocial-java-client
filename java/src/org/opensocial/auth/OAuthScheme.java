@@ -48,29 +48,25 @@ abstract class OAuthScheme {
     return consumerSecret;
   }
 
-  protected InputStream stringToStream(String text) {
+  protected InputStream byteArrayToStream(byte[] bytes) {
     InputStream stream = null;
 
-    if (text != null) {
-      try {
-        stream = new ByteArrayInputStream(text.getBytes("UTF-8"));
-      } catch (UnsupportedEncodingException e) {
-        // Ignore
-      }
+    if (bytes != null) {
+      stream = new ByteArrayInputStream(bytes);
     }
 
     return stream;
   }
 
   protected HttpMessage getHttpMessage(OAuthMessage message,
-      OAuthAccessor accessor, String body, boolean signBodyHash) throws
+      OAuthAccessor accessor, byte[] body, boolean signBodyHash) throws
       IOException, RequestException {
     if (body != null) {
       if (signBodyHash) {
         try {
           MessageDigest md = MessageDigest.getInstance("SHA-1");
 
-          byte[] hash = md.digest(body.getBytes("UTF-8"));
+          byte[] hash = md.digest(body);
           byte[] encodedHash = new Base64().encode(hash);
 
           message.addParameter("oauth_body_hash",
@@ -82,7 +78,7 @@ abstract class OAuthScheme {
         }
       } else if (message.getHeader(HttpMessage.CONTENT_TYPE).equals(
           "application/x-www-form-urlencoded")){
-        message.addParameter(body, "");
+        message.addParameter(byteArrayToString(body), "");
       }
     }
 
@@ -97,5 +93,14 @@ abstract class OAuthScheme {
     }
 
     return HttpMessage.newRequest(message, ParameterStyle.QUERY_STRING);
+  }
+
+  private String byteArrayToString(byte[] bytes) {
+    try {
+      return new String(bytes, "UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      // Ignore
+      return null;
+    }
   }
 }

@@ -41,12 +41,12 @@ public class SecurityTokenScheme implements AuthScheme {
   }
 
   public HttpMessage getHttpMessage(Provider provider, String method,
-      String url, Map<String, String> headers, String body) throws
+      String url, Map<String, String> headers, byte[] body) throws
       RequestException, IOException {
     url = appendTokenToQueryString(url);
 
     HttpMessage message = new HttpMessage(method, new URL(url),
-        stringToInputStream(body));
+        byteArrayToStream(body));
     for (Map.Entry<String, String> header : headers.entrySet()) {
       message.headers.add(header);
     }
@@ -74,11 +74,13 @@ public class SecurityTokenScheme implements AuthScheme {
     return builder.toString();
   }
 
-  private InputStream stringToInputStream(String string) {
-    if (string == null) {
-      return null;
+  protected InputStream byteArrayToStream(byte[] bytes) {
+    InputStream stream = null;
+
+    if (bytes != null) {
+      stream = new ByteArrayInputStream(bytes);
     }
 
-    return new ByteArrayInputStream(string.getBytes());
+    return stream;
   }
 }

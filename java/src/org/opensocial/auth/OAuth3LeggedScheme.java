@@ -70,19 +70,19 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
   }
 
   public HttpMessage getHttpMessage(Provider provider, String method,
-      String url, Map<String, String> headers, String body) throws
+      String url, Map<String, String> headers, byte[] body) throws
       RequestException, IOException {
     return getHttpMessage(provider, method, url, headers, body, null);
   }
 
   public HttpMessage getHttpMessage(Provider provider, String method,
-      String url, Map<String, String> headers, String body,
+      String url, Map<String, String> headers, byte[] body,
       Collection<? extends Entry> parameters) throws
       RequestException, IOException {
     OAuthAccessor accessor = getOAuthAccessor(accessToken.token,
         accessToken.secret);
     OAuthMessage message = new OAuthMessage(method, url, parameters,
-        stringToStream(body));
+        byteArrayToStream(body));
 
     for (Map.Entry<String, String> header : headers.entrySet()) {
       message.getHeaders().add(header);

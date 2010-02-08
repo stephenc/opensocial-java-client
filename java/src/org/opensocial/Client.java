@@ -20,12 +20,9 @@ import net.oauth.http.HttpMessage;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.opensocial.auth.AuthScheme;
-import org.opensocial.auth.OAuth2LeggedScheme;
 import org.opensocial.http.HttpClient;
 import org.opensocial.http.HttpResponseMessage;
-import org.opensocial.providers.OrkutProvider;
 import org.opensocial.providers.Provider;
-import org.opensocial.services.PeopleService;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -173,7 +170,8 @@ public class Client {
     HttpResponseMessage responseMessage = httpClient.execute(message);
 
     System.out.println("Request URL: " + responseMessage.getUrl().toString());
-    System.out.println("Request body: " + buildRpcPayload(requests));
+    System.out.println("Request body: " +new String(buildRpcPayload(requests),
+        "UTF-8"));
     System.out.println("Status code: " + responseMessage.getStatusCode());
     System.out.println("Response: " + responseMessage.getResponse());
 
@@ -200,7 +198,13 @@ public class Client {
 
     System.out.println("Request method: " + responseMessage.getMethod());
     System.out.println("Request URL: " + responseMessage.getUrl().toString());
-    System.out.println("Request body: " + buildRestPayload(request));
+    byte[] body = buildRestPayload(request);
+    if (body != null) {
+      System.out.println("Request body: " +
+          new String(buildRestPayload(request), "UTF-8"));
+    } else {
+      System.out.println("Request body: null");
+    }
     System.out.println("Status code: " + responseMessage.getStatusCode());
     System.out.println("Response: " + responseMessage.getResponse());
 
@@ -221,7 +225,7 @@ public class Client {
     return builder.toString();
   }
 
-  private String buildRpcPayload(Map<String, Request> requests) {
+  private byte[] buildRpcPayload(Map<String, Request> requests) {
     JSONArray requestArray = new JSONArray();
     for (Map.Entry<String, Request> requestEntry : requests.entrySet()) {
       JSONObject request = new JSONObject();
@@ -238,7 +242,11 @@ public class Client {
       requestArray.add(request);
     }
 
-    return requestArray.toJSONString();
+    try {
+      return requestArray.toJSONString().getBytes("UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      return null;
+    }
   }
 
   private String buildRestUrl(Request request) {
@@ -288,13 +296,12 @@ public class Client {
     return builder.toString();
   }
 
-  private String buildRestPayload(Request request) {
+  private byte[] buildRestPayload(Request request) {
     if (request.getCustomPayload() != null) {
       return request.getCustomPayload();
     }
 
     Map<String, Object> parameters = request.getRestPayloadParameters();
-
     if (parameters == null || parameters.size() == 0) {
       return null;
     }
@@ -304,6 +311,10 @@ public class Client {
       payload.put(parameter.getKey(), parameter.getValue());
     }
 
-    return payload.toJSONString();
+    try {
+      return payload.toJSONString().getBytes("UTF-8");
+    } catch (UnsupportedEncodingException e) {
+      return null;
+    }
   }
 }

@@ -26,6 +26,6 @@ import java.util.Map;
 public interface AuthScheme {
 
   public HttpMessage getHttpMessage(Provider provider, String method,
-      String url, Map<String, String> headers, String body) throws
+      String url, Map<String, String> headers, byte[] body) throws
       RequestException, IOException;
 }
