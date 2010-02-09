@@ -29,6 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * OpenSocial RESTful client supporting both the RPC and REST protocols defined
@@ -51,6 +52,8 @@ public class Client {
   private Provider provider;
   private AuthScheme authScheme;
   private HttpClient httpClient;
+
+  private static Logger logger = Logger.getLogger("org.opensocial.client");
 
   /**
    * Creates and returns a new {@link Client} associated with the passed
@@ -169,11 +172,7 @@ public class Client {
 
     HttpResponseMessage responseMessage = httpClient.execute(message);
 
-    System.out.println("Request URL: " + responseMessage.getUrl().toString());
-    System.out.println("Request body: " +new String(buildRpcPayload(requests),
-        "UTF-8"));
-    System.out.println("Status code: " + responseMessage.getStatusCode());
-    System.out.println("Response: " + responseMessage.getResponse());
+    logger.finest(buildLogRecord(requests, responseMessage));
 
     Map<String, Response> responses = Response.parseRpcResponse(requests,
         responseMessage, provider.getVersion());
@@ -196,17 +195,7 @@ public class Client {
 
     HttpResponseMessage responseMessage = httpClient.execute(message);
 
-    System.out.println("Request method: " + responseMessage.getMethod());
-    System.out.println("Request URL: " + responseMessage.getUrl().toString());
-    byte[] body = buildRestPayload(request);
-    if (body != null) {
-      System.out.println("Request body: " +
-          new String(buildRestPayload(request), "UTF-8"));
-    } else {
-      System.out.println("Request body: null");
-    }
-    System.out.println("Status code: " + responseMessage.getStatusCode());
-    System.out.println("Response: " + responseMessage.getResponse());
+    logger.finest(buildLogRecord(request, responseMessage));
 
     Response response = Response.parseRestResponse(request, responseMessage,
         provider.getVersion());
@@ -316,5 +305,55 @@ public class Client {
     } catch (UnsupportedEncodingException e) {
       return null;
     }
+  }
+
+  private String buildLogRecord(Map<String, Request> requests,
+      HttpResponseMessage message) {
+    String payload = null;
+
+    byte[] bytes = buildRpcPayload(requests);
+    if (bytes != null) {
+      try {
+        payload = new String(bytes, "UTF-8");
+      } catch (UnsupportedEncodingException e) {
+        // Ignore
+      }
+    }
+
+    return buildLogRecord(payload, message);
+  }
+
+  private String buildLogRecord(Request request, HttpResponseMessage message) {
+    String payload = null;
+
+    if (request.getCustomPayload() == null) {
+      byte[] bytes = buildRestPayload(request);
+      if (bytes != null) {
+        try {
+          payload = new String(bytes, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+          // Ignore
+        }
+      }
+    }
+
+    return buildLogRecord(payload, message);
+  }
+
+  private String buildLogRecord(String payload, HttpResponseMessage message) {
+    StringBuilder builder = new StringBuilder("\n");
+    builder.append(message.getMethod());
+    builder.append("\n");
+    builder.append(message.getUrl().toString());
+    builder.append("\n");
+    if (payload != null) {
+      builder.append(payload);
+      builder.append("\n");
+    }
+    builder.append(message.getStatusCode());
+    builder.append("\n");
+    builder.append(message.getResponse());
+
+    return builder.toString();
   }
 }
