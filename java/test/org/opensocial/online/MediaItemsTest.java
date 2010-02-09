@@ -174,10 +174,10 @@ public class MediaItemsTest {
 
       MediaItem mediaItem = new MediaItem();
       mediaItem.setAlbumId("myspace.com.album.706610");
+      mediaItem.setMimeType("image/gif");
       mediaItem.setType("IMAGE");
 
-      Request request = MediaItemsService.uploadMediaItem(mediaItem, f,
-          "image/gif");
+      Request request = MediaItemsService.uploadMediaItem(mediaItem, f);
       Response response = client.send(request);
 
       assertTrue(response.getStatusLink() != null);
@@ -191,29 +191,34 @@ public class MediaItemsTest {
       IOException {
     File f = new File("/Users/jasonacooper/Desktop/logo.gif");
 
-    Client client = new Client(new MySpaceProvider(),
-        new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-
     MediaItem mediaItem = new MediaItem();
+    mediaItem.setMimeType("image/gif");
     mediaItem.setType("IMAGE");
 
-    Request request = MediaItemsService.uploadMediaItem(mediaItem, f,
-      "image/gif");
+    MediaItemsService.uploadMediaItem(mediaItem, f);
   }
 
   @Test(expected=RequestException.class)
-  public void uploadMediaItemWithNullContentType() throws RequestException,
+  public void uploadMediaItemWithoutMimeType() throws RequestException,
       IOException {
     File f = new File("/Users/jasonacooper/Desktop/logo.gif");
-
-    Client client = new Client(new MySpaceProvider(),
-        new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
     MediaItem mediaItem = new MediaItem();
     mediaItem.setAlbumId("myspace.com.album.706610");
     mediaItem.setType("IMAGE");
 
-    Request request = MediaItemsService.uploadMediaItem(mediaItem, f,
-      null);
+    MediaItemsService.uploadMediaItem(mediaItem, f);
+  }
+
+  @Test(expected=RequestException.class)
+  public void uploadMediaItemWithoutType() throws RequestException,
+      IOException {
+    File f = new File("/Users/jasonacooper/Desktop/logo.gif");
+
+    MediaItem mediaItem = new MediaItem();
+    mediaItem.setAlbumId("myspace.com.album.706610");
+    mediaItem.setMimeType("image/gif");
+
+    MediaItemsService.uploadMediaItem(mediaItem, f);
   }*/
 }

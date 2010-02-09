@@ -109,29 +109,30 @@ public class MediaItemsService extends Service {
    * specified file as a new media item in the specified viewer album.
    *
    * @param item        MediaItem object specifying the media item parameters
-   *                    to pass into the request; album_id must be set and
-   *                    other properties, e.g. type, can also be set
+   *                    to pass into the request; album_id, type, and mime_type
+   *                    must be set
    * @param content     local file to be uploaded as a new media item
-   * @param contentType MIME type of passed file, e.g. image/gif for a GIF
-   *                    image
    * @return            new Request object to upload the specified file as a
    *                    new media item
    *
-   * @throws RequestException if the passed MediaItem object does not have an
-   *                          album_id property set OR if the passed content
-   *                          type string is null or empty
+   * @throws RequestException if the passed MediaItem object does not have its
+   *                          album_id, type, or mime_type properties set
    * @throws IOException      if an I/O error occurs while reading the passed
    *                          file
    */
-  public static Request uploadMediaItem(MediaItem item, File content,
-        String contentType) throws RequestException, IOException {
+  public static Request uploadMediaItem(MediaItem item, File content) throws
+      RequestException, IOException {
     if (item.getAlbumId() == null || item.getAlbumId().equals("")) {
       throw new RequestException("Passed MediaItem object does not have " +
           "album_id property set");
     }
-    if (contentType == null || contentType.equals("")) {
-      throw new RequestException("Passed content type string must be a " +
-          "valid MIME type");
+    if (item.getMimeType() == null || item.getMimeType().equals("")) {
+      throw new RequestException("Passed MediaItem object does not have " +
+          "mime_type property set");
+    }
+    if (item.getType() == null || item.getType().equals("")) {
+      throw new RequestException("Passed MediaItem object does not have " +
+          "type property set");
     }
 
     byte[] buffer = new byte[1024];
@@ -156,15 +157,13 @@ public class MediaItemsService extends Service {
     request.setGroupId(SELF);
     request.setGuid(ME);
 
-    if (bytes != null && contentType != null) {
+    if (bytes != null) {
       request.setCustomPayload(bytes);
-      request.setContentType(contentType);
+      request.setContentType(item.getMimeType());
     }
 
     // Add REST query string parameters
-    if (item.getType() != null) {
-      request.addRestQueryStringParameter("type", item.getType());
-    }
+    request.addRestQueryStringParameter("type", item.getType());
 
     return request;
   }
