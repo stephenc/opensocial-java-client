@@ -18,30 +18,44 @@ package org.opensocial.models.myspace;
 import org.opensocial.models.MediaItem;
 import org.opensocial.models.Model;
 
-import java.util.List;
-
+/**
+ * MySpace OpenSocial model class representing a MySpace notification. For
+ * reference:
+ * http://developerwiki.myspace.com/index.php?title=OpenSocial_v0.9_Notifications
+ *
+ * @author Jason Cooper
+ */
 public class Notification extends Model {
 
-  public String getContent() {
-    return getTemplateParameter("content");
-  }
-
-  public List<String> getRecipients() {
-    return getFieldAsList("recipientIds");
-  }
-
-  public List<MediaItem> getMediaItems() {
-    return getFieldAsList("mediaItems");
-  }
-
+  /**
+   * Sets the notification's content as a template parameter; the passed string
+   * can contain tokens such as ${recipient} which are substituted for
+   * appropriate values when the content is rendered.
+   *
+   * @param content content to set; can contain template "tokens" of the form
+   *                ${token}, the values of which are substituted when the
+   *                content block is rendered
+   */
   public void setContent(String content) {
     addTemplateParameter("content", content);
   }
 
+  /**
+   * Adds the specified user to the list of users that will receive the
+   * notification.
+   *
+   * @param id OpenSocial ID of user to receive notification
+   */
   public void addRecipient(String id) {
     addToListField("recipientIds", id);
   }
 
+  /**
+   * Adds the passed media item to the list of media items (i.e. images) to
+   * post with the notification.
+   *
+   * @param item media item, i.e. image, to post with the notification
+   */
   public void addMediaItem(MediaItem item) {
     addToListField("mediaItems", item);
   }

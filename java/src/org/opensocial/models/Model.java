@@ -15,17 +15,28 @@
 
 package org.opensocial.models;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
+/**
+ * Generic OpenSocial model class. Every OpenSocial resource class, whether it
+ * models concrete (e.g. person) or abstract (e.g. AppData) concepts, extends
+ * this class. Instance methods provide an interface for getting and setting
+ * arbitrary properties (fields) of these resources.
+ *
+ * @author Jason Cooper
+ */
 public class Model extends JSONObject {
 
+  /**
+   * Returns the complete set of properties associated with the model instance.
+   */
   public String[] getFieldNames() {
     int i = 0;
     String[] fieldNames = new String[size()];
@@ -39,22 +50,57 @@ public class Model extends JSONObject {
     return fieldNames;
   }
 
+  /**
+   * Returns {@code true} if a value is associated with the specified field
+   * name, {@code false} otherwise.
+   *
+   * @param fieldName name of field to look up
+   */
   public boolean hasField(String fieldName) {
     return containsKey(fieldName);
   }
 
+  /**
+   * Returns the value of the specified field as an Object.
+   *
+   * @param fieldName name of field whose value is to be returned
+   */
   public Object getField(String fieldName) {
     return get(fieldName);
   }
 
+  /**
+   * Returns the value of the specified field as a {@link Map}. Equivalent to
+   * {@code (Map) getField(fieldName)}, hence this method will throw a
+   * ClassCastException if the field does not implement Map.
+   *
+   * @param fieldName name of field whose value is to be returned
+   * @see             ClassCastException
+   */
   public Map getFieldAsMap(String fieldName) {
     return (Map) get(fieldName);
   }
 
+  /**
+   * Returns the value of the specified field as a {@link List}. Equivalent to
+   * {@code (List) getField(fieldName)}, hence this method will throw a
+   * ClassCastException if the field does not implement List.
+   *
+   * @param fieldName name of field whose value is to be returned
+   * @see             ClassCastException
+   */
   public List getFieldAsList(String fieldName) {
     return (List) get(fieldName);
   }
 
+  /**
+   * Returns the value of the specified field as a {@link String}. Equivalent
+   * to {@code (String) getField(fieldName)}, hence this method will throw a
+   * ClassCastException if the field is not of type String.
+   *
+   * @param fieldName name of field whose value is to be returned
+   * @see             ClassCastException
+   */
   public String getFieldAsString(String fieldName) {
     try {
       return (String) get(fieldName);
@@ -63,13 +109,18 @@ public class Model extends JSONObject {
     }
   }
 
-  protected String getTemplateParameter(String key) {
+  /**
+   * Returns the template parameter with the specified name.
+   *
+   * @param name name of template parameter whose value is to be returned
+   */
+  protected String getTemplateParameter(String name) {
     if (containsKey("templateParameters")) {
       List<Map<String, String>> templateParameters =
         getFieldAsList("templateParameters");
 
       for (Map<String, String> parameter : templateParameters) {
-        if (parameter.get("key").equals(key)) {
+        if (parameter.get("key").equals(name)) {
           return parameter.get("value");
         }
       }
@@ -78,6 +129,12 @@ public class Model extends JSONObject {
     return null;
   }
 
+  /**
+   * Returns {@code true} if the value of the specified field implements
+   * {@link Map}, {@code false} otherwise.
+   *
+   * @param fieldName name of field to look up
+   */
   public boolean isFieldMultikeyed(String fieldName) {
     Object field = get(fieldName);
     if (field.getClass().equals(String.class) ||
@@ -88,6 +145,12 @@ public class Model extends JSONObject {
     return true;
   }
 
+  /**
+   * Returns {@code true} if the value of the specified field implements
+   * {@link List}, {@code false} otherwise.
+   *
+   * @param fieldName name of field to look up
+   */
   public boolean isFieldMultivalued(String fieldName) {
     Object field = get(fieldName);
     if (field.getClass().equals(JSONArray.class)) {
@@ -97,6 +160,13 @@ public class Model extends JSONObject {
     return false;
   }
 
+  /**
+   * Adds the passed Object to the list field with the specified name.
+   *
+   * @param fieldName name of list field for which the passed item should be
+   *                  added
+   * @param item      item to add
+   */
   protected void addToListField(String fieldName, Object item) {
     List<Object> listField = null;
 
@@ -110,7 +180,13 @@ public class Model extends JSONObject {
     put(fieldName, listField);
   }
 
-  protected void addTemplateParameter(String key, String value) {
+  /**
+   * Adds a new template parameter with the specified name and value.
+   *
+   * @param name  name of new template parameter to add
+   * @param value value of template parameter to associate with passed name
+   */
+  protected void addTemplateParameter(String name, String value) {
     List<Map<String, String>> templateParameters = null;
 
     if (containsKey("templateParameters")) {
@@ -120,7 +196,7 @@ public class Model extends JSONObject {
     }
 
     Map<String, String> templateParameter = new HashMap<String, String>();
-    templateParameter.put("key", key);
+    templateParameter.put("key", name);
     templateParameter.put("value", value);
 
     templateParameters.add(templateParameter);

@@ -17,12 +17,26 @@ package org.opensocial.models;
 
 import java.util.Map;
 
+/**
+ * OpenSocial model class representing a person/user. For reference:
+ * http://wiki.opensocial.org/index.php?title=Opensocial.Person_(v0.9)
+ * http://www.opensocial.org/Technical-Resources/opensocial-spec-v09/REST-API.html#rfc.section.3.2
+ *
+ * @author Jason Cooper
+ */
 public class Person extends Model {
 
+  /**
+   * Returns the user's OpenSocial ID.
+   */
   public String getId() {
     return (String) getField("id");
   }
 
+  /**
+   * Returns the user's display name or nickname; if neither field is set,
+   * "unknown" is returned.
+   */
   public String getDisplayName() {
     StringBuilder name = new StringBuilder();
 
@@ -47,11 +61,16 @@ public class Person extends Model {
       } else {
         name.append((String) getField("name"));
       }
+    } else {
+      return "unknown";
     }
 
     return name.toString();
   }
 
+  /**
+   * Returns the user's photo thumbnail URL as a string.
+   */
   public String getThumbnailUrl() {
     return (String) getField("thumbnailUrl");
   }

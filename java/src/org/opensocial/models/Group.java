@@ -15,12 +15,25 @@
 
 package org.opensocial.models;
 
+/**
+ * OpenSocial model class representing a group, which is used to tag or
+ * categorize people and their relationships. For reference:
+ * http://www.opensocial.org/Technical-Resources/opensocial-spec-v09/REST-API.html#rfc.section.3.3
+ *
+ * @author Jason Cooper
+ */
 public class Group extends Model {
 
+  /**
+   * Returns the group's unique identifier.
+   */
   public String getId() {
     return getFieldAsString("id");
   }
 
+  /**
+   * Returns the group's title or user-defined name.
+   */
   public String getTitle() {
     return getFieldAsString("title");
   }

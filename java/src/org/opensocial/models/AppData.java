@@ -18,8 +18,21 @@ package org.opensocial.models;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * OpenSocial model class representing AppData, uninterpreted key/value pairs.
+ * For reference:
+ * http://www.opensocial.org/Technical-Resources/opensocial-spec-v09/REST-API.html#rfc.section.3.5
+ *
+ * @author Jason Cooper
+ */
 public class AppData extends Model {
 
+  /**
+   * Returns the value of the specified AppData key for the specified user.
+   *
+   * @param userId OpenSocial ID of user whose AppData is requested
+   * @param key    AppData key to fetch for the specified user
+   */
   public String getDataForUser(String userId, String key) {
     Map userData = getFieldAsMap(userId);
     if (userData != null) {
@@ -29,6 +42,11 @@ public class AppData extends Model {
     return null;
   }
 
+  /**
+   * Returns the complete set of AppData keys set for the specified user.
+   *
+   * @param userId OpenSocial ID of user whose AppData keys are to be returned
+   */
   public Set<String> getFieldNamesForUser(String userId) {
     Map userData = getFieldAsMap(userId);
     if (userData != null) {

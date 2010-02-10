@@ -15,6 +15,14 @@
 
 package org.opensocial.models;
 
+/**
+ * OpenSocial model class representing a media item (image, movie, or
+ * audio). For reference:
+ * http://wiki.opensocial.org/index.php?title=Opensocial.MediaItem_(v0.9)
+ * http://www.opensocial.org/Technical-Resources/opensocial-spec-v09/REST-API.html#rfc.section.3.6.2
+ *
+ * @author Jason Cooper
+ */
 public class MediaItem extends Model {
 
   private static final String ID = "id";
@@ -24,18 +32,30 @@ public class MediaItem extends Model {
   private static final String MIME_TYPE = "mime_type";
   private static final String THUMBNAIL_URL = "thumbnail_url";
 
+  /**
+   * Returns the media item's associated ID.
+   */
   public String getId() {
     return getFieldAsString(ID);
   }
 
+  /**
+   * Returns the identifier of the album to which the media item belongs.
+   */
   public String getAlbumId() {
     return getFieldAsString(ALBUM_ID);
   }
 
+  /**
+   * Returns the URL where the media can be found as a string.
+   */
   public String getUrl() {
     return getFieldAsString(URL);
   }
 
+  /**
+   * Returns the URL of the media item's thumbnail image as a string.
+   */
   public String getThumbnailUrl() {
     if (getFieldAsString("thumbnailUrl") != null) {
       return getFieldAsString("thumbnailUrl");
@@ -44,34 +64,73 @@ public class MediaItem extends Model {
     return getFieldAsString(THUMBNAIL_URL);
   }
 
+  /**
+   * Returns the media item's type, one of 'audio', 'image', or 'video'.
+   */
   public String getType() {
     return getFieldAsString(TYPE);
   }
 
+  /**
+   * Returns the MIME type of the media item's content.
+   * @return
+   */
   public String getMimeType() {
     return getFieldAsString(MIME_TYPE);
   }
 
+  /**
+   * Sets the media item's unique identifier. Required when updating an
+   * existing media item; the container generates the identifier when a new
+   * media item is created.
+   *
+   * @param id identifier to set
+   */
   public void setId(String id) {
     put(ID, id);
   }
 
+  /**
+   * Sets the identifier of the album to which the media item belongs.
+   *
+   * @param albumId ID of album intended to contain media item
+   */
   public void setAlbumId(String albumId) {
     put(ALBUM_ID, albumId);
   }
 
+  /**
+   * Sets the URL where the media can be found.
+   *
+   * @param url URL to set
+   */
   public void setUrl(String url) {
     put(URL, url);
   }
 
+  /**
+   * Sets the URL of the media item's thumbnail image as a string.
+   *
+   * @param thumbnailUrl URL of media item thumbnail to set
+   */
   public void setThumbnailUrl(String thumbnailUrl) {
     put(THUMBNAIL_URL, thumbnailUrl);
   }
 
+  /**
+   * Sets the media item's type.
+   *
+   * @param type type to set; must be 'audio', 'image', or 'video'
+   */
   public void setType(String type) {
     put(TYPE, type);
   }
 
+  /**
+   * Sets the MIME type of the media item's content.
+   *
+   * @param mimeType MIME type to set
+   */
   public void setMimeType(String mimeType) {
     put(MIME_TYPE, mimeType);
   }
