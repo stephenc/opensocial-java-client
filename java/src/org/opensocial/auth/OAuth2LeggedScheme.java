@@ -27,19 +27,47 @@ import org.opensocial.providers.Provider;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Authentication class that uses 2-Legged OAuth to digitally sign requests
+ * using a shared secret; this scheme is also known as Signed Fetch and Phone
+ * Home. For reference:
+ * http://sites.google.com/site/oauthgoog/2leggedoauth/2opensocialrestapi
+ *
+ * @author Jason Cooper
+ */
 public class OAuth2LeggedScheme extends OAuthScheme implements AuthScheme {
 
-  private String requestorId;
+  private String requesterId;
 
+  /**
+   * Creates and returns a new {@link OAuth2LeggedScheme} configured with the
+   * passed key and secret, leaving the requester ID field null.
+   *
+   * @param consumerKey    key provided by an OpenSocial container after
+   *                       registering a new OpenSocial gadget
+   * @param consumerSecret secret provided by an OpenSocial container after
+   *                       registering a new OpenSocial gadget
+   */
   public OAuth2LeggedScheme(String consumerKey, String consumerSecret) {
     this(consumerKey, consumerSecret, null);
   }
 
+  /**
+   * Creates and returns a new {@link OAuth2LeggedScheme} configured with the
+   * passed key, secret, and requester ID.
+   *
+   * @param consumerKey    key provided by an OpenSocial container after
+   *                       registering a new OpenSocial gadget
+   * @param consumerSecret secret provided by an OpenSocial container after
+   *                       registering a new OpenSocial gadget
+   * @param requesterId    OpenSocial ID of user on whose behalf the OpenSocial
+   *                       calls are being made
+   */
   public OAuth2LeggedScheme(String consumerKey, String consumerSecret,
-      String requestorId) {
+      String requesterId) {
     super(consumerKey, consumerSecret);
 
-    this.requestorId = requestorId;
+    this.requesterId = requesterId;
   }
 
   public HttpMessage getHttpMessage(Provider provider, String method,
@@ -49,7 +77,7 @@ public class OAuth2LeggedScheme extends OAuthScheme implements AuthScheme {
       return null;
     }
 
-    url = appendRequestorIdToQueryString(url);
+    url = appendRequesterIdToQueryString(url);
     OAuthMessage message = new OAuthMessage(method, url, null,
         byteArrayToStream(body));
 
@@ -66,12 +94,12 @@ public class OAuth2LeggedScheme extends OAuthScheme implements AuthScheme {
     return getHttpMessage(message, accessor, body, provider.getSignBodyHash());
   }
 
-  public String getRequestorId() {
-    return requestorId;
+  public String getRequesterId() {
+    return requesterId;
   }
 
-  private String appendRequestorIdToQueryString(String url) {
-    if (requestorId == null) {
+  private String appendRequesterIdToQueryString(String url) {
+    if (requesterId == null) {
       return url;
     }
 
@@ -83,7 +111,7 @@ public class OAuth2LeggedScheme extends OAuthScheme implements AuthScheme {
       builder.append("&xoauth_requestor_id=");
     }
 
-    builder.append(requestorId);
+    builder.append(requesterId);
 
     return builder.toString();
   }

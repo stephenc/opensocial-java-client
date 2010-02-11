@@ -15,6 +15,13 @@
 
 package org.opensocial.auth;
 
+/**
+ * Authentication class that uses a security token to authenticate Google
+ * Friend Connect requests specifically by appending ?fcauth={token} to the
+ * request URL.
+ *
+ * @author Jason Cooper
+ */
 public class FCAuthScheme extends SecurityTokenScheme {
 
   public FCAuthScheme(String token) {

@@ -26,6 +26,13 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 
+/**
+ * Authentication class that uses a security token to authenticate requests by
+ * appending ?st={token} to the request URL. Security tokens can be lifted from
+ * running gadgets, but generally expire after a short time.
+ *
+ * @author Jason Cooper
+ */
 public class SecurityTokenScheme implements AuthScheme {
 
   private String tokenName;

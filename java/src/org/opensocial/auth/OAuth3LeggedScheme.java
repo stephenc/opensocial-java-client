@@ -36,18 +36,27 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+/**
+ * Authentication class that exposes methods for retrieving request and access
+ * tokens and an appropriate authorization URL for the 3-Legged OAuth "dance."
+ * For reference:
+ * http://sites.google.com/site/oauthgoog/2leggedoauth/2opensocialrestapi
+ *
+ * @author Christoph Renner
+ * @author Jason Cooper
+ *
+ */
 public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
 
   public static class Token implements Serializable {
     public String token;
     public String secret;
-    
+
+    public Token() {}
+
     public Token(String token, String secret) {
       this.token = token;
       this.secret = secret;
-    }
-    
-    public Token() {
     }
   }
 
@@ -56,11 +65,39 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
   private Token requestToken;
   private Token accessToken;
 
+  /**
+   * Creates and returns a new {@link OAuth3LeggedScheme} configured with the
+   * passed {@link Provider}, key, and secret.
+   *
+   * @param provider       OpenSocial provider that the current user should be
+   *                       authenticated against; must have the three required
+   *                       3-legged OAuth endpoints set (see GoogleProvider and
+   *                       MySpaceProvider for reference)
+   * @param consumerKey    key provided by an OpenSocial container after
+   *                       registering a new application
+   * @param consumerSecret secret provided by an OpenSocial container after
+   *                       registering a new application
+   */
   public OAuth3LeggedScheme(Provider provider, String consumerKey,
       String consumerSecret) {
     this(provider, consumerKey, consumerSecret, new HttpClient());
   }
 
+  /**
+   * Creates and returns a new {@link OAuth3LeggedScheme} configured with the
+   * passed {@link Provider}, key, and secret. The passed {@link HttpClient} is
+   * used to instantiate a new {@link OAuthClient} whose reference is stored.
+   *
+   * @param provider       OpenSocial provider that the current user should be
+   *                       authenticated against; must have the three required
+   *                       3-legged OAuth endpoints set (see GoogleProvider and
+   *                       MySpaceProvider for reference)
+   * @param consumerKey    key provided by an OpenSocial container after
+   *                       registering a new application
+   * @param consumerSecret secret provided by an OpenSocial container after
+   *                       registering a new application
+   * @param httpClient     HttpClient to use to execute the OAuth requests
+   */
   public OAuth3LeggedScheme(Provider provider, String consumerKey,
       String consumerSecret, HttpClient httpClient) {
     super(consumerKey, consumerSecret);
@@ -91,6 +128,20 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
     return getHttpMessage(message, accessor, body, provider.getSignBodyHash());
   }
 
+  /**
+   * Sends a signed request to the associated provider to retrieve an initial
+   * request token. If successful, returns a URL to the associated provider's
+   * authorization page; after being forwarded to this URL, the user will be
+   * prompted to enter their account credentials and upon successful sign-in,
+   * will be forwarded again to the specified callback URL.
+   *
+   * @param  callbackUrl URL to forward user to after successful sign-in
+   * @return             URL to provider's authorization page as a string
+   *
+   * @throws OAuthException
+   * @throws URISyntaxException
+   * @throws IOException
+   */
   public String getAuthorizationUrl(String callbackUrl) throws OAuthException,
       URISyntaxException, IOException {
     requestToken = requestRequestToken();
@@ -103,6 +154,18 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
         "&oauth_callback=" + callbackUrl;
   }
 
+  /**
+   * Sends a signed request to the associated provider to exchange the passed
+   * request token for an access token; if successfully exchanged, this token
+   * can then be accessed using getAccessToken().
+   *
+   * @param oAuthToken previously fetched request token to exchange for access
+   *                   token
+   *
+   * @throws OAuthException
+   * @throws URISyntaxException
+   * @throws IOException
+   */
   public void requestAccessToken(String oAuthToken) throws OAuthException,
       URISyntaxException, IOException {
     OAuthAccessor accessor = getOAuthAccessor(oAuthToken,
@@ -114,18 +177,42 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
         message.getParameter(OAuth.OAUTH_TOKEN_SECRET));
   }
 
+  /**
+   * Returns the request token previously retrieved from the provider when
+   * {@code getAuthorizationUrl} was executed or null if no request token is
+   * associated with the current instance.
+   *
+   * @see #getAuthorizationUrl(String)
+   */
   public Token getRequestToken() {
     return requestToken;
   }
 
+  /**
+   * Returns the access token for which the original request token was
+   * exchanged or null if the exchange hasn't occurred and no access token is
+   * associated with the current instance.
+   *
+   * @see #requestAccessToken(String)
+   */
   public Token getAccessToken() {
     return accessToken;
   }
 
+  /**
+   * Associates the specified request token with the current instance.
+   * 
+   * @param token request token to associate
+   */
   public void setRequestToken(Token token) {
     requestToken = token;
   }
 
+  /**
+   * Associates the specified access token with the current instance.
+   *
+   * @param token access token to associate
+   */
   public void setAccessToken(Token token) {
     accessToken = token;
   }
