@@ -41,7 +41,7 @@ public class ActivitiesService extends Service {
    * @return new Request object to fetch the current viewer's activities
    * @see    Activity
    */
-  public static Request getViewerActivities() {
+  public static Request getActivities() {
     return getActivities(ME);
   }
 
@@ -77,7 +77,7 @@ public class ActivitiesService extends Service {
    *              activities
    * @see         Activity
    */
-  public static Request getFriendsActivities(String guid) {
+  public static Request getFriendActivities(String guid) {
     Request request = new Request(restTemplate, "activities.get", "GET");
     request.setModelClass(Activity.class);
     request.setSelector(FRIENDS);

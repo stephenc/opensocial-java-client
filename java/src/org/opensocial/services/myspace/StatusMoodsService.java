@@ -68,7 +68,7 @@ public class StatusMoodsService extends Service {
    *              statuses/moods
    * @see         StatusMood
    */
-  public static Request getFriendsStatuses(String guid) {
+  public static Request getFriendStatuses(String guid) {
     return getStatus(guid, FRIENDS);
   }
 
@@ -103,7 +103,7 @@ public class StatusMoodsService extends Service {
    *         statuses/moods
    * @see    StatusMood
    */
-  public static Request getFriendsStatusHistory() {
+  public static Request getFriendStatusHistories() {
     return getStatusHistory(FRIENDS, null);
   }
 
@@ -112,14 +112,14 @@ public class StatusMoodsService extends Service {
    * statuses and moods for the specified friend and makes this data available
    * as a List of StatusMood objects.
    *
-   * @param  guid OpenSocial ID of the current viewer's friend whose previous
-   *              statuses/moods are to be fetched
-   * @return      new Request object to fetch the specified friend's previous
-   *              statuses/moods
-   * @see         StatusMood
+   * @param  friendId OpenSocial ID of the current viewer's friend whose
+   *                  previous statuses/moods are to be fetched
+   * @return          new Request object to fetch the specified friend's
+   *                  previous statuses/moods
+   * @see             StatusMood
    */
-  public static Request getFriendStatusHistory(String guid) {
-    return getStatusHistory(FRIENDS, guid);
+  public static Request getFriendStatusHistory(String friendId) {
+    return getStatusHistory(FRIENDS, friendId);
   }
 
   private static Request getStatusHistory(String groupId,

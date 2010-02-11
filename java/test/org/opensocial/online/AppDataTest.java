@@ -63,7 +63,7 @@ public class AppDataTest {
     try {
       Client client = new Client(new OrkutSandboxProvider(useRest),
           new OAuth2LeggedScheme(ORKUT_KEY, ORKUT_SECRET, ORKUT_ID));
-      Request request = AppDataService.getViewerAppData();
+      Request request = AppDataService.getAppData();
       Response response = client.send(request);
 
       AppData data = response.getEntry();
@@ -98,7 +98,7 @@ public class AppDataTest {
     }
 
     try {
-      Request request = AppDataService.getViewerAppData();
+      Request request = AppDataService.getAppData();
       Response response = client.send(request);
 
       AppData data = response.getEntry();
@@ -115,7 +115,7 @@ public class AppDataTest {
     }
 
     try {
-      Request request = AppDataService.getViewerAppData();
+      Request request = AppDataService.getAppData();
       Response response = client.send(request);
 
       AppData data = response.getEntry();
@@ -157,7 +157,7 @@ public class AppDataTest {
     }
 
     try {
-      Request request = AppDataService.getViewerAppData();
+      Request request = AppDataService.getAppData();
       Response response = client.send(request);
 
       AppData data = response.getEntry();
@@ -176,7 +176,7 @@ public class AppDataTest {
     }
 
     try {
-      Request request = AppDataService.getViewerAppData();
+      Request request = AppDataService.getAppData();
       Response response = client.send(request);
 
       AppData data = response.getEntry();

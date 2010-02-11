@@ -37,7 +37,7 @@ public class PeopleServiceTest {
   @Test
   public void retrieveWithOneArgument() {
     final String id = "03067092798963641994";
-    Request request = PeopleService.getPerson(id);
+    Request request = PeopleService.getUser(id);
 
     testCommonAttributes(request);
     testCommonRetrieveAttributes(request);
@@ -47,7 +47,7 @@ public class PeopleServiceTest {
 
   @Test
   public void retrieveWithTwoArguments() {
-    Request request = PeopleService.getViewerFriends();
+    Request request = PeopleService.getFriends();
 
     testCommonAttributes(request);
     testCommonRetrieveAttributes(request);

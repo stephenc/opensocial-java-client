@@ -60,7 +60,7 @@ public class ActivitiesTest {
     try {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
-      Request request = ActivitiesService.getViewerActivities();
+      Request request = ActivitiesService.getActivities();
       Response response = client.send(request);
 
       List<Activity> activities = response.getEntries();

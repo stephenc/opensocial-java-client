@@ -31,26 +31,13 @@ public class PeopleService extends Service {
   /**
    * Returns a new Request instance which, when submitted, fetches the current
    * viewer's profile information and makes this data available as a Person
-   * object. Equivalent to calling getPerson("@me").
+   * object. Equivalent to calling getUser("@me").
    *
    * @return new Request object to fetch the current viewer's profile data
    * @see    Person
    */
   public static Request getViewer() {
-    return getPerson(ME);
-  }
-
-  /**
-   * Returns a new Request instance which, when submitted, fetches the profile
-   * information of the current viewer's friends and makes this data available
-   * as a List of Person objects. Equivalent to calling getFriends("@me").
-   *
-   * @return new Request object to fetch the current viewer's friends' profile
-   *         data
-   * @see    Person
-   */
-  public static Request getViewerFriends() {
-    return getFriends(ME);
+    return getUser(ME);
   }
 
   /**
@@ -62,8 +49,21 @@ public class PeopleService extends Service {
    * @return      new Request object to fetch the specified user's profile data
    * @see         Person
    */
-  public static Request getPerson(String guid) {
+  public static Request getUser(String guid) {
     return get(guid, SELF);
+  }
+
+  /**
+   * Returns a new Request instance which, when submitted, fetches the profile
+   * information of the current viewer's friends and makes this data available
+   * as a List of Person objects. Equivalent to calling getFriends("@me").
+   *
+   * @return new Request object to fetch the current viewer's friends' profile
+   *         data
+   * @see    Person
+   */
+  public static Request getFriends() {
+    return getFriends(ME);
   }
 
   /**

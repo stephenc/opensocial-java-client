@@ -59,7 +59,7 @@ public class StatusMoodsTest {
       Client client = new Client(new MySpaceProvider(),
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
-      Request request = StatusMoodsService.getFriendsStatuses("@me");
+      Request request = StatusMoodsService.getFriendStatuses("@me");
       Response response = client.send(request);
 
       List<StatusMood> statusMoods = response.getEntries();
@@ -128,7 +128,7 @@ public class StatusMoodsTest {
           new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
 
       Request request =
-        StatusMoodsService.getFriendsStatusHistory();
+        StatusMoodsService.getFriendStatusHistories();
       Response response = client.send(request);
 
       List<StatusMood> statusMoods = response.getEntries();
@@ -168,7 +168,7 @@ public class StatusMoodsTest {
       statusMood.setMoodId(90);
 
       Request request = StatusMoodsService.updateStatus(statusMood);
-      Response response = client.send(request);
+      client.send(request);
 
       //assertTrue(response.getStatusLink() != null);
     } catch (Exception e) {

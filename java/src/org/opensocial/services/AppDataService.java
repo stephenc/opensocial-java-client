@@ -43,7 +43,7 @@ public class AppDataService extends Service {
    * @return new Request object to fetch the current viewer's AppData
    * @see    AppData
    */
-  public static Request getViewerAppData() {
+  public static Request getAppData() {
     return getAppData(ME);
   }
 
@@ -77,7 +77,7 @@ public class AppDataService extends Service {
    *              user's friends
    * @see         AppData
    */
-  public static Request getFriendsAppData(String guid) {
+  public static Request getFriendAppData(String guid) {
     Request request = new Request(restTemplate, "appdata.get", "GET");
     request.setModelClass(AppData.class);
     request.setSelector(FRIENDS);

@@ -36,7 +36,7 @@ public class GroupsService extends Service {
    * @return new Request object to fetch the current viewer's groups
    * @see    Group
    */
-  public static Request getViewerGroups() {
+  public static Request getGroups() {
     return getGroups(ME);
   }
 

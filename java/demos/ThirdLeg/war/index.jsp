@@ -29,7 +29,7 @@
     Client client = new Client(new GoogleProvider(), authScheme);
     try {
       Map<String, Request> requests = new HashMap<String, Request>();
-      requests.put("friends", PeopleService.getViewerFriends());
+      requests.put("friends", PeopleService.getFriends());
       requests.put("viewer", PeopleService.getViewer());
 
       Map<String, Response> responses = client.send(requests);
