@@ -1,4 +1,4 @@
-/* Copyright (c) 2008 Google Inc.
+/* Copyright (c) 2009 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,180 +12,191 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
 package org.opensocial.android;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Bundle;
+
 import net.oauth.OAuth;
 import net.oauth.OAuthException;
-import org.opensocial.client.OpenSocialClient;
-import org.opensocial.client.OpenSocialOAuthClient;
-import org.opensocial.client.OpenSocialProvider;
-import org.opensocial.client.Token;
+
+import org.opensocial.Client;
+import org.opensocial.auth.OAuth3LeggedScheme;
+import org.opensocial.providers.Provider;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.HashMap;
 
-/**
- * Any Android activity that wishes to use the OpenSocial apis should extend this class.
- * Call getOpenSocialClient to get the client library and then issue getFriends or other calls.
- *
- * Details:
- *   If the user is not already authed with this app, the OpenSocialChooserActivity will be called.
- *   That activity displays a list of all supported providers (passed in to this class). The user
- *   chooses a provider and is redirected to the browser. After granting access, the oauth redirect
- *   url calls the android scheme provided to this library.
- *
- * @author Cassandra Doll
- */
-public class OpenSocialActivity {
-  private static final String ACCESS_TOKEN_PREF = "accessToken";
-  private static final String ACCESS_TOKEN_SECRET_PREF = "accessTokenSecret";
+public class OpenSocialActivity extends Activity {
 
-  private OpenSocialProvider provider;
-  private Context context;
-  private SharedPreferences prefs;
-  private Intent intent;
-  private Map<OpenSocialProvider, Token> supportedProviders;
-  private String androidScheme;
+  public static final String CLASS = "class";
+  public static final String SCHEME = "scheme";
+  public static final String PROVIDERS = "providers";
+  public static final String CREDENTIALS = "credentials";
+  public static final String ACCESS_TOKEN = "accesstoken";
+  public static final String REQUEST_TOKEN = "requesttoken";
+  public static final String SELECTED_PROVIDER = "selectedprovider";
+  public static final String ACCESS_TOKEN_SECRET = "accesstokensecret";
+  public static final String REQUEST_TOKEN_SECRET = "requesttokensecret";
 
-  public OpenSocialActivity(Activity context, Map<OpenSocialProvider, Token> supportedProviders,
-      String androidScheme) {
-    this.context = context;
-    this.prefs = context.getSharedPreferences("default", Activity.MODE_PRIVATE);
-    this.intent = context.getIntent();
-    this.supportedProviders = supportedProviders;
-    this.androidScheme = androidScheme;
+  private HashMap<String, Class<? extends Provider>> providerClasses =
+    new HashMap<String, Class<? extends Provider>>();
+  private HashMap<String, String[]> providerCredentials =
+    new HashMap<String, String[]>();
+  private String scheme = "";
+
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    if (getIntent().getData() != null) {
+      Provider provider = loadSelectedProvider();
+      OAuth3LeggedScheme.Token requestToken = loadRequestToken();
+
+      if (provider != null && requestToken != null) {
+        try {
+          String[] credentials = providerCredentials.get(provider.getName());
+          OAuth3LeggedScheme authScheme = new OAuth3LeggedScheme(provider,
+              credentials[0], credentials[1]);
+          authScheme.setRequestToken(requestToken);
+          authScheme.requestAccessToken(requestToken.token);
+          persistAccessToken(authScheme.getAccessToken());
+        } catch (OAuthException e) {
+          throw new RuntimeException("Error occured fetching access token", e);
+        } catch (URISyntaxException e) {
+          throw new RuntimeException("Error occured fetching access token", e);
+        } catch (IOException e) {
+          throw new RuntimeException("Error occured fetching access token", e);
+        }
+      }
+    }
   }
 
-  public OpenSocialProvider getProvider() {
-    return provider;
+  protected void setScheme(String scheme) {
+    this.scheme = scheme;
   }
 
-  public OpenSocialClient getOpenSocialClient() {
-    Token accessToken = loadAccessToken();
-    String providerString = prefs.getString(OpenSocialChooserActivity.CURRENT_PROVIDER_PREF, null);
+  protected void addProvider(Provider provider, String[] credentials) {
+    if (provider != null && credentials != null && credentials.length == 2) {
+      providerClasses.put(provider.getName(), provider.getClass());
+      providerCredentials.put(provider.getName(), credentials);
+    }
+  }
 
-    if (accessToken.token == null && (intent.getData() == null || providerString == null)) {
-    // If the user is not already authenticated and this isn't a redirect from the browser,
-    // call OpenSocialChooserActivity
-    setupUsersOauthToken(supportedProviders, androidScheme);
+  protected Client getClient() {
+    OAuth3LeggedScheme.Token requestToken = loadRequestToken();
+    OAuth3LeggedScheme.Token accessToken = loadAccessToken();
+    Provider provider = loadSelectedProvider();
+
+    if (requestToken != null && accessToken != null && provider != null) {
+      String[] credentials = providerCredentials.get(provider.getName());
+      OAuth3LeggedScheme authScheme = new OAuth3LeggedScheme(provider,
+          credentials[0], credentials[1]);
+      authScheme.setRequestToken(requestToken);
+      authScheme.setAccessToken(accessToken);
+
+      return new Client(provider, authScheme);
+    }
+
     return null;
   }
 
-    provider = OpenSocialProvider.valueOf(providerString.toUpperCase());
+  protected void showChooser() {
+    Intent chooser = new Intent(this, OpenSocialChooserActivity.class);
 
-    OpenSocialClient client = getClient(provider, supportedProviders);
+    String[] providers = providerClasses.keySet().toArray(new String[] {});
+    chooser.putExtra(PROVIDERS, providers);
+    chooser.putExtra(SCHEME, scheme);
 
-    if (intent.getData() != null) {
-      try {
-        accessToken = OpenSocialOAuthClient.getAccessToken(client, provider,
-            loadRequestToken());
-      } catch (IOException e) {
-        throw new RuntimeException("Error occured fetching access token", e);
-      } catch (URISyntaxException e) {
-        throw new RuntimeException("Error occured fetching access token", e);
-      } catch (OAuthException e) {
-        throw new RuntimeException("Error occured fetching access token", e);
-      }
-      persistAccessToken(accessToken);
+    for (String name : providers) {
+      chooser.putExtra(name + CREDENTIALS, providerCredentials.get(name));
+      chooser.putExtra(name + CLASS, providerClasses.get(name));
     }
 
-    client.setProperty(OpenSocialClient.Property.ACCESS_TOKEN, accessToken.token);
-    client.setProperty(OpenSocialClient.Property.ACCESS_TOKEN_SECRET, accessToken.secret);
-
-    client.setProperty(OpenSocialClient.Property.REST_BASE_URI, provider.restEndpoint);
-    client.setProperty(OpenSocialClient.Property.RPC_ENDPOINT, provider.rpcEndpoint);
-
-    return client;
+    startActivity(chooser);
   }
 
-  private OpenSocialClient getClient(OpenSocialProvider provider,
-      Map<OpenSocialProvider, Token> supportedProviders) {
+  protected void clearSavedAuthentication() {
+    SharedPreferences.Editor editor = getSharedPreferences("default",
+        MODE_PRIVATE).edit();
 
-    OpenSocialClient client = new OpenSocialClient();
-
-    Token consumerToken = supportedProviders.get(provider);
-    if (consumerToken != null) {
-      client.setProperty(OpenSocialClient.Property.CONSUMER_KEY, consumerToken.token);
-      client.setProperty(OpenSocialClient.Property.CONSUMER_SECRET, consumerToken.secret);
-    }
-
-    return client;
-  }
-
-  private void setupUsersOauthToken(Map<OpenSocialProvider, Token> supportedProviders,
-      String browserScheme) {
-
-    Intent oauthLibrary = new Intent(context, OpenSocialChooserActivity.class);
-
-    ArrayList<String> providerStrings = new ArrayList<String>();
-    for (Map.Entry<OpenSocialProvider, Token> entry : supportedProviders.entrySet()) {
-      providerStrings.add(entry.getKey().providerName);
-      addConsumerTokenExtra(oauthLibrary, entry.getKey(), entry.getValue());
-    }
-
-    oauthLibrary.putExtra(OpenSocialChooserActivity.ANDROID_SCHEME, browserScheme);
-    oauthLibrary.putStringArrayListExtra(OpenSocialChooserActivity.PROVIDERS, providerStrings);
-
-    context.startActivity(oauthLibrary);
-  }
-
-  private void addConsumerTokenExtra(Intent oauthLibrary, OpenSocialProvider provider,
-      Token consumerToken) {
-    if (consumerToken != null) {
-      oauthLibrary.putExtra(provider.toString(),
-          new String[]{consumerToken.token, consumerToken.secret});
-    }
-  }
-
-  private void persistAccessToken(Token userSpecificAccessToken) {
-    SharedPreferences.Editor editor = prefs.edit();
-
-    editor.putString(ACCESS_TOKEN_PREF, userSpecificAccessToken.token);
-    editor.putString(ACCESS_TOKEN_SECRET_PREF, userSpecificAccessToken.secret);
-
+    editor.remove(ACCESS_TOKEN_SECRET);
+    editor.remove(SELECTED_PROVIDER);
+    editor.remove(ACCESS_TOKEN);
     editor.commit();
   }
 
-  private Token loadAccessToken() {
-    return new Token(prefs.getString(ACCESS_TOKEN_PREF, null),
-        prefs.getString(ACCESS_TOKEN_SECRET_PREF, null));
+  private Provider loadSelectedProvider() {
+    SharedPreferences preferences = getSharedPreferences("default",
+        MODE_PRIVATE);
+
+    String name = preferences.getString(SELECTED_PROVIDER, null);
+
+    try {
+      Class<? extends Provider> providerClass = providerClasses.get(name);
+
+      return providerClass.newInstance();
+    } catch (NullPointerException e) {
+      return null;
+    } catch (InstantiationException e) {
+      return null;
+    } catch (IllegalAccessException e) {
+      return null;
+    }
   }
 
-  public void clearSavedAuthentication() {
-   SharedPreferences.Editor editor = prefs.edit();
+  private OAuth3LeggedScheme.Token loadRequestToken() {
+    SharedPreferences preferences = getSharedPreferences("default",
+        MODE_PRIVATE);
 
-    editor.remove(ACCESS_TOKEN_PREF);
-    editor.remove(ACCESS_TOKEN_SECRET_PREF);
-    editor.remove(OpenSocialChooserActivity.CURRENT_PROVIDER_PREF);
+    String requestTokenSecret = preferences.getString(REQUEST_TOKEN_SECRET,
+        null);
+    String requestToken = preferences.getString(REQUEST_TOKEN, null);
+    Uri data = getIntent().getData();
 
-    editor.commit();
-  }
-
-  private Token loadRequestToken() {
-    String requestTokenPref = prefs.getString(OpenSocialChooserActivity.REQUEST_TOKEN_PREF, null);
-    if (requestTokenPref != null) {
-      String requestTokenSecretPref = prefs.getString(
-          OpenSocialChooserActivity.REQUEST_TOKEN_SECRET_PREF, "");
-      return new Token(requestTokenPref, requestTokenSecretPref);
+    if (requestToken != null) {
+      return new OAuth3LeggedScheme.Token(requestToken, requestTokenSecret);
     }
 
-    Uri data = intent.getData();
-    // Unregistered oauth providers hand back the request token on the url
     if (data != null) {
       int tokenIndex = data.toString().indexOf("oauth_token");
+
       if (tokenIndex != -1) {
         String token = data.toString().substring(tokenIndex + 12);
-        return new Token(OAuth.decodePercent(token), "");
+
+        return new OAuth3LeggedScheme.Token(OAuth.decodePercent(token), "");
       }
     }
 
     return null;
+  }
+
+  private OAuth3LeggedScheme.Token loadAccessToken() {
+    SharedPreferences preferences = getSharedPreferences("default",
+        MODE_PRIVATE);
+    
+    String accessTokenSecret = preferences.getString(ACCESS_TOKEN_SECRET,
+        null);
+    String accessToken = preferences.getString(ACCESS_TOKEN, null);
+
+    if (accessToken == null) {
+      return null;
+    }
+
+    return new OAuth3LeggedScheme.Token(accessToken, accessTokenSecret);
+  }
+
+  private void persistAccessToken(OAuth3LeggedScheme.Token token) {
+    SharedPreferences.Editor editor = getSharedPreferences("default",
+        MODE_PRIVATE).edit();
+
+    editor.putString(ACCESS_TOKEN_SECRET, token.secret);
+    editor.putString(ACCESS_TOKEN, token.token);
+    editor.commit();
   }
 }

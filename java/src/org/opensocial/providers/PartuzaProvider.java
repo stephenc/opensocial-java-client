@@ -12,19 +12,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.opensocial.providers;
 
-public class PartuzaProvider extends OpenSocialProvider {
-  
-  public PartuzaProvider(){
+public class PartuzaProvider extends Provider {
+
+  public PartuzaProvider() {
     super();
-    
-    requestTokenUrl = "http://www.partuza.nl/oauth/request_token";
-    authorizeUrl = "http://www.partuza.nl/oauth/authorize";
-    accessTokenUrl = "http://www.partuza.nl/oauth/access_token";
-    restEndpoint = "http://modules.partuza.nl/social/rest";
-    providerName = "Partuza";
-    signBodyHash = false;
-    isOpenSocial = true;
+
+    setName("Partuza");
+    setVersion("0.8");
+    setRestEndpoint("http://modules.partuza.nl/social/rest/");
+    setAuthorizeUrl("http://www.partuza.nl/oauth/authorize");
+    setAccessTokenUrl("http://www.partuza.nl/oauth/access_token");
+    setRequestTokenUrl("http://www.partuza.nl/oauth/request_token");
+    setSignBodyHash(false);
   }
 }

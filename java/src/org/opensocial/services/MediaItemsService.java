@@ -15,153 +15,210 @@
 
 package org.opensocial.services;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import org.opensocial.Request;
+import org.opensocial.RequestException;
+import org.opensocial.models.MediaItem;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.opensocial.client.OpenSocialHttpResponseMessage;
-import org.opensocial.client.OpenSocialRequest;
-import org.opensocial.client.OpenSocialRequestException;
-import org.opensocial.data.OpenSocialMediaItem;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * OpenSocialMediaItem - service class for mediaItems endpoint.
- * @author jle.edwards@gmail.com (Jesse Edwards)
+ * OpenSocial API class for media item requests; contains static methods for
+ * fetching, creating, updating and deleting media items (video, image, or
+ * sound files).
  *
+ * @author Jason Cooper
  */
-public class MediaItemsService extends OpenSocialService {
-  
+public class MediaItemsService extends Service {
+
+  private static final String restTemplate =
+    "mediaitems/{guid}/{groupId}/{albumId}/{itemId}";
+
   /**
-   * getSupportedFields - sends request for supported fields.
-   * @return OpenSocialRequest 
-   * @throws OpenSocialRequestException
+   * Returns a new Request instance which, when submitted, fetches the current
+   * viewer's media items from the specified album and makes this data
+   * available as a List of MediaItem objects.
+   *
+   * @param  albumId ID of album whose media item contents are to fetched
+   * @return         new Request object to fetch the current viewer's media
+   *                 items
+   * @see            MediaItem
    */
-  public OpenSocialRequest getSupportedFields() 
-      throws OpenSocialRequestException {
-    
-      OpenSocialRequest r = new OpenSocialRequest("mediaItems", 
-          "GET", "mediaItems.getSupportedFields");
-      
-      Map<String, String> params = new HashMap<String, String>();
-      params.put("userId", "@supportedFields");
-      
-      _addParamsToRequest(r, params);
-      return r;
+  public static Request getMediaItems(String albumId) {
+    Request request = new Request(restTemplate, "mediaItems.get", "GET");
+    request.setModelClass(MediaItem.class);
+    request.addComponent(Request.ALBUM_ID, albumId);
+    request.setGroupId(SELF);
+    request.setGuid(ME);
+
+    return request;
   }
-  
+
   /**
-   * get - method used for fetching items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
+   * Returns a new Request instance which, when submitted, fetches the
+   * specified media item from the specified album and makes this data
+   * available as a MediaItem object.
+   *
+   * @param  itemId  ID of media item to fetch
+   * @param  albumId ID of album containing media item to fetch
+   * @return         new Request object to fetch the specified media item
+   * @see            MediaItem
    */
-  public OpenSocialRequest get(Map<String, String> params) 
-	    throws OpenSocialRequestException {
+  public static Request getMediaItem(String itemId, String albumId) {
+    Request request = getMediaItems(albumId);
+    request.addComponent(Request.ITEM_ID, itemId);
 
-    super._checkDefaultParams(params);
-	  OpenSocialRequest r = new OpenSocialRequest("mediaItems", 
-	      "GET", "mediaItems.get");
-		_addParamsToRequest(r, params);
-		return r;
-	}
-	
-	/**
-   * update - method used for updating items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest update(Map<String, String> params) 
-	    throws OpenSocialRequestException {
-
-    super._checkDefaultParams(params);
-		OpenSocialRequest r = new OpenSocialRequest("mediaItems", 
-		    "PUT", "mediaItems.update");
-		_addParamsToRequest(r, params);
-		return r;
-	}
-	
-	/**
-   * create - method used for creating items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest create(Map<String, String> params) 
-	    throws OpenSocialRequestException {
-
-    super._checkDefaultParams(params);
-		OpenSocialRequest r = new OpenSocialRequest("mediaItems", 
-		    "POST", "mediaItems.create");
-		_addParamsToRequest(r, params);
-		return r;
-	}
-	
-	/**
-   * delete - method used for deleting items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest delete(Map<String, String> params) 
-	    throws OpenSocialRequestException {
-	  
-		throw new OpenSocialRequestException("This method is not supported.");
-	}
-	
-	/**
-   * upload - method used to upload mediaItems.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest upload(Map<String, String> params) 
-	    throws OpenSocialRequestException {
-
-    super._checkDefaultParams(params);
-    OpenSocialRequest r = new OpenSocialRequest("mediaItems", 
-	        "POST", "mediaItems.create");
-    _addParamsToRequest(r, params);
-    return r;
+    return request;
   }
-	
-	/**
-   * convertResponse - function used to convert response json into the expected
-   * collection of objects or object.
+
+  /**
+   * Returns a new Request instance which, when submitted, creates a new
+   * media item in the specified viewer album.
+   *
+   * @param  item  MediaItem object specifying the media item parameters to
+   *               pass into the request; album_id must be set and other
+   *               properties, e.g. type and url, can also be set
+   * @return       new Request object to create a new media item
+   *
+   * @throws RequestException if the passed MediaItem object does not have an
+   *                          album_id property set
    */
-  public void formatResponse(OpenSocialHttpResponseMessage response) {
-    super.formatResponse(response);
-
-    String data= response.getOpenSocialDataString();
-    OpenSocialMediaItem item = new OpenSocialMediaItem();
-    ArrayList<OpenSocialMediaItem> collection = new ArrayList<OpenSocialMediaItem>();
-
-    try{
-      if(data.startsWith("{") && data.endsWith("}")) {
-        JSONObject obj = new JSONObject(data);
-        
-        if(obj.has("entry")) {
-          if(obj.getString("entry").startsWith("[") && 
-              obj.getString("entry").endsWith("]")) {
-            JSONArray entry = obj.getJSONArray("entry");
-            
-            for(int i=0; i<entry.length(); i++) {
-              item = new OpenSocialMediaItem(entry.getJSONObject(i).toString());
-              collection.add(item);
-            }
-          }else {
-            collection.add(new OpenSocialMediaItem(obj.getString("entry")));
-          }
-          
-          response.setCollection(collection);
-        }
-      }
-    }catch(JSONException e) {
-      e.printStackTrace();
-      System.out.println(data);
+  public static Request createMediaItem(MediaItem item) throws
+      RequestException {
+    if (item.getAlbumId() == null || item.getAlbumId().equals("")) {
+      throw new RequestException("Passed MediaItem object does not have " +
+          "album_id property set");
     }
+
+    Request request = new Request(restTemplate, "mediaItems.create", "POST");
+    request.addComponent(Request.ALBUM_ID, item.getAlbumId());
+    request.setGroupId(SELF);
+    request.setGuid(ME);
+
+    // Add REST payload parameters
+    request.addRestPayloadParameters(item);
+
+    return request;
+  }
+
+  /**
+   * Returns a new Request instance which, when submitted, uploads the
+   * specified file as a new media item in the specified viewer album.
+   *
+   * @param item        MediaItem object specifying the media item parameters
+   *                    to pass into the request; album_id, type, and mime_type
+   *                    must be set
+   * @param content     local file to be uploaded as a new media item
+   * @return            new Request object to upload the specified file as a
+   *                    new media item
+   *
+   * @throws RequestException if the passed MediaItem object does not have its
+   *                          album_id, type, or mime_type properties set
+   * @throws IOException      if an I/O error occurs while reading the passed
+   *                          file
+   */
+  public static Request uploadMediaItem(MediaItem item, File content) throws
+      RequestException, IOException {
+    if (item.getAlbumId() == null || item.getAlbumId().equals("")) {
+      throw new RequestException("Passed MediaItem object does not have " +
+          "album_id property set");
+    }
+    if (item.getMimeType() == null || item.getMimeType().equals("")) {
+      throw new RequestException("Passed MediaItem object does not have " +
+          "mime_type property set");
+    }
+    if (item.getType() == null || item.getType().equals("")) {
+      throw new RequestException("Passed MediaItem object does not have " +
+          "type property set");
+    }
+
+    byte[] buffer = new byte[1024];
+    InputStream in = new FileInputStream(content);
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    while(true) {
+      int read = in.read(buffer);
+      if (read <= 0) {
+        break;
+      }
+
+      out.write(buffer, 0, read);
+    }
+
+    byte[] bytes = out.toByteArray();
+    out.close();
+    in.close();
+
+    Request request = new Request(restTemplate, "mediaItems.create", "POST");
+    request.addComponent(Request.ALBUM_ID, item.getAlbumId());
+    request.setGroupId(SELF);
+    request.setGuid(ME);
+
+    if (bytes != null) {
+      request.setCustomPayload(bytes);
+      request.setContentType(item.getMimeType());
+    }
+
+    // Add REST query string parameters
+    request.addRestQueryStringParameter("type", item.getType());
+
+    return request;
+  }
+
+  /**
+   * Returns a new Request instance which, when submitted, updates an existing
+   * media item contained within the specified viewer album.
+   *
+   * @param  item MediaItem object specifying the media item parameters to pass
+   *              into the request; id and album_id must be set in order to
+   *              specify which media item to update and values associated
+   *              with any other property, e.g. type and url, are updated
+   * @return      new Request object to update an existing media item
+   *
+   * @throws RequestException if the passed MediaItem object does not have both
+   *                          id and album_id properties set
+   */
+  public static Request updateMediaItem(MediaItem item) throws
+      RequestException {
+    if (item.getId() == null || item.getId().equals("")) {
+      throw new RequestException("Passed MediaItem object does not have id " +
+          "property set");
+    }
+    if (item.getAlbumId() == null || item.getAlbumId().equals("")) {
+      throw new RequestException("Passed MediaItem object does not have " +
+          "album_id property set");
+    }
+
+    Request request = new Request(restTemplate, "mediaItems.update", "PUT");
+    request.addComponent(Request.ALBUM_ID, item.getAlbumId());
+    request.addComponent(Request.ITEM_ID, item.getId());
+    request.setGroupId(SELF);
+    request.setGuid(ME);
+
+    // Add REST payload parameters
+    request.addRestPayloadParameters(item);
+
+    return request;
+  }
+
+  /**
+   * Returns a new Request instance which, when submitted, deletes an existing
+   * media item from the specified viewer album.
+   *
+   * @param  itemId  ID of media item to delete
+   * @param  albumId ID of album containing media item to delete
+   * @return         new Request object to delete an existing media item
+   */
+  public static Request deleteMediaItem(String itemId, String albumId) {
+    Request request = new Request(restTemplate, "mediaItems.delete", "DELETE");
+    request.addComponent(Request.ALBUM_ID, albumId);
+    request.addComponent(Request.ITEM_ID, itemId);
+    request.setGroupId(SELF);
+    request.setGuid(ME);
+
+    return request;
   }
 }

@@ -12,19 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.opensocial.providers;
 
-public class PlaxoProvider extends OpenSocialProvider 
-{
+public class PlaxoProvider extends Provider {
+
   public PlaxoProvider() {
     super();
-    
-    requestTokenUrl = "http://www.plaxo.com/oauth/request";
-    authorizeUrl = "http://www.plaxo.com/oauth/authorize";
-    accessTokenUrl = "http://www.plaxo.com/oauth/activate";
-    restEndpoint = "http://www.plaxo.com/pdata/contacts";
-    providerName = "Plaxo";
-    signBodyHash = true;
-    isOpenSocial = false;
+
+    setName("Plaxo");
+    setVersion("0.8");
+    setRestEndpoint("http://www.plaxo.com/pdata/contacts/");
+    setAuthorizeUrl("http://www.plaxo.com/oauth/authorize");
+    setAccessTokenUrl("http://www.plaxo.com/oauth/activate");
+    setRequestTokenUrl("http://www.plaxo.com/oauth/request");
   }
 }

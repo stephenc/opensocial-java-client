@@ -15,126 +15,40 @@
 
 package org.opensocial.services.myspace;
 
-import java.util.ArrayList;
-import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.opensocial.client.OpenSocialClient;
-import org.opensocial.client.OpenSocialHttpResponseMessage;
-import org.opensocial.client.OpenSocialRequest;
-import org.opensocial.client.OpenSocialRequestException;
-import org.opensocial.data.MySpaceNotification;
-import org.opensocial.services.OpenSocialService;
+import org.opensocial.Request;
+import org.opensocial.models.myspace.Notification;
+import org.opensocial.services.Service;
 
 /**
- * NotificationsService - service class for notifications endpoint.
- * @author jle.edwards@gmail.com (Jesse Edwards)
+ * OpenSocial API class for MySpace notification requests; contains static
+ * methods for creating MySpace notifications.
  *
+ * @author Jason Cooper
  */
-public class NotificationsService extends OpenSocialService {
-  
-  /**
-   * getSupportedFields - sends request for supported fields.
-   * @return OpenSocialRequest 
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest getSupportedFields() 
-      throws OpenSocialRequestException {
-    
-    throw new OpenSocialRequestException("This method is not supported.");
-  }
-  
-  /**
-   * get - method used for fetching items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest get(Map<String, String> params) 
-      throws OpenSocialRequestException {
-    
-    throw new OpenSocialRequestException("This method is not supported.");
-  }
-  
-  /**
-   * update - method used for updating items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest update(Map<String, String> params) 
-      throws OpenSocialRequestException {
-    
-    throw new OpenSocialRequestException("This method is not supported.");
-  }
-  
-  /**
-   * create - method used for creating items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest create(Map<String, String> params) 
-      throws OpenSocialRequestException {
+public class NotificationsService extends Service {
 
-    params.put("userId", OpenSocialClient.ME);
-    params.put("groupId", OpenSocialClient.SELF);
-    
-    OpenSocialRequest r = new OpenSocialRequest("notifications", 
-        "POST",  "notifications.create");
-    _addParamsToRequest(r, params);
-    return r;
-  }
-  
+  private static final String restTemplate = "notifications/{guid}/{groupId}";
+
   /**
-   * delete - method used for deleting items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
+   * Returns a new Request instance which, when submitted, creates a new
+   * MySpace notification to the recipients specified in the passed object.
+   *
+   * @param  notification Notification object specifying the parameters to pass
+   *                      into the request; typically, recipient IDs are added,
+   *                      but content and media items can also be set
+   * @return              new Request object to create a new MySpace
+   *                      notification
+   * @see                 Notification
    */
-  public OpenSocialRequest delete(Map<String, String> params) 
-      throws OpenSocialRequestException {
-    
-    throw new OpenSocialRequestException("This method is not supported.");
-  }
-  
-  /**
-   * convertResponse - function used to convert response json into the expected
-   * collection of objects or object.
-   */
-  public void formatResponse(OpenSocialHttpResponseMessage response) {    
+  public static Request createNotification(Notification notification) {
+    Request request = new Request(restTemplate, null, "POST");
+    request.setModelClass(Notification.class);
+    request.setGroupId(SELF);
+    request.setGuid(ME);
 
-    super.formatResponse(response);
+    // Add REST payload parameters
+    request.addRestPayloadParameters(notification);
 
-    String data = response.getOpenSocialDataString();
-    MySpaceNotification item = new MySpaceNotification();
-    ArrayList<MySpaceNotification> collection = new ArrayList<MySpaceNotification>();
-
-    try{
-      if(data.startsWith("{") && data.endsWith("}")) {
-        JSONObject obj = new JSONObject(data);
-        
-        if(obj.has("entry")) {
-          if(obj.getString("entry").startsWith("[") && 
-              obj.getString("entry").endsWith("]")) {
-          
-            JSONArray entry = obj.getJSONArray("entry");
-            
-            for(int i=0; i<entry.length(); i++) {
-              item = new MySpaceNotification(entry.getJSONObject(i).toString());
-              collection.add(item);
-            }
-          }else {
-            collection.add(new MySpaceNotification(obj.getString("entry")));
-          }
-        }
-        response.setCollection(collection);
-      }
-    }catch(JSONException e) {
-      e.printStackTrace();
-      System.out.println(data);
-    }
+    return request;
   }
 }

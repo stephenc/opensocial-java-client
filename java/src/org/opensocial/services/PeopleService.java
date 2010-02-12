@@ -15,132 +15,77 @@
 
 package org.opensocial.services;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.opensocial.client.OpenSocialHttpResponseMessage;
-import org.opensocial.client.OpenSocialRequest;
-import org.opensocial.client.OpenSocialRequestException;
-import org.opensocial.data.OpenSocialPerson;
+import org.opensocial.Request;
+import org.opensocial.models.Person;
 
 /**
- * PeopleService - service class for people endpoint.
- * @author jle.edwards@gmail.com (Jesse Edwards)
+ * OpenSocial API class for people requests; contains static methods for
+ * fetching profile information.
  *
+ * @author Jason Cooper
  */
-public class PeopleService extends OpenSocialService {
-  
-  /**
-   * getSupportedFields - sends request for supported fields.
-   * @return OpenSocialRequest 
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest getSupportedFields() 
-      throws OpenSocialRequestException {
-    
-    OpenSocialRequest r = new OpenSocialRequest("people", 
-        "GET", "people.getSupportedFields");
-    
-    Map<String, String> params = new HashMap<String, String>();
-    params.put("userId", "@supportedFields");
-    
-    _addParamsToRequest(r, params);
-    return r;
-  }
-  
-  /**
-   * get - method used for fetching items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest get(Map<String, String> params) 
-      throws OpenSocialRequestException {
+public class PeopleService extends Service {
 
-    super._checkDefaultParams(params);
-    OpenSocialRequest r = new OpenSocialRequest("people", 
-        "GET", "people.get");
-    _addParamsToRequest(r, params);
-    return r;
-  }
-  
-  /**
-   * update - method used for updating items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest update(Map<String, String> params) 
-      throws OpenSocialRequestException {
+  private static final String restTemplate = "people/{guid}/{selector}/{pid}";
 
-    super._checkDefaultParams(params);
-    OpenSocialRequest r = new OpenSocialRequest("people", 
-        "PUT", "people.update");
-    _addParamsToRequest(r, params);
-    return r;
-  }
-  
   /**
-   * create - method used for creating items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
+   * Returns a new Request instance which, when submitted, fetches the current
+   * viewer's profile information and makes this data available as a Person
+   * object. Equivalent to calling getUser("@me").
+   *
+   * @return new Request object to fetch the current viewer's profile data
+   * @see    Person
    */
-  public OpenSocialRequest create(Map<String, String> params) 
-      throws OpenSocialRequestException {
-    throw new OpenSocialRequestException("This method is not supported.");
+  public static Request getViewer() {
+    return getUser(ME);
   }
-  
+
   /**
-   * delete - method used for deleting items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
+   * Returns a new Request instance which, when submitted, fetches the profile
+   * information of the user with the specified ID and makes this data
+   * available as a Person object.
+   *
+   * @param  guid OpenSocial ID of the user to fetch
+   * @return      new Request object to fetch the specified user's profile data
+   * @see         Person
    */
-  public OpenSocialRequest delete(Map<String, String> params) 
-      throws OpenSocialRequestException {
-    throw new OpenSocialRequestException("This method is not supported.");
+  public static Request getUser(String guid) {
+    return get(guid, SELF);
   }
-  
+
   /**
-   * convertResponse - function used to convert response json into the expected
-   * collection of objects or object.
+   * Returns a new Request instance which, when submitted, fetches the profile
+   * information of the current viewer's friends and makes this data available
+   * as a List of Person objects. Equivalent to calling getFriends("@me").
+   *
+   * @return new Request object to fetch the current viewer's friends' profile
+   *         data
+   * @see    Person
    */
-  public void formatResponse(OpenSocialHttpResponseMessage response) {    
+  public static Request getFriends() {
+    return getFriends(ME);
+  }
 
-    super.formatResponse(response);
+  /**
+   * Returns a new Request instance which, when submitted, fetches the profile
+   * information of the specified user's friends and makes this data available
+   * as a List of Person objects.
+   *
+   * @param  guid OpenSocial ID of the user whose friends are to be fetched
+   * @return      new Request object to fetch the specified user's friends'
+   *              profile data
+   * @see         Person
+   */
+  public static Request getFriends(String guid) {
+    return get(guid, FRIENDS);
+  }
 
-    String data = response.getOpenSocialDataString();
-    OpenSocialPerson item = new OpenSocialPerson();
-    ArrayList<OpenSocialPerson> collection = new ArrayList<OpenSocialPerson>();
+  private static Request get(String guid, String selector) {
+    Request request = new Request(restTemplate, "people.get", "GET");
+    request.setModelClass(Person.class);
+    request.setSelector(selector);
+    request.setGuid(guid);
 
-    try{
-      if(data.startsWith("{") && data.endsWith("}")) {
-        JSONObject obj = new JSONObject(data);
-        
-        if(obj.has("entry")) {
-          if(obj.getString("entry").startsWith("[") && 
-              obj.getString("entry").endsWith("]")) {
-          
-            JSONArray entry = obj.getJSONArray("entry");
-            
-            for(int i=0; i<entry.length(); i++) {
-              item = new OpenSocialPerson(entry.getJSONObject(i).toString());
-              collection.add(item);
-            }
-          }else {
-            collection.add(new OpenSocialPerson(obj.getString("entry")));
-          }
-        }
-        response.setCollection(collection);
-      }
-    }catch(JSONException e) {
-      e.printStackTrace();
-      System.out.println(data);
-    }
+    return request;
   }
 }

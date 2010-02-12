@@ -12,21 +12,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.opensocial.providers;
 
-public class GoogleProvider extends OpenSocialProvider {
+public class GoogleProvider extends Provider {
+
   public GoogleProvider() {
+    this(false);
+  }
+
+  public GoogleProvider(boolean useRest) {
     super();
-    
-    requestTokenUrl = "https://www.google.com/accounts/OAuthGetRequestToken";
-    authorizeUrl = "https://www.google.com/accounts/OAuthAuthorizeToken";
-    accessTokenUrl = "https://www.google.com/accounts/OAuthGetAccessToken";
-    restEndpoint = "http://www-opensocial-sandbox.googleusercontent.com/api";
-    rpcEndpoint = "http://www-opensocial-sandbox.googleusercontent.com/api/rpc";
-    providerName = "Google";
-    signBodyHash = true;
-    isOpenSocial = true;
-    
-    requestTokenParams.put("scope", "http://sandbox.gmodules.com/api/people");
+
+    setName("Google");
+    setVersion("0.8");
+    setRestEndpoint("http://www-opensocial.googleusercontent.com/api/");
+    if (!useRest) {
+      setRpcEndpoint("http://www-opensocial.googleusercontent.com/api/rpc/");
+    }
+    setAuthorizeUrl("https://www.google.com/accounts/OAuthAuthorizeToken");
+    setAccessTokenUrl("https://www.google.com/accounts/OAuthGetAccessToken");
+    setRequestTokenUrl("https://www.google.com/accounts/OAuthGetRequestToken");
+    addRequestTokenParameter("scope", getRestEndpoint() + " " +
+        getRpcEndpoint());
   }
 }

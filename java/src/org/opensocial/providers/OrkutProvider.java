@@ -12,58 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.opensocial.providers;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.opensocial.client.OpenSocialHttpResponseMessage;
-import org.opensocial.client.OpenSocialRequest;
-
-public class OrkutProvider extends OpenSocialProvider {
+public class OrkutProvider extends Provider {
 
   public OrkutProvider() {
+    this(false);
+  }
+
+  public OrkutProvider(boolean useRest) {
     super();
 
-    restEndpoint = "http://www.orkut.com/social/rest/";
-    rpcEndpoint = "http://www.orkut.com/social/rpc/";
-    providerName = "orkut.com";
-    signBodyHash = true;
-    isOpenSocial = true;
-  }
-  
-  public void preRequest(OpenSocialRequest request) {
-    super.preRequest(request);
-    _fixFields(request);
-  }
-
-  public void postRequest(OpenSocialRequest request, 
-      OpenSocialHttpResponseMessage response) {
-  }
-
-  private void _fixFields(OpenSocialRequest request) {
-      
-      if(request.getRestPathComponent().equals("appdata")) {
-        if(request.getRestMethod().equals("POST") || 
-            request.getRestMethod().equals("PUT")) {
-          if(request.hasParameter("appdata")) {
-            try{
-              JSONObject data = 
-                new JSONObject(request.getParameter("appdata"));
-              String fields = "";
-              
-              JSONArray keys = data.names();
-              for(int i=0; i<keys.length(); i++) {
-                fields+=","+keys.getString(i);
-              }
-              fields = fields.substring(1);
-              request.addParameter("fields", fields);
-            }catch(JSONException e) {
-              e.printStackTrace();
-            }
-          }
-        }
-      }
+    setName("orkut");
+    setVersion("0.8");
+    setRestEndpoint("http://www.orkut.com/social/rest/");
+    if (!useRest) {
+      setRpcEndpoint("http://www.orkut.com/social/rpc/");
     }
-  
+  }
 }

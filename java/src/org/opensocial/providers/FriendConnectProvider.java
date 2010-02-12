@@ -12,17 +12,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.opensocial.providers;
 
-public class FriendConnectProvider extends OpenSocialProvider {
-  
+public class FriendConnectProvider extends Provider {
+
   public FriendConnectProvider() {
-     super();
-     
-     restEndpoint = "http://www.google.com/friendconnect/api";
-     rpcEndpoint = "http://www.google.com/friendconnect/api/rpc";
-     providerName = "friendconnect";
-     signBodyHash = true;
-     isOpenSocial = false;
+    this(false);
+  }
+
+  public FriendConnectProvider(boolean useRest) {
+    super();
+
+    setName("Google Friend Connect");
+    setVersion("0.8");
+    setRestEndpoint("http://www.google.com/friendconnect/api/");
+    if (!useRest) {
+      setRpcEndpoint("http://www.google.com/friendconnect/api/rpc/");
+    }
   }
 }

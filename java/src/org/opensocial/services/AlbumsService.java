@@ -15,137 +15,115 @@
 
 package org.opensocial.services;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.opensocial.client.OpenSocialHttpResponseMessage;
-import org.opensocial.client.OpenSocialRequest;
-import org.opensocial.client.OpenSocialRequestException;
-import org.opensocial.data.OpenSocialAlbum;
+import org.opensocial.Request;
+import org.opensocial.RequestException;
+import org.opensocial.models.Album;
 
 /**
- * AlbumsService - service class for albums endpoint.
- * @author jle.edwards@gmail.com (Jesse Edwards)
+ * OpenSocial API class for album requests; contains static methods for
+ * fetching, creating, updating and deleting albums (collections of media
+ * items).
  *
+ * @author Jason Cooper
  */
-public class AlbumsService extends OpenSocialService {
+public class AlbumsService extends Service {
+
+  private static final String restTemplate =
+    "albums/{guid}/{groupId}/{albumId}";
 
   /**
-   * getSupportedFields - sends request for supported fields.
-   * @return OpenSocialRequest 
-   * @throws OpenSocialRequestException
+   * Returns a new Request instance which, when submitted, fetches the current
+   * viewer's albums and makes this data available as a List of Album objects.
+   *
+   * @return new Request object to fetch the current viewer's albums
+   * @see    Album
    */
-  public OpenSocialRequest getSupportedFields() 
-      throws OpenSocialRequestException {
-    
-    OpenSocialRequest r = new OpenSocialRequest("albums", 
-        "GET", "albums.getSupportedFields");
+  public static Request getAlbums() {
+    Request request = new Request(restTemplate, "albums.get", "GET");
+    request.setModelClass(Album.class);
+    request.setGroupId(SELF);
+    request.setGuid(ME);
 
-    Map<String, String> params = new HashMap<String, String>();
-    params.put("userId", "@supportedFields");
-
-    _addParamsToRequest(r, params);
-    return r;
+    return request;
   }
 
   /**
-   * get - method used for fetching items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
+   * Returns a new Request instance which, when submitted, fetches the
+   * specified album and makes this data available as an Album object.
+   *
+   * @param  albumId ID of album to fetch
+   * @return         new Request object to fetch the specified album
+   * @see            Album
    */
-  public OpenSocialRequest get(Map<String, String> params) 
-	    throws OpenSocialRequestException {
+  public static Request getAlbum(String albumId) {
+    Request request = getAlbums();
+    request.addComponent(Request.ALBUM_ID, albumId);
 
-    super._checkDefaultParams(params);
-	  OpenSocialRequest r = new OpenSocialRequest("albums", 
-	      "GET", "albums.get");
-		_addParamsToRequest(r, params);
-		return r;
-	}
-	
+    return request;
+  }
+
   /**
-   * update - method used for updating items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
+   * Returns a new Request instance which, when submitted, creates a new
+   * album in the current viewer's library.
+   *
+   * @param  album Album object specifying the album parameters to pass into
+   *               the request; typically, caption and description are set
+   * @return       new Request object to create a new album
    */
-  public OpenSocialRequest update(Map<String, String> params) 
-	    throws OpenSocialRequestException {
+  public static Request createAlbum(Album album) {
+    Request request = new Request(restTemplate, "albums.create", "POST");
+    request.setGroupId(SELF);
+    request.setGuid(ME);
 
-    super._checkDefaultParams(params);
-	  OpenSocialRequest r = new OpenSocialRequest("albums", 
-	      "PUT", "albums.update");
-		_addParamsToRequest(r, params);
-		return r;
-	}
+    // Add REST payload parameters
+    request.addRestPayloadParameters(album);
 
-	/**
-   * create - method used for creating items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
+    return request;
+  }
+
+  /**
+   * Returns a new Request instance which, when submitted, updates an existing
+   * album in the current viewer's library.
+   *
+   * @param  album Album object specifying the album parameters to pass into
+   *               the request; id must be set in order to specify which album
+   *               to update and values associated with any other property,
+   *               e.g. caption and description, are updated
+   * @return       new Request object to update an existing album
+   *
+   * @throws RequestException if the passed Album object does not have an id
+   *                          property set
    */
-  public OpenSocialRequest create(Map<String, String> params) 
-      throws OpenSocialRequestException {
-
-    super._checkDefaultParams(params);
-	  OpenSocialRequest r = new OpenSocialRequest("albums", 
-  	    "POST",  "albums.create");
-  	_addParamsToRequest(r, params);
-  	return r;
-	}
-
-	/**
-   * delete - method used for deleting items in this service.
-   * @param Map<String, String> params 
-   * @return OpenSocialRequest
-   * @throws OpenSocialRequestException
-   */
-  public OpenSocialRequest delete(Map<String, String> params) 
-	    throws OpenSocialRequestException {
-		throw new OpenSocialRequestException("This method is not supported.");
-	}
-
-	/**
-	 * convertResponse - function used to convert response json into the expected
-	 * collection of objects or object.
-	 */
-  public void formatResponse(OpenSocialHttpResponseMessage response) {
-
-    super.formatResponse(response);
-
-    String data= response.getOpenSocialDataString();
-    OpenSocialAlbum item = new OpenSocialAlbum();
-    ArrayList<OpenSocialAlbum> collection = new ArrayList<OpenSocialAlbum>();
-    
-    try{
-      if(data.startsWith("{") && data.endsWith("}")) {
-        JSONObject obj = new JSONObject(data);
-        
-        if(obj.has("entry")) {
-          if(obj.getString("entry").startsWith("[") && 
-              obj.getString("entry").endsWith("]")) {
-          
-            JSONArray entry = obj.getJSONArray("entry");
-          
-            for(int i=0; i<entry.length(); i++) {
-              item = new OpenSocialAlbum(entry.getJSONObject(i).toString());
-              collection.add(item);
-            }
-          }else {
-            collection.add(new OpenSocialAlbum(obj.getString("entry")));
-          }
-          response.setCollection(collection);
-        }
-      }
-    }catch(JSONException e) {
-      e.printStackTrace();
-      System.out.println(data);
+  public static Request updateAlbum(Album album) throws RequestException {
+    if (album.getId() == null || album.getId().equals("")) {
+      throw new RequestException("Passed Album object does not have ID " +
+          "property set");
     }
+
+    Request request = new Request(restTemplate, "albums.update", "PUT");
+    request.addComponent(Request.ALBUM_ID, album.getId());
+    request.setGroupId(SELF);
+    request.setGuid(ME);
+
+    // Add REST payload parameters
+    request.addRestPayloadParameters(album);
+
+    return request;
+  }
+
+  /**
+   * Returns a new Request instance which, when submitted, deletes an existing
+   * album from the current viewer's library.
+   *
+   * @param  albumId ID of album to delete
+   * @return         new Request object to delete an existing album
+   */
+  public static Request deleteAlbum(String albumId) {
+    Request request = new Request(restTemplate, "albums.delete", "DELETE");
+    request.addComponent(Request.ALBUM_ID, albumId);
+    request.setGroupId(SELF);
+    request.setGuid(ME);
+
+    return request;
   }
 }

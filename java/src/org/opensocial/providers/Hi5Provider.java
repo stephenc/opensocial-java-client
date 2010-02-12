@@ -12,20 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.opensocial.providers;
 
-public class Hi5Provider extends OpenSocialProvider {
-  
+public class Hi5Provider extends Provider {
+
   public Hi5Provider() {
+    this(false);
+  }
+
+  public Hi5Provider(boolean useRest) {
     super();
-    
-    requestTokenUrl = "https://api.hi5.com/oauth/requestToken";
-    authorizeUrl = "https://login.hi5.com/oauth/authorize";
-    accessTokenUrl = "https://api.hi5.com/oauth/accessToken";
-    restEndpoint = "http://api.hi5.com/social/rest";
-    rpcEndpoint = "http://api.hi5.com/social/rpc";
-    providerName = "hi5";
-    signBodyHash = true;
-    isOpenSocial = true;
+
+    setName("Hi5");
+    setVersion("0.8");
+    setRestEndpoint("http://api.hi5.com/social/rest/");
+    if (!useRest) {
+      setRpcEndpoint("http://api.hi5.com/social/rpc/");
+    }
+    setAuthorizeUrl("https://login.hi5.com/oauth/authorize");
+    setAccessTokenUrl("https://api.hi5.com/oauth/accessToken");
+    setRequestTokenUrl("https://api.hi5.com/oauth/requestToken");
   }
 }

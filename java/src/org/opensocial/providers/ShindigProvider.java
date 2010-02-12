@@ -12,30 +12,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.opensocial.providers;
 
-/**
- * Note: The SHINDIG provider uses a local OAuth provider. To get this local
- * OAuth provider running on port 9090, do the following:
- * 1) Download and launch example service provider from oauth.net:
- *    a) svn co http://oauth.googlecode.com/svn/code/java java
- *    b) cd java/example/oauth-provider
- *    c) mvn jetty:run-war
- * 2) If your OAuth provider is not running on port 9090 or your Shindig
- *    instance is not running on port 8080, edit the port numbers below.
- */
-public class ShindigProvider extends OpenSocialProvider {
+public class ShindigProvider extends Provider {
 
   public ShindigProvider() {
+    this(false);
+  }
+
+  public ShindigProvider(boolean useRest) {
     super();
-    
-    requestTokenUrl = "http://localhost:9090/oauth-provider/request_token";
-    authorizeUrl = "http://localhost:9090/oauth-provider/authorize";
-    accessTokenUrl = "http://localhost:9090/oauth-provider/access_token";
-    restEndpoint = "http://localhost:8080/social/rest/";
-    rpcEndpoint = "http://localhost:8080/social/rpc/";
-    providerName = "localhost";
-    signBodyHash = true;
-    isOpenSocial = true;
+
+    setName("localhost");
+    setVersion("0.8");
+    setRestEndpoint("http://localhost:8080/social/rest/");
+    if (!useRest) {
+      setRpcEndpoint("http://localhost:8080/social/rpc/");
+    }
+    setAuthorizeUrl("http://localhost:9090/oauth-provider/authorize");
+    setAccessTokenUrl("http://localhost:9090/oauth-provider/access_token");
+    setRequestTokenUrl("http://localhost:9090/oauth-provider/request_token");
   }
 }
