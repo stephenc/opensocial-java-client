@@ -17,6 +17,7 @@ package org.opensocial.demos;
 
 import org.opensocial.auth.OAuth3LeggedScheme;
 import org.opensocial.providers.GoogleProvider;
+import org.opensocial.providers.YahooProvider;
 
 import java.io.IOException;
 
@@ -32,6 +33,16 @@ import javax.servlet.http.HttpSession;
 
 public class AuthFilter implements Filter {
 
+  private static final String SCHEME_KEY = "scheme";
+
+  private static final String GOOGLE_KEY = "anonymous";
+  private static final String GOOGLE_SECRET = "anonymous";
+
+  private static final String YAHOO_KEY =
+    "dj0yJmk9bWpERnlGZVkyVkxMJmQ9WVdrOVNVMUJTelpoTlRBbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD0xMQ--";
+  private static final String YAHOO_SECRET =
+    "2f23aee8443ae302efcdae489fd7141023bb116c";
+
   public void init(FilterConfig config) throws ServletException {
   }
 
@@ -41,31 +52,43 @@ public class AuthFilter implements Filter {
     HttpServletRequest request = (HttpServletRequest) req;
     HttpSession session = request.getSession();
 
-    OAuth3LeggedScheme authScheme = new OAuth3LeggedScheme(
-        new GoogleProvider(), "anonymous", "anonymous");
-    OAuth3LeggedScheme.Token requestToken =
-      (OAuth3LeggedScheme.Token) session.getAttribute("rt");
-    OAuth3LeggedScheme.Token accessToken =
-      (OAuth3LeggedScheme.Token) session.getAttribute("at");
-
+    String verifierParam = request.getParameter("oauth_verifier");
     String tokenParam = request.getParameter("oauth_token");
+    boolean authFlag = false;
 
-    if (accessToken != null) {
-      chain.doFilter(req, resp);
-    } else if (tokenParam != null && requestToken != null) {
-      try {
-        authScheme.setRequestToken(requestToken);
-        authScheme.requestAccessToken(tokenParam);
-        session.setAttribute("at", authScheme.getAccessToken());
-        response.sendRedirect(request.getRequestURL().toString());
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+    OAuth3LeggedScheme scheme = null;
+    if (session != null) {
+      scheme = (OAuth3LeggedScheme) session.getAttribute(SCHEME_KEY);
+    }
+
+    if (scheme == null) {
+      authFlag = true;
     } else {
+      if (scheme.getAccessToken() != null) {
+        chain.doFilter(req, resp);
+      } else if (scheme.getRequestToken() != null && tokenParam != null) {
+        try {
+          scheme.requestAccessToken(tokenParam, verifierParam);
+          session.setAttribute(SCHEME_KEY, scheme);
+          response.sendRedirect(request.getRequestURL().toString());
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+      } else {
+        authFlag = true;
+      }
+    }
+
+    if (authFlag) {
+      scheme = new OAuth3LeggedScheme(new GoogleProvider(), GOOGLE_KEY,
+          GOOGLE_SECRET);
+      //scheme = new OAuth3LeggedScheme(new YahooProvider(
+          //request.getRequestURL().toString()), YAHOO_KEY, YAHOO_SECRET);
+
       try {
         String authUrl =
-          authScheme.getAuthorizationUrl(request.getRequestURL().toString());
-        session.setAttribute("rt", authScheme.getRequestToken());
+          scheme.getAuthorizationUrl(request.getRequestURL().toString());
+        session.setAttribute(SCHEME_KEY, scheme);
         response.sendRedirect(authUrl);
       } catch (Exception e) {
         e.printStackTrace();

@@ -18,10 +18,11 @@ package org.opensocial.providers;
 import org.opensocial.Request;
 import org.opensocial.Response;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Provider {
+public class Provider implements Serializable {
 
   private String name;
   private String version;

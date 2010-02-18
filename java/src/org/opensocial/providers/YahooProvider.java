@@ -17,6 +17,8 @@ package org.opensocial.providers;
 
 public class YahooProvider extends Provider {
 
+  private String callback;
+
   public YahooProvider() {
     super();
 
@@ -27,5 +29,20 @@ public class YahooProvider extends Provider {
     setAccessTokenUrl("https://api.login.yahoo.com/oauth/v2/get_token");
     setRequestTokenUrl(
         "https://api.login.yahoo.com/oauth/v2/get_request_token");
+  }
+
+  public YahooProvider(String callback) {
+    this();
+
+    setCallback(callback);
+  }
+
+  public String getCallback() {
+    return callback;
+  }
+
+  public void setCallback(String callback) {
+    this.callback = callback;
+    addRequestTokenParameter("oauth_callback", callback);
   }
 }

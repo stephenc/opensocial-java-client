@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -46,7 +47,8 @@ import java.util.Map.Entry;
  * @author Jason Cooper
  *
  */
-public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
+public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme,
+    Serializable {
 
   public static class Token implements Serializable {
     public String token;
@@ -60,10 +62,16 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
     }
   }
 
+  private String key;
+  private String secret;
   private Provider provider;
-  private OAuthClient oAuthClient;
-  private Token requestToken;
+
   private Token accessToken;
+  private Token requestToken;
+
+  protected OAuth3LeggedScheme() {
+    super();
+  }
 
   /**
    * Creates and returns a new {@link OAuth3LeggedScheme} configured with the
@@ -80,30 +88,11 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
    */
   public OAuth3LeggedScheme(Provider provider, String consumerKey,
       String consumerSecret) {
-    this(provider, consumerKey, consumerSecret, new HttpClient());
-  }
-
-  /**
-   * Creates and returns a new {@link OAuth3LeggedScheme} configured with the
-   * passed {@link Provider}, key, and secret. The passed {@link HttpClient} is
-   * used to instantiate a new {@link OAuthClient} whose reference is stored.
-   *
-   * @param provider       OpenSocial provider that the current user should be
-   *                       authenticated against; must have the three required
-   *                       3-legged OAuth endpoints set (see GoogleProvider and
-   *                       MySpaceProvider for reference)
-   * @param consumerKey    key provided by an OpenSocial container after
-   *                       registering a new application
-   * @param consumerSecret secret provided by an OpenSocial container after
-   *                       registering a new application
-   * @param httpClient     HttpClient to use to execute the OAuth requests
-   */
-  public OAuth3LeggedScheme(Provider provider, String consumerKey,
-      String consumerSecret, HttpClient httpClient) {
     super(consumerKey, consumerSecret);
 
+    this.key = consumerKey;
+    this.secret = consumerSecret;
     this.provider = provider;
-    this.oAuthClient = new OAuthClient(httpClient);
   }
 
   public HttpMessage getHttpMessage(Provider provider, String method,
@@ -116,6 +105,9 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
       String url, Map<String, String> headers, byte[] body,
       Collection<? extends Entry> parameters) throws
       RequestException, IOException {
+    consumerKey = key;
+    consumerSecret = secret;
+
     OAuthAccessor accessor = getOAuthAccessor(accessToken.token,
         accessToken.secret);
     OAuthMessage message = new OAuthMessage(method, url, parameters,
@@ -168,13 +160,49 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
    */
   public void requestAccessToken(String oAuthToken) throws OAuthException,
       URISyntaxException, IOException {
+    requestAccessToken(oAuthToken, null);
+  }
+
+  /**
+   * Sends a signed request to the associated provider to exchange the passed
+   * request token for an access token; if successfully exchanged, this token
+   * can then be accessed using getAccessToken().
+   *
+   * @param oAuthToken    previously fetched request token to exchange for
+   *                      access token
+   * @param oAuthVerifier verification code returned by some providers, e.g.
+   *                      Yahoo
+   *
+   * @throws OAuthException
+   * @throws URISyntaxException
+   * @throws IOException
+   */
+  public void requestAccessToken(String oAuthToken, String oAuthVerifier)
+      throws OAuthException, URISyntaxException, IOException {
+    consumerKey = key;
+    consumerSecret = secret;
+
+    Set<Map.Entry<String, String>> parameters = null;
+    if (oAuthVerifier != null) {
+      Map<String, String> parameterMap = new HashMap<String, String>();
+      parameterMap.put("oauth_verifier", oAuthVerifier);
+      parameters = parameterMap.entrySet();
+    }
+
     OAuthAccessor accessor = getOAuthAccessor(oAuthToken,
         this.requestToken.secret);
-    OAuthMessage message = oAuthClient.invoke(accessor, "GET",
-        provider.getAccessTokenUrl(), null);
+    OAuthMessage message = getOAuthClient().invoke(accessor, "GET",
+        provider.getAccessTokenUrl(), parameters);
 
     accessToken = new Token(message.getToken(),
         message.getParameter(OAuth.OAUTH_TOKEN_SECRET));
+  }
+
+  /**
+   * Returns the associated provider.
+   */ 
+  public Provider getProvider() {
+    return provider;
   }
 
   /**
@@ -219,6 +247,9 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
 
   private Token requestRequestToken() throws OAuthException,
       URISyntaxException, IOException {
+    consumerKey = key;
+    consumerSecret = secret;
+
     if (provider.getRequestTokenUrl() == null) {
       return new Token();
     }
@@ -229,7 +260,7 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
     }
 
     OAuthAccessor accessor = getOAuthAccessor();
-    oAuthClient.getRequestToken(accessor, "GET", extraParams);
+    getOAuthClient().getRequestToken(accessor, "GET", extraParams);
 
     return new Token(accessor.requestToken, accessor.tokenSecret);
   }
@@ -252,5 +283,9 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme {
     accessor.tokenSecret = secret;
 
     return accessor;
+  }
+
+  private OAuthClient getOAuthClient() {
+    return new OAuthClient(new HttpClient());
   }
 }

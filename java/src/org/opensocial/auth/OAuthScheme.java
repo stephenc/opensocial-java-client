@@ -35,6 +35,9 @@ abstract class OAuthScheme {
   protected String consumerKey;
   protected String consumerSecret;
 
+  protected OAuthScheme() {
+  }
+
   public OAuthScheme(String consumerKey, String consumerSecret) {
     this.consumerKey = consumerKey;
     this.consumerSecret = consumerSecret;
