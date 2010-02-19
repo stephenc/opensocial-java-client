@@ -62,12 +62,9 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme,
     }
   }
 
-  private String key;
-  private String secret;
   private Provider provider;
-
-  private Token accessToken;
   private Token requestToken;
+  private Token accessToken;
 
   protected OAuth3LeggedScheme() {
     super();
@@ -90,8 +87,6 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme,
       String consumerSecret) {
     super(consumerKey, consumerSecret);
 
-    this.key = consumerKey;
-    this.secret = consumerSecret;
     this.provider = provider;
   }
 
@@ -105,9 +100,6 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme,
       String url, Map<String, String> headers, byte[] body,
       Collection<? extends Entry> parameters) throws
       RequestException, IOException {
-    consumerKey = key;
-    consumerSecret = secret;
-
     OAuthAccessor accessor = getOAuthAccessor(accessToken.token,
         accessToken.secret);
     OAuthMessage message = new OAuthMessage(method, url, parameters,
@@ -137,6 +129,7 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme,
   public String getAuthorizationUrl(String callbackUrl) throws OAuthException,
       URISyntaxException, IOException {
     requestToken = requestRequestToken();
+
     if (requestToken.token == null) {
       // This is an unregistered OAuth request
       return provider.getAuthorizeUrl() + "?oauth_callback=" + callbackUrl;
@@ -179,9 +172,6 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme,
    */
   public void requestAccessToken(String oAuthToken, String oAuthVerifier)
       throws OAuthException, URISyntaxException, IOException {
-    consumerKey = key;
-    consumerSecret = secret;
-
     Set<Map.Entry<String, String>> parameters = null;
     if (oAuthVerifier != null) {
       Map<String, String> parameterMap = new HashMap<String, String>();
@@ -247,9 +237,6 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme,
 
   private Token requestRequestToken() throws OAuthException,
       URISyntaxException, IOException {
-    consumerKey = key;
-    consumerSecret = secret;
-
     if (provider.getRequestTokenUrl() == null) {
       return new Token();
     }

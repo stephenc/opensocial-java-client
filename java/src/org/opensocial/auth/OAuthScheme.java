@@ -27,10 +27,11 @@ import org.opensocial.RequestException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 
-abstract class OAuthScheme {
+abstract class OAuthScheme implements Serializable {
 
   protected String consumerKey;
   protected String consumerSecret;
