@@ -25,6 +25,7 @@ import org.opensocial.RequestException;
 import org.opensocial.Response;
 import org.opensocial.auth.OAuth2LeggedScheme;
 import org.opensocial.models.MediaItem;
+import org.opensocial.models.Model;
 import org.opensocial.providers.MySpaceProvider;
 import org.opensocial.services.MediaItemsService;
 
@@ -75,6 +76,22 @@ public class MediaItemsTest {
       assertTrue(mediaItem.getThumbnailUrl() != null);
     } catch (Exception e) {
       fail("Exception occurred while processing request");
+    }
+  }
+
+  @Test
+  public void getSupportedVideoCategories() {
+    try {
+      Client client = new Client(new MySpaceProvider(),
+          new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
+      Request request = MediaItemsService.getSupportedVideoCategories();
+      Response response = client.send(request);
+
+      List<Model> categories = response.getEntries();
+      assertTrue(categories != null);
+      assertTrue(categories.size() > 0);
+    } catch (Exception e) {
+      fail("Exception occurred while processing request: " + e.getMessage());
     }
   }
 
@@ -165,7 +182,7 @@ public class MediaItemsTest {
   }
 
   /*@Test
-  public void uploadMediaItem() {
+  public void uploadImage() {
     File f = new File("/Users/jasonacooper/Desktop/logo.gif");
 
     try {
@@ -177,12 +194,38 @@ public class MediaItemsTest {
       mediaItem.setMimeType("image/gif");
       mediaItem.setType("IMAGE");
 
-      Request request = MediaItemsService.uploadMediaItem(mediaItem, f);
+      Request request = MediaItemsService.uploadImage(mediaItem, f);
       Response response = client.send(request);
 
       assertTrue(response.getStatusLink() != null);
     } catch (Exception e) {
       fail("Exception occurred while processing request");
+    }
+  }
+
+  @Test
+  public void uploadVideo() {
+    File f = new File("/Users/jasonacooper/Desktop/GS134M.mov");
+
+    try {
+      Client client = new Client(new MySpaceProvider(),
+          new OAuth2LeggedScheme(MYSPACE_KEY, MYSPACE_SECRET, MYSPACE_ID));
+
+      MediaItem mediaItem = new MediaItem();
+      mediaItem.setAlbumId("@videos");
+      mediaItem.setMimeType("video/quicktime");
+      mediaItem.setCaption("test caption");
+      mediaItem.setDescription("test description");
+      mediaItem.setField("tags", "test tag");
+      mediaItem.setField("msCategories", "11");
+      mediaItem.setField("language", "en-US");
+
+      Request request = MediaItemsService.uploadVideo(mediaItem, f);
+      Response response = client.send(request);
+
+      assertTrue(response.getStatusLink() != null);
+    } catch (Exception e) {
+      fail("Exception occurred while processing request: " + e.getMessage());
     }
   }
 
@@ -195,7 +238,7 @@ public class MediaItemsTest {
     mediaItem.setMimeType("image/gif");
     mediaItem.setType("IMAGE");
 
-    MediaItemsService.uploadMediaItem(mediaItem, f);
+    MediaItemsService.uploadImage(mediaItem, f);
   }
 
   @Test(expected=RequestException.class)
@@ -207,18 +250,6 @@ public class MediaItemsTest {
     mediaItem.setAlbumId("myspace.com.album.706610");
     mediaItem.setType("IMAGE");
 
-    MediaItemsService.uploadMediaItem(mediaItem, f);
-  }
-
-  @Test(expected=RequestException.class)
-  public void uploadMediaItemWithoutType() throws RequestException,
-      IOException {
-    File f = new File("/Users/jasonacooper/Desktop/logo.gif");
-
-    MediaItem mediaItem = new MediaItem();
-    mediaItem.setAlbumId("myspace.com.album.706610");
-    mediaItem.setMimeType("image/gif");
-
-    MediaItemsService.uploadMediaItem(mediaItem, f);
+    MediaItemsService.uploadImage(mediaItem, f);
   }*/
 }

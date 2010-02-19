@@ -161,6 +161,16 @@ public class Model extends JSONObject {
   }
 
   /**
+   * Sets the value of the specified field to the passed Object.
+   *
+   * @param fieldName name of field to set
+   * @param value     object to associate with passed field name
+   */
+  public void setField(String fieldName, Object value) {
+    put(fieldName, value);
+  }
+
+  /**
    * Adds the passed Object to the list field with the specified name.
    *
    * @param fieldName name of list field for which the passed item should be

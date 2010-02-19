@@ -16,8 +16,8 @@
 package org.opensocial.models;
 
 /**
- * OpenSocial model class representing a media item (image, movie, or
- * audio). For reference:
+ * OpenSocial model class representing a media item (image, movie, or audio).
+ * For reference:
  * http://wiki.opensocial.org/index.php?title=Opensocial.MediaItem_(v0.9)
  * http://www.opensocial.org/Technical-Resources/opensocial-spec-v09/REST-API.html#rfc.section.3.6.2
  *
@@ -25,12 +25,14 @@ package org.opensocial.models;
  */
 public class MediaItem extends Model {
 
-  private static final String ID = "id";
-  private static final String URL = "url";
-  private static final String TYPE = "type";
-  private static final String ALBUM_ID = "album_id";
-  private static final String MIME_TYPE = "mime_type";
-  private static final String THUMBNAIL_URL = "thumbnail_url";
+  public static final String ID = "id";
+  public static final String URL = "url";
+  public static final String TYPE = "type";
+  public static final String CAPTION = "caption";
+  public static final String ALBUM_ID = "album_id";
+  public static final String MIME_TYPE = "mime_type";
+  public static final String DESCRIPTION = "description";
+  public static final String THUMBNAIL_URL = "thumbnail_url";
 
   /**
    * Returns the media item's associated ID.
@@ -76,6 +78,20 @@ public class MediaItem extends Model {
    */
   public String getMimeType() {
     return getFieldAsString(MIME_TYPE);
+  }
+
+  /**
+   * Returns the media item's caption if set.
+   */
+  public String getCaption() {
+    return getFieldAsString(CAPTION);
+  }
+
+  /**
+   * Returns the media item's description if set.
+   */
+  public String getDescription() {
+    return getFieldAsString(DESCRIPTION);
   }
 
   /**
@@ -132,5 +148,23 @@ public class MediaItem extends Model {
    */
   public void setMimeType(String mimeType) {
     put(MIME_TYPE, mimeType);
+  }
+
+  /**
+   * Sets the media item's caption/title.
+   *
+   * @param caption caption/title to set
+   */
+  public void setCaption(String caption) {
+    setField(CAPTION, caption);
+  }
+
+  /**
+   * Sets the media item's description.
+   *
+   * @param description description to set
+   */
+  public void setDescription(String description) {
+    setField(DESCRIPTION, description);
   }
 }

@@ -75,6 +75,20 @@ public class MediaItemsService extends Service {
   }
 
   /**
+   * Returns a new Request instance which, when submitted, fetches all video
+   * categories supported by the container and makes this data available as a
+   * JSON array of JSON objects; currently works with MySpace only.
+   */
+  public static Request getSupportedVideoCategories() {
+    Request request = new Request(restTemplate, null, "GET");
+    request.addComponent(Request.ALBUM_ID, "@videos");
+    request.addComponent(Request.ITEM_ID, "@supportedcategories");
+    request.setGuid(ME);
+
+    return request;
+  }
+
+  /**
    * Returns a new Request instance which, when submitted, creates a new
    * media item in the specified viewer album.
    *
@@ -106,21 +120,79 @@ public class MediaItemsService extends Service {
 
   /**
    * Returns a new Request instance which, when submitted, uploads the
-   * specified file as a new media item in the specified viewer album.
+   * specified image file as a new media item in the specified viewer album.
    *
-   * @param item        MediaItem object specifying the media item parameters
-   *                    to pass into the request; album_id, type, and mime_type
-   *                    must be set
-   * @param content     local file to be uploaded as a new media item
-   * @return            new Request object to upload the specified file as a
-   *                    new media item
+   * @param item    MediaItem object specifying the media item parameters to
+   *                pass into the request; album_id and mime_type must be set
+   * @param content local image file to be uploaded as a new media item
+   * @return        new Request object to upload the specified image file as a
+   *                new media item
    *
    * @throws RequestException if the passed MediaItem object does not have its
-   *                          album_id, type, or mime_type properties set
+   *                          album_id or mime_type properties set
    * @throws IOException      if an I/O error occurs while reading the passed
    *                          file
    */
-  public static Request uploadMediaItem(MediaItem item, File content) throws
+  public static Request uploadImage(MediaItem item, File content) throws
+      RequestException, IOException {
+    Request request = uploadMediaItem(item, content);
+
+    // Add REST query string parameters
+    request.addRestQueryStringParameter("type", "image");
+
+    return request;
+  }
+
+  /**
+   * Returns a new Request instance which, when submitted, uploads the
+   * specified video file as a new media item in the specified viewer album
+   * ("@videos" for MySpace). MySpace requires the caption, description, tags,
+   * msCategories, and language fields to be set for the passed MediaItem.
+   *
+   * @param item    MediaItem object specifying the media item parameters to
+   *                pass into the request; album_id and mime_type must be set,
+   *                and MySpace also requires caption, description, tags,
+   *                msCategories, and language
+   * @param content local video file to be uploaded as a new media item
+   * @return        new Request object to upload the specified video file as a
+   *                new media item
+   *
+   * @throws RequestException if the passed MediaItem object does not have its
+   *                          album_id or mime_type properties set
+   * @throws IOException      if an I/O error occurs while reading the passed
+   *                          file
+   */
+  public static Request uploadVideo(MediaItem item, File content) throws
+      RequestException, IOException {
+    Request request = uploadMediaItem(item, content);
+
+    // Add REST query string parameters
+    request.addRestQueryStringParameter("type", "video");
+
+    if (item.getCaption() != null) {
+      request.addRestQueryStringParameter("caption", item.getCaption());
+    }
+    if (item.getDescription() != null) {
+      request.addRestQueryStringParameter("description",
+          item.getDescription());
+    }
+    if (item.hasField("msCategories")) {
+      request.addRestQueryStringParameter("msCategories",
+          item.getFieldAsString("msCategories"));
+    }
+    if (item.hasField("language")) {
+      request.addRestQueryStringParameter("language",
+          item.getFieldAsString("language"));
+    }
+    if (item.hasField("tags")) {
+      request.addRestQueryStringParameter("tags",
+          item.getFieldAsString("tags"));
+    }
+
+    return request;
+  }
+
+  private static Request uploadMediaItem(MediaItem item, File content) throws
       RequestException, IOException {
     if (item.getAlbumId() == null || item.getAlbumId().equals("")) {
       throw new RequestException("Passed MediaItem object does not have " +
@@ -130,13 +202,24 @@ public class MediaItemsService extends Service {
       throw new RequestException("Passed MediaItem object does not have " +
           "mime_type property set");
     }
-    if (item.getType() == null || item.getType().equals("")) {
-      throw new RequestException("Passed MediaItem object does not have " +
-          "type property set");
+
+    Request request = new Request(restTemplate, "mediaItems.create", "POST");
+    request.addComponent(Request.ALBUM_ID, item.getAlbumId());
+    request.setGroupId(SELF);
+    request.setGuid(ME);
+
+    byte[] bytes = getBytes(content);
+    if (bytes != null) {
+      request.setCustomPayload(bytes);
+      request.setContentType(item.getMimeType());
     }
 
+    return request;
+  }
+
+  private static byte[] getBytes(File file) throws IOException {
     byte[] buffer = new byte[1024];
-    InputStream in = new FileInputStream(content);
+    InputStream in = new FileInputStream(file);
     ByteArrayOutputStream out = new ByteArrayOutputStream();
 
     while(true) {
@@ -152,20 +235,7 @@ public class MediaItemsService extends Service {
     out.close();
     in.close();
 
-    Request request = new Request(restTemplate, "mediaItems.create", "POST");
-    request.addComponent(Request.ALBUM_ID, item.getAlbumId());
-    request.setGroupId(SELF);
-    request.setGuid(ME);
-
-    if (bytes != null) {
-      request.setCustomPayload(bytes);
-      request.setContentType(item.getMimeType());
-    }
-
-    // Add REST query string parameters
-    request.addRestQueryStringParameter("type", item.getType());
-
-    return request;
+    return bytes;
   }
 
   /**
