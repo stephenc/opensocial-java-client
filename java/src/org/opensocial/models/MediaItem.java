@@ -73,7 +73,6 @@ public class MediaItem extends Model {
 
   /**
    * Returns the MIME type of the media item's content.
-   * @return
    */
   public String getMimeType() {
     return getFieldAsString(MIME_TYPE);

@@ -52,7 +52,7 @@
     </javac>
   </target>
 
-  <target name="dist" depends="compile,javadoc" description="Create packaged distribution files">
+  <target name="dist" depends="compile" description="Create packaged distribution files">
     <mkdir dir="${dist.home}"/>
     <jar jarfile="${dist.home}/${app.name}.jar">
       <fileset dir="${src.home}" />
