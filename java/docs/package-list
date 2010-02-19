@@ -1,0 +1,9 @@
+org.opensocial
+org.opensocial.auth
+org.opensocial.http
+org.opensocial.models
+org.opensocial.models.myspace
+org.opensocial.parsers
+org.opensocial.providers
+org.opensocial.services
+org.opensocial.services.myspace
