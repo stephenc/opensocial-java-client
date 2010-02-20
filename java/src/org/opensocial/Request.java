@@ -18,6 +18,7 @@ package org.opensocial;
 import org.opensocial.models.Model;
 import org.opensocial.providers.Provider;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -326,7 +327,7 @@ public class Request {
     }
 
     addRestQueryStringParameter("fields", builder.toString());
-    addRpcPayloadParameter("fields", fields);
+    addRpcPayloadParameter("fields", Arrays.asList(fields));
   }
 
   /**
