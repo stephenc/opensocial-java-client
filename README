@@ -1,0 +1,61 @@
+OpenSocial Java Client API Source
+=======================================
+
+Table of Contents
+------------------
+  1. Package Contents
+  2. Requirements
+  3. Installation
+
+
+PACKAGE CONTENTS:
+-----------------
+OpenSocial Java client provides source code and libraries for interacting with
+server-to-server APIs for various OpenSocial providers. This package includes:
+  1. Java client source under "opensocial/java/src"
+  2. Java client dependencies under "opensocial/java/lib"
+  3. Java client demo applications under "opensocial/java/demos"
+  4. Android client source under "opensocial/android/src"
+  5. Android client demo applications under "opensocial/android/demos"
+
+
+REQUIREMENTS:
+-------------
+OpenSocial Java Client and Android Client depend on the following external
+libraries on top of a standard Java installation.
+  1. Java Development Kit version 5.0 or greater.  Latest version of JDK
+     available for download from http://java.sun.com.
+  2. commons-codec-1.3.jar -- Apache Commons codec library for Base64 encoding
+     and decoding. Latest version available for download from
+     http://commons.apache.org/codec/.
+  4. json_simple-1.1.jar -- Java toolkit for JSON encoding and decoding. Source
+     code available for download at http://code.google.com/p/json-simple/.
+  5. junit-4.5.jar -- Java unit testing framework necessary for building and
+     running test classes. Latest version available for download from
+     http://www.junit.org/.
+  6. oauth-20090825.jar -- OAuth signing and verification library. Latest
+     version available for download from http://code.google.com/p/oauth/.
+
+
+INSTALLATION:
+-------------
+  1. Check out source code from Subversion repository and navigate to the new
+     opensocial-java-client folder.
+  2. To recompile source files, execute the default ant target by typing "ant"
+     at the command line from the java directory.
+  3. To generate Java archive file for OpenSocial Client, execute the ant
+     "dist" target from the java directory. The JAR is built in java/dist.
+  4. To generate Javadocs for OpenSocial Client, execute the ant "javadoc"
+     target from the java directory. Docs are regenerated in java/docs.
+  5. To run the Android demo application:
+     a) First download the Android SDK from http://developer.android.com/sdk/.
+     b) Modify the "sdk-location" property in android/build.properties to point
+        to the location of your local SDK.
+     c) Modify the "sdk-location" property in the build.properties file of the
+        demo application under android/demos/ to point to the location of your
+        local SDK.
+     d) Launch the Android emulator.
+     e) Load the demo application by entering "ant install" at the command line
+        after changing to the from the demo directory.
+     f) Uninstall and reinstall the application by using the "uninstall" and
+        "reinstall" ant targets respectively.
