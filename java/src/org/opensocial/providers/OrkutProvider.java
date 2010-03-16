@@ -24,11 +24,15 @@ public class OrkutProvider extends Provider {
   public OrkutProvider(boolean useRest) {
     super();
 
-    setName("orkut");
+    setName("Orkut");
     setVersion("0.8");
     setRestEndpoint("http://www.orkut.com/social/rest/");
     if (!useRest) {
       setRpcEndpoint("http://www.orkut.com/social/rpc/");
     }
+    setAuthorizeUrl("https://www.google.com/accounts/OAuthAuthorizeToken");
+    setAccessTokenUrl("https://www.google.com/accounts/OAuthGetAccessToken");
+    setRequestTokenUrl("https://www.google.com/accounts/OAuthGetRequestToken");
+    addRequestTokenParameter("scope", "http://orkut.gmodules.com/social/rpc");
   }
 }

@@ -24,11 +24,16 @@ public class OrkutSandboxProvider extends Provider {
   public OrkutSandboxProvider(boolean useRest) {
     super();
 
-    setName("orkut");
+    setName("Orkut sandbox");
     setVersion("0.8");
     setRestEndpoint("http://sandbox.orkut.com/social/rest/");
     if (!useRest) {
       setRpcEndpoint("http://sandbox.orkut.com/social/rpc/");
     }
+    setAuthorizeUrl("https://www.google.com/accounts/OAuthAuthorizeToken");
+    setAccessTokenUrl("https://www.google.com/accounts/OAuthGetAccessToken");
+    setRequestTokenUrl("https://www.google.com/accounts/OAuthGetRequestToken");
+    addRequestTokenParameter("scope",
+        "http://sandbox.orkut.gmodules.com/social/rpc");
   }
 }
