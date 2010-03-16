@@ -15,7 +15,11 @@
 
 package org.opensocial.providers;
 
+import org.opensocial.Request;
+
 public class PlaxoProvider extends Provider {
+
+  private static final String REST_URL_TEMPLATE = "{guid}/{selector}/{pid}";
 
   public PlaxoProvider() {
     super();
@@ -26,5 +30,22 @@ public class PlaxoProvider extends Provider {
     setAuthorizeUrl("http://www.plaxo.com/oauth/authorize");
     setAccessTokenUrl("http://www.plaxo.com/oauth/activate");
     setRequestTokenUrl("http://www.plaxo.com/oauth/request");
+  }
+
+  @Override
+  public void preRequest(Request request) {
+    request.setRestUrlTemplate(REST_URL_TEMPLATE);
+
+    String guid = request.getComponent(Request.GUID);
+    if (!guid.equals("@me")) {
+      request.setPId(guid);
+      request.setGuid("@me");
+      request.setSelector("@all");
+    }
+
+    String selector = request.getComponent(Request.SELECTOR);
+    if (selector.equals("@friends")) {
+      request.setSelector("@all");
+    }
   }
 }

@@ -39,6 +39,7 @@ public class Request {
   public static final String GROUP_ID = "groupId";
   public static final String SELECTOR = "selector";
   public static final String APP_ID = "appid";
+  public static final String P_ID = "pid";
 
   public static final String ALBUM_ID = "albumId";
   public static final String ITEM_ID = "itemId";
@@ -180,6 +181,15 @@ public class Request {
   }
 
   /**
+   * Sets the REST URL template for this request.
+   *
+   * @param template REST URL template for this request
+   */
+  public void setRestUrlTemplate(String template) {
+    this.restUrlTemplate = template;
+  }
+
+  /**
    * Sets the request's guid component which is passed as a parameter when the
    * request is executed.
    *
@@ -222,6 +232,17 @@ public class Request {
   public void setSelector(String selector) {
     addComponent(SELECTOR, selector);
     addRpcPayloadParameter("groupId", selector);
+  }
+
+  /**
+   * Sets the request's pId (person ID) component which is passed as a
+   * parameter when the request is executed.
+   *
+   * @param pid OpenSocial pId to set
+   */
+  public void setPId(String pid) {
+    addComponent(P_ID, pid);
+    addRpcPayloadParameter("pid", pid);
   }
 
   /**
