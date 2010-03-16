@@ -33,6 +33,7 @@ import java.io.Serializable;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -128,7 +129,7 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme,
    */
   public String getAuthorizationUrl(String callbackUrl) throws OAuthException,
       URISyntaxException, IOException {
-    requestToken = requestRequestToken();
+    requestToken = requestRequestToken(callbackUrl);
 
     if (requestToken.token == null) {
       // This is an unregistered OAuth request
@@ -235,15 +236,20 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme,
     accessToken = token;
   }
 
-  private Token requestRequestToken() throws OAuthException,
+  private Token requestRequestToken(String callbackUrl) throws OAuthException,
       URISyntaxException, IOException {
     if (provider.getRequestTokenUrl() == null) {
       return new Token();
     }
 
-    Set<Map.Entry<String,String>> extraParams = null;
+    Map<String, String> params = new HashMap<String, String>();
+    params.put("oauth_callback", callbackUrl);
+
+    Set<Map.Entry<String,String>> extraParams = new HashSet();
+    extraParams.addAll(params.entrySet());
+
     if (provider.getRequestTokenParameters() != null) {
-      extraParams = provider.getRequestTokenParameters().entrySet();
+      extraParams.addAll(provider.getRequestTokenParameters().entrySet());
     }
 
     OAuthAccessor accessor = getOAuthAccessor();

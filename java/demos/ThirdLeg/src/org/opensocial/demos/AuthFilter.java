@@ -82,8 +82,8 @@ public class AuthFilter implements Filter {
     if (authFlag) {
       scheme = new OAuth3LeggedScheme(new GoogleProvider(), GOOGLE_KEY,
           GOOGLE_SECRET);
-      //scheme = new OAuth3LeggedScheme(new YahooProvider(
-          //request.getRequestURL().toString()), YAHOO_KEY, YAHOO_SECRET);
+      //scheme = new OAuth3LeggedScheme(new YahooProvider(), YAHOO_KEY,
+          //YAHOO_SECRET);
 
       try {
         String authUrl =
