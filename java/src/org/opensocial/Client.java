@@ -21,6 +21,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.opensocial.auth.AuthScheme;
 import org.opensocial.http.HttpClient;
+import org.opensocial.http.HttpClientImpl;
 import org.opensocial.http.HttpResponseMessage;
 import org.opensocial.providers.Provider;
 
@@ -63,9 +64,22 @@ public class Client {
    * @param authScheme AuthScheme to associate with new Client
    */
   public Client(Provider provider, AuthScheme authScheme) {
+    this(provider, authScheme, new HttpClientImpl());
+  }
+
+  /**
+   * Creates and returns a new {@link Client} associated with the passed
+   * {@link Provider} and {@link AuthScheme}.
+   *
+   * @param provider   Provider to associate with new Client
+   * @param authScheme AuthScheme to associate with new Client
+   * @param httpClient HttpClient to use with new Client
+   */
+  public Client(Provider provider, AuthScheme authScheme, HttpClient
+      httpClient) {
     this.provider = provider;
     this.authScheme = authScheme;
-    this.httpClient = new HttpClient();
+    this.httpClient = httpClient;
   }
 
   /**

@@ -26,6 +26,7 @@ import net.oauth.http.HttpMessage;
 
 import org.opensocial.RequestException;
 import org.opensocial.http.HttpClient;
+import org.opensocial.http.HttpClientImpl;
 import org.opensocial.providers.Provider;
 
 import java.io.IOException;
@@ -64,8 +65,9 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme,
   }
 
   private Provider provider;
-  private Token requestToken;
   private Token accessToken;
+  private Token requestToken;
+  private HttpClient httpClient;
 
   protected OAuth3LeggedScheme() {
     super();
@@ -86,9 +88,29 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme,
    */
   public OAuth3LeggedScheme(Provider provider, String consumerKey,
       String consumerSecret) {
+    this(provider, consumerKey, consumerSecret, new HttpClientImpl());
+  }
+
+  /**
+   * Creates and returns a new {@link OAuth3LeggedScheme} configured with the
+   * passed {@link Provider}, key, secret, and {@link HttpClient}.
+   *
+   * @param provider       OpenSocial provider that the current user should be
+   *                       authenticated against; must have the three required
+   *                       3-legged OAuth endpoints set (see GoogleProvider and
+   *                       MySpaceProvider for reference)
+   * @param consumerKey    key provided by an OpenSocial container after
+   *                       registering a new application
+   * @param consumerSecret secret provided by an OpenSocial container after
+   *                       registering a new application
+   * @param httpClient     HttpClient to use to execute the OAuth requests
+   */
+  public OAuth3LeggedScheme(Provider provider, String consumerKey,
+      String consumerSecret, HttpClient httpClient) {
     super(consumerKey, consumerSecret);
 
     this.provider = provider;
+    this.httpClient = httpClient;
   }
 
   public HttpMessage getHttpMessage(Provider provider, String method,
@@ -279,6 +301,10 @@ public class OAuth3LeggedScheme extends OAuthScheme implements AuthScheme,
   }
 
   private OAuthClient getOAuthClient() {
-    return new OAuthClient(new HttpClient());
+    if (httpClient == null) {
+      httpClient = new HttpClientImpl();
+    }
+
+    return new OAuthClient(httpClient);
   }
 }
