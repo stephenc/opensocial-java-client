@@ -179,10 +179,17 @@ public class Client {
   private Map<String, Response> submitRpc(Map<String, Request> requests) throws
       RequestException, IOException {
     Map<String, String> requestHeaders = new HashMap<String, String>();
-    requestHeaders.put(HttpMessage.CONTENT_TYPE, provider.getContentType());
+
+    if (requests.size() == 1 &&
+        requests.values().iterator().next().getContentType() != null) {
+      requestHeaders.put(HttpMessage.CONTENT_TYPE,
+          requests.values().iterator().next().getContentType());
+    } else {
+      requestHeaders.put(HttpMessage.CONTENT_TYPE, provider.getContentType());
+    }
 
     HttpMessage message = authScheme.getHttpMessage(provider, "POST",
-        buildRpcUrl(), requestHeaders, buildRpcPayload(requests));
+        buildRpcUrl(requests), requestHeaders, buildRpcPayload(requests));
 
     HttpResponseMessage responseMessage = httpClient.execute(message);
 
@@ -217,7 +224,7 @@ public class Client {
     return response;
   }
 
-  String buildRpcUrl() {
+  String buildRpcUrl(Map<String, Request> requests) {
     StringBuilder builder = new StringBuilder(provider.getRpcEndpoint());
 
     // Remove trailing forward slash
@@ -225,10 +232,20 @@ public class Client {
       builder.deleteCharAt(builder.length() - 1);
     }
 
+    if (requests.size() == 1) {
+      appendQueryString(builder,
+          requests.values().iterator().next().getRpcQueryStringParameters());
+    }
+
     return builder.toString();
   }
 
   byte[] buildRpcPayload(Map<String, Request> requests) {
+    if (requests.size() == 1 &&
+        requests.values().iterator().next().getCustomPayload() != null) {
+      return requests.values().iterator().next().getCustomPayload();
+    }
+
     JSONArray requestArray = new JSONArray();
     for (Map.Entry<String, Request> requestEntry : requests.entrySet()) {
       JSONObject request = new JSONObject();
@@ -275,26 +292,7 @@ public class Client {
 
     // Append query string parameters
     Map<String, String> parameters = request.getRestQueryStringParameters();
-    if (parameters != null && parameters.size() > 0) {
-      boolean runOnce = false;
-
-      for (Map.Entry<String, String> parameter: parameters.entrySet()) {
-        if (!runOnce) {
-          builder.append("?");
-          runOnce = true;
-        } else {
-          builder.append("&");
-        }
-
-        try {
-          builder.append(URLEncoder.encode(parameter.getKey(), "UTF-8"));
-          builder.append("=");
-          builder.append(URLEncoder.encode(parameter.getValue(), "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-          // Ignore
-        }
-      }
-    }
+    appendQueryString(builder, parameters);
 
     return builder.toString();
   }
@@ -318,6 +316,30 @@ public class Client {
       return payload.toJSONString().getBytes("UTF-8");
     } catch (UnsupportedEncodingException e) {
       return null;
+    }
+  }
+
+  private void appendQueryString(StringBuilder builder,
+      Map<String, String> parameters) {
+    if (parameters != null && parameters.size() > 0) {
+      boolean runOnce = false;
+
+      for (Map.Entry<String, String> parameter: parameters.entrySet()) {
+        if (!runOnce) {
+          builder.append("?");
+          runOnce = true;
+        } else {
+          builder.append("&");
+        }
+
+        try {
+          builder.append(URLEncoder.encode(parameter.getKey(), "UTF-8"));
+          builder.append("=");
+          builder.append(URLEncoder.encode(parameter.getValue(), "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+          // Ignore
+        }
+      }
     }
   }
 

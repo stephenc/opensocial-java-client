@@ -169,10 +169,6 @@ public abstract class AbstractRequestTest {
     if (provider.getRpcEndpoint() != null) {
       isRpc = true;
 
-      String method = "POST";
-
-      String url = client.buildRpcUrl();
-
       Map<String, String> headers = new HashMap<String, String>();
       headers.put(HttpMessage.CONTENT_TYPE, provider.getContentType());
 
@@ -181,6 +177,9 @@ public abstract class AbstractRequestTest {
       requests.put(KEY, request);
 
       byte[] body = client.buildRpcPayload(requests);
+
+      String method = "POST";
+      String url = client.buildRpcUrl(requests);
 
       message = client.getAuthScheme().getHttpMessage(provider, method, url,
           headers, body);

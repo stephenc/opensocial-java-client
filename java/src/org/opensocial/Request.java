@@ -58,6 +58,7 @@ public class Request {
   private Map<String, String> components;
   private Map<String, Object> rpcPayloadParameters;
   private Map<String, Object> restPayloadParameters;
+  private Map<String, String> rpcQueryStringParameters;
   private Map<String, String> restQueryStringParameters;
 
   private Class<? extends Model> modelClass;
@@ -153,6 +154,19 @@ public class Request {
     }
 
     return restPayloadParameters;
+  }
+
+  /**
+   * Returns the set of name-value pairs used by the {@link Client} to generate
+   * the query string that gets appended to the RPC endpoint; guaranteed not
+   * to be null.
+   */
+  public Map<String, String> getRpcQueryStringParameters() {
+    if (rpcQueryStringParameters == null) {
+      rpcQueryStringParameters = new HashMap<String, String>();
+    }
+
+    return rpcQueryStringParameters;
   }
 
   /**
@@ -401,6 +415,23 @@ public class Request {
       addRestPayloadParameter((String) modelEntry.getKey(),
           modelEntry.getValue());
     }
+  }
+
+  /**
+   * Adds a new parameter with the specified name and value to the set of
+   * parameters used by the {@link Client} to generate the query string that
+   * gets appended to the RPC endpoint; this method should not be called by
+   * clients directly unless custom requests are being executed.
+   *
+   * @param name  name of the RPC query string parameter to set
+   * @param value value of the specified RPC query string parameter
+   */
+  public void addRpcQueryStringParameter(String name, String value) {
+    if (rpcQueryStringParameters == null) {
+      rpcQueryStringParameters = new HashMap<String, String>();
+    }
+
+    rpcQueryStringParameters.put(name, value);
   }
 
   /**
