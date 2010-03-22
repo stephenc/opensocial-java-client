@@ -73,7 +73,13 @@
     <junit printsummary="false" haltonfailure="true">
       <formatter type="brief" usefile="false" />
       <batchtest>
-        <fileset dir="${build.home}" includes="**/*Test.class" />
+        <fileset dir="${build.home}">
+          <include name="**/*Test.class" />
+          <exclude name="**/AbstractRequestTest.class" />
+          <exclude name="**/BaseRequestTest.class" />
+          <include name="**/RequestTestSuite.class" />
+          <exclude name="**/RequestTestSuite$**Test.class" />
+        </fileset>
       </batchtest>
       <classpath>
         <fileset dir="${lib.home}">

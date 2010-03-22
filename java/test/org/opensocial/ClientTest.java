@@ -15,15 +15,15 @@
 
 package org.opensocial;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.Test;
 import org.opensocial.auth.OAuth2LeggedScheme;
 import org.opensocial.providers.OrkutProvider;
 import org.opensocial.providers.Provider;
 import org.opensocial.services.PeopleService;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ClientTest {
 

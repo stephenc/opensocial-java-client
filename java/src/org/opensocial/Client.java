@@ -217,7 +217,7 @@ public class Client {
     return response;
   }
 
-  private String buildRpcUrl() {
+  String buildRpcUrl() {
     StringBuilder builder = new StringBuilder(provider.getRpcEndpoint());
 
     // Remove trailing forward slash
@@ -228,7 +228,7 @@ public class Client {
     return builder.toString();
   }
 
-  private byte[] buildRpcPayload(Map<String, Request> requests) {
+  byte[] buildRpcPayload(Map<String, Request> requests) {
     JSONArray requestArray = new JSONArray();
     for (Map.Entry<String, Request> requestEntry : requests.entrySet()) {
       JSONObject request = new JSONObject();
@@ -252,7 +252,7 @@ public class Client {
     }
   }
 
-  private String buildRestUrl(Request request) {
+  String buildRestUrl(Request request) {
     StringBuilder builder = new StringBuilder(provider.getRestEndpoint());
     String[] components = request.getRestUrlTemplate().split("/");
 
@@ -299,7 +299,7 @@ public class Client {
     return builder.toString();
   }
 
-  private byte[] buildRestPayload(Request request) {
+  byte[] buildRestPayload(Request request) {
     if (request.getCustomPayload() != null) {
       return request.getCustomPayload();
     }
