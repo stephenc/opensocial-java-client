@@ -215,7 +215,7 @@ public class Response {
   private Long getLongValue(Object field) {
     if (field.getClass().equals(String.class)) {
       return Long.parseLong((String) field);
-    } else if (field.getClass().equals(Number.class)) {
+    } else if (field instanceof Number) {
       return (Long) field;
     }
 

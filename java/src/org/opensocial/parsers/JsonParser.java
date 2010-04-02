@@ -63,7 +63,7 @@ public class JsonParser implements Parser {
       Map rootObject = (Map) parser.parse(json, containerFactory);
 
       if (rootObject.containsKey("startIndex")) {
-        response.setTotalResults(rootObject.get("startIndex"));
+        response.setStartIndex(rootObject.get("startIndex"));
       }
       if (rootObject.containsKey("totalResults")) {
         response.setTotalResults(rootObject.get("totalResults"));
@@ -112,7 +112,7 @@ public class JsonParser implements Parser {
             response.setStartIndex(dataObject.get("startIndex"));
           }
           if (dataObject.containsKey("totalResults")) {
-            response.setStartIndex(dataObject.get("totalResults"));
+            response.setTotalResults(dataObject.get("totalResults"));
           }
           if (dataObject.containsKey("list")) {
             Object list = dataObject.get("list");
@@ -153,7 +153,7 @@ public class JsonParser implements Parser {
         Map rootObject = (Map) parser.parse(json, containerFactory);
 
         if (rootObject.containsKey("startIndex")) {
-          response.setTotalResults(rootObject.get("startIndex"));
+          response.setStartIndex(rootObject.get("startIndex"));
         }
         if (rootObject.containsKey("totalResults")) {
           response.setTotalResults(rootObject.get("totalResults"));
